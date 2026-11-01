@@ -486,6 +486,15 @@ label.f { display: grid; gap: 4px; font-size: 15.5px; color: var(--muted); }
   .toasts { right: 12px; left: 12px; bottom: 100px; }
 }
 @media (max-width: 860px) { .pip-panel { max-height: min(58vh, 520px); } .pip-form .input { font-size: 16px; } }
+/* ---------- printing ---------- */
+.pp-print { position: fixed; inset: 0; z-index: 300; overflow: auto; background: #fff; }
+@media print {
+  @page { size: A4; margin: 0; }
+  body.printing { background: #fff !important; }
+  body.printing > *:not(#pp-host) { display: none !important; }
+  body.printing #pp-host { position: static !important; overflow: visible !important; }
+  #pp-host .pp-page { page-break-after: always; break-after: page; }
+}
 
 </style>
 </head>
@@ -1812,6 +1821,424 @@ sections: [
 ] }
 };
 
+/* Extra hand-written practice papers (Papers 2 and 3) for every subject. Same marks and timings as the real exams. */
+var MOCKS_EXTRA = {};
+(function () {
+function M(q, o, a, m) { return { type: "mcq", m: m || 1, q: q, o: o, a: a }; }
+function S(m, q, a, ms) { return { type: "short", m: m, q: q, a: a, ms: ms || a[0] }; }
+function W(m, q, ms) { return { type: "written", m: m, q: q, ms: ms }; }
+function ENGW(topic) { return W(25, "Choose ONE task. Write about 250–300 words.\n\n" + topic, "Content and structure (13): purpose and audience clear; correct form features (headline/subheadings for article; address, date, subject, salutation and 'Yours faithfully/sincerely' for formal; warm greeting and close for informal); well-developed ideas; logical paragraphs with linking.\nStyle and accuracy (12): register suited to form; varied vocabulary and sentence structures; techniques used purposefully; accurate spelling, punctuation and grammar.\nBands: 22–25 excellent; 17–21 good; 12–16 competent; 6–11 basic; 0–5 limited."); }
+var PIC = "सुनिए और सही चित्र चुनिए।";
+
+/* ================= MATHEMATICS ================= */
+MOCKS_EXTRA.math = [
+{ title: "Mathematics Practice Paper 2", instructions: "Answer all questions. Show working for written questions. Calculators are not needed. Type indices like x^2 or x².", sections: [
+{ name: "Section A · Multiple choice", qs: [
+M("Which number has exactly 3 significant figures?", ["0.0305", "3050.1", "0.30", "30.05"], 0),
+M("0.4̇ (0.444…) written as a fraction is", ["4/10", "4/9", "2/5", "9/4"], 1),
+M("5⁻² =", ["−25", "−10", "1/25", "1/10"], 2),
+M("8^(2/3) =", ["4", "16/3", "2", "64"], 0),
+M("(x − 3)(x + 3) =", ["x² − 9", "x² + 9", "x² − 6x − 9", "x² − 3"], 0),
+M("Each exterior angle of a regular decagon (10 sides) is", ["36°", "72°", "144°", "18°"], 0),
+M("f(x) = 5 − 2x. f(−1) =", ["3", "7", "−7", "−3"], 1),
+M("Which graph fails the vertical line test?", ["y = 3", "y = x² − 4", "x = 2", "y = 2x"], 2)
+] },
+{ name: "Section B · Short answer", qs: [
+S(2, "Write 0.000 0607 in standard form. (Type like 6.07x10^-5)", ["6.07x10^-5", "6.07×10^-5", "6.07*10^-5", "6.07×10⁻⁵"], "6.07 × 10⁻⁵"),
+S(2, "Simplify √75 in the form a√b.", ["5√3", "5root3", "5sqrt3"], "√25 × √3 = 5√3"),
+S(2, "Rationalise 3/√6, simplifying fully.", ["√6/2", "(√6)/2", "0.5√6"], "3√6/6 = √6/2"),
+S(2, "Simplify (3a²b)³.", ["27a^6b^3", "27a⁶b³"], "27a⁶b³"),
+S(2, "Solve 2(3x + 1) = 5x + 9.", ["7", "x=7"], "6x + 2 = 5x + 9 → x = 7"),
+S(2, "Solve 4 − 3x ≥ 19. (Type like x<=2 or x>=2)", ["x<=-5", "x≤-5"], "−3x ≥ 15 → x ≤ −5"),
+S(2, "A right-angled triangle has shorter sides 5 cm and 12 cm. Find the hypotenuse in cm.", ["13", "13cm"], "√(25 + 144) = 13"),
+S(2, "Find the sum of the interior angles of a 12-sided polygon (degrees).", ["1800", "1800°"], "(12 − 2) × 180 = 1800°"),
+S(2, "f(x) = x² + 1 and g(x) = 2x. Find fg(3).", ["37"], "g(3) = 6, f(6) = 37")
+] },
+{ name: "Section C · Structured", qs: [
+W(4, "(a) Prove that 0.1̇8̇ (0.181818…) = 2/11. [3]\n(b) Is √0.81 rational? Explain. [1]", "(a) x = 0.1818… [1]; 100x = 18.18… so 99x = 18 [1]; x = 18/99 = 2/11 [1]\n(b) Yes—√0.81 = 0.9 = 9/10 [1]"),
+W(3, "Expand and simplify (2x + 5)² − (x − 1)(x + 1).", "4x² + 20x + 25 [1]; minus (x² − 1) [1]; = 3x² + 20x + 26 [1]"),
+W(3, "Make h the subject of A = 2πr² + 2πrh.", "A − 2πr² = 2πrh [1]; divide by 2πr [1]; h = (A − 2πr²)/(2πr) [1]"),
+W(3, "Solve −4 < 2x + 2 ≤ 8 and list the integer solutions.", "−6 < 2x ≤ 6 [1]; −3 < x ≤ 3 [1]; −2, −1, 0, 1, 2, 3 [1]"),
+W(4, "Town B is 15 km due north and 20 km due east of town A.\n(a) Find the distance AB. [2]\n(b) A boat sails from A on a bearing of 120°. What is the bearing of A from the boat? [1]\n(c) Which direction is the bearing 270°? [1]", "(a) √(225 + 400) [1] = 25 km [1]\n(b) 120 + 180 = 300° [1]\n(c) Due west [1]"),
+W(4, "f(x) = 2x − 3 and g(x) = x².\n(a) Find f(4). [1]\n(b) Find gf(x). [1]\n(c) Solve fg(x) = 15. [2]", "(a) 5 [1]\n(b) (2x − 3)² [1]\n(c) 2x² − 3 = 15 → x² = 9 [1]; x = 3 or x = −3 [1]"),
+W(3, "(a) A regular polygon has interior angles of 160°. How many sides does it have? [2]\n(b) Can a regular polygon have interior angles of 100°? Explain. [1]", "(a) Exterior = 20° [1]; 360 ÷ 20 = 18 sides [1]\n(b) No—exterior would be 80° and 360 ÷ 80 = 4.5 is not a whole number [1]")
+] }
+] },
+{ title: "Mathematics Practice Paper 3", instructions: "Answer all questions. Show working for written questions. Calculators are not needed. Type indices like x^2 or x².", sections: [
+{ name: "Section A · Multiple choice", qs: [
+M("Round 0.07849 to 2 significant figures.", ["0.078", "0.079", "0.08", "0.0785"], 0),
+M("Which number is rational?", ["√2", "π", "√36", "√10"], 2),
+M("10⁰ + 2⁻¹ =", ["1.5", "0.5", "10.5", "2"], 0),
+M("(4 × 10³) × (2 × 10⁻⁵) =", ["8 × 10⁻²", "8 × 10⁻¹⁵", "8 × 10⁸", "6 × 10⁻²"], 0),
+M("Factorise 9x² − 25.", ["(3x − 5)²", "(3x + 5)(3x − 5)", "(9x − 5)(x + 5)", "(3x − 25)(3x + 1)"], 1),
+M("A quadrilateral has angles 90°, 85°, 110° and x. x =", ["75°", "85°", "65°", "95°"], 0),
+M("The domain of f(x) = √(x − 2) is", ["x > 2", "x ≥ 2", "x ≤ 2", "all real x"], 1),
+M("Which function is many-to-one?", ["f(x) = x + 1", "f(x) = 3x", "f(x) = x²", "f(x) = x³"], 2)
+] },
+{ name: "Section B · Short answer", qs: [
+S(2, "Evaluate 81^(3/4).", ["27"], "⁴√81 = 3, 3³ = 27"),
+S(2, "Write 0.5̇ (0.555…) as a fraction.", ["5/9"], "9x = 5 → 5/9"),
+S(2, "Simplify √2 × √18.", ["6"], "√36 = 6"),
+S(2, "Calculate (2 × 10⁶) ÷ (5 × 10²) in standard form. (Type like 4x10^3)", ["4x10^3", "4×10^3", "4×10³"], "0.4 × 10⁴ = 4 × 10³"),
+S(2, "Expand (x + 7)(x − 2).", ["x^2+5x-14", "x²+5x-14"], "x² − 2x + 7x − 14 = x² + 5x − 14"),
+S(2, "Make a the subject of v² = u² + 2as.", ["(v^2-u^2)/(2s)", "(v²-u²)/(2s)", "(v^2-u^2)/2s", "(v²-u²)/2s"], "a = (v² − u²)/(2s)"),
+S(2, "Solve (2x − 1)/3 = 5.", ["8", "x=8"], "2x − 1 = 15 → x = 8"),
+S(2, "A 10 m ladder reaches 8 m up a wall. How far is its foot from the wall (m)?", ["6", "6m"], "√(100 − 64) = 6"),
+S(2, "f(x) = 3x + 1. Find x when f(x) = −8.", ["-3", "x=-3"], "3x = −9 → x = −3")
+] },
+{ name: "Section C · Structured", qs: [
+W(4, "(a) Simplify (5 + √3)(5 − √3). [2]\n(b) Hence rationalise 2/(5 + √3), simplifying fully. [2]", "(a) 25 − 3 [1] = 22 [1]\n(b) 2(5 − √3)/22 [1] = (5 − √3)/11 [1]"),
+W(3, "Simplify (16x⁸)^(1/2) ÷ 2x⁻¹.", "(16x⁸)^(1/2) = 4x⁴ [1]; 4x⁴ ÷ 2x⁻¹ [1] = 2x⁵ [1]"),
+W(3, "Use an identity to work out 997² without a calculator.", "(1000 − 3)² [1] = 1 000 000 − 6000 + 9 [1] = 994 009 [1]"),
+W(3, "Solve 3(x − 4) > 5x + 2 and describe the solution on a number line.", "3x − 12 > 5x + 2 → −2x > 14 [1]; x < −7 (sign reversed) [1]; open circle at −7, arrow to the left [1]"),
+W(4, "An isosceles triangle has two sides of 13 cm and a base of 10 cm.\n(a) Find its height. [2]\n(b) Find its area. [1]\n(c) Which property of isosceles triangles did you use in (a)? [1]", "(a) √(169 − 25) [1] = 12 cm [1]\n(b) ½ × 10 × 12 = 60 cm² [1]\n(c) The line from the apex to the midpoint of the base is perpendicular to the base [1]"),
+W(4, "f(x) = x − 5 and g(x) = 3x².\n(a) Find gf(7). [1]\n(b) Find fg(x). [1]\n(c) g has domain {−2, 0, 1}. State its range. [1]\n(d) Explain why g is not one-to-one. [1]", "(a) f(7) = 2, g(2) = 12 [1]\n(b) 3x² − 5 [1]\n(c) {0, 3, 12} [1]\n(d) g(−1) = g(1) = 3, two inputs share an output [1]"),
+W(3, "Lighthouse L is 9 km due north of harbour H. Ship S is 12 km due east of L.\n(a) Find the distance HS. [2]\n(b) Is the bearing of S from H more or less than 045°? Explain. [1]", "(a) √(81 + 144) [1] = 15 km [1]\n(b) More than 045°—S is further east (12) than north (9) of H [1]")
+] }
+] }
+];
+
+/* ================= ENGLISH ================= */
+MOCKS_EXTRA.eng = [
+{ title: "English Practice Paper 2", instructions: "Reading time comes first: read the passage carefully—answers are locked until writing time begins. Section A: answer all questions. Section B: answer ONE task.", sections: [
+{ name: "Section A · Reading (non-fiction)", passage: "Why Your Phone Should Go to Bed Before You Do\n(Practice passage written for this paper)\n\n[1] It is 11:40 on a school night. The lights are off, but a small blue glow lights up your face as you scroll through one more video, then another. Sound familiar? You are not alone. Surveys of teenagers regularly find that most keep their phones within reach while they sleep.\n\n[2] Scientists have a simple explanation for why this matters. Our bodies produce a hormone called melatonin that tells us it is time to sleep. Bright screens, especially their blue light, can delay its release. The result: we feel wide awake at exactly the moment we should be drifting off.\n\n[3] Teenagers need around eight to ten hours of sleep a night. Lose even one hour regularly and the effects pile up like unpaid bills: poor concentration, grumpy mornings, and memories that refuse to stick. Exams, sports and friendships all suffer.\n\n[4] The good news is that the fix is free. Charge your phone outside the bedroom. Switch screens off thirty minutes before bed and replace them with a book, a chat with your family or some quiet music. One student who tried this for a month said, 'I didn't realise how tired I was until I wasn't.'\n\n[5] Nobody is asking you to throw your phone away. But your phone does not need to stay up all night. Shouldn't you get the rest you deserve?", qs: [
+M("What is the main purpose of the passage?", ["To advertise a new phone", "To persuade teenagers to keep phones away at bedtime", "To explain how phones are made", "To describe a school timetable"], 1),
+M("According to paragraph 2, bright screens can", ["increase melatonin", "delay melatonin", "improve eyesight", "make phones charge faster"], 1),
+M("'pile up like unpaid bills' (paragraph 3) is an example of", ["a simile", "a statistic", "a rhetorical question", "alliteration"], 0),
+M("How much sleep does the writer say teenagers need?", ["5–6 hours", "6–7 hours", "8–10 hours", "12 hours"], 2),
+M("The writer's tone in the final paragraph is", ["angry and threatening", "friendly and encouraging", "sad and hopeless", "neutral and scientific"], 1),
+W(2, "Give two changes the writer suggests in paragraph 4.", "Any two [1 each]: charge the phone outside the bedroom; switch screens off 30 minutes before bed; read a book / talk with family / listen to quiet music instead."),
+W(3, "In your own words, explain why using a phone late at night makes it hard to fall asleep.", "Screens give off bright/blue light [1]; this delays the body's sleep hormone (melatonin) [1]; so you feel alert when you should be getting sleepy [1]. Copied wording: max 1."),
+W(2, "Identify one fact and one opinion from the passage.", "Fact, e.g. the body produces melatonin / teenagers need 8–10 hours [1]. Opinion, e.g. 'your phone does not need to stay up all night' / the fix is good news [1]."),
+W(6, "How does the writer use language and structure to persuade teenagers? Refer to the whole passage.", "Up to 2 marks per developed point (technique + evidence + effect), max 6. E.g. opening scene with second person 'you' makes it personal; rhetorical question 'Sound familiar?' / 'Shouldn't you…?' involves reader; scientific explanation adds authority; simile 'unpaid bills' shows effects build up; list of consequences; quotation from a student adds real experience; structure moves from problem → cause → effects → solution → call to action."),
+W(7, "Summarise the effects of late-night phone use AND the solutions the writer suggests. Write 60–80 words in your own words.", "Content (up to 5): delays sleep hormone; feel awake late; lose sleep; poor concentration; bad mood; weaker memory; exams/sports/friendships suffer; charge phone elsewhere; screens off 30 min before bed; read/talk/music instead. 1 mark each, max 5.\nWriting (up to 2): own words, concise, within limit.")
+] },
+{ name: "Section B · Writing (answer ONE task)", qs: [ENGW("(a) Non-fiction writing: Write an article for your school magazine titled 'Switch Off to Switch On', persuading students to build healthier screen habits.\n\n(b) Formal letter: Write a letter to your school principal suggesting a 'phone-free hour' during the school day, giving reasons.\n\n(c) Informal letter: Write a letter to a friend describing a week you spent without social media and what you learned.")] }
+] },
+{ title: "English Practice Paper 3", instructions: "Reading time comes first: read the passage carefully—answers are locked until writing time begins. Section A: answer all questions. Section B: answer ONE task.", sections: [
+{ name: "Section A · Reading (non-fiction)", passage: "The Day the River Came Back\n(Practice passage written for this paper)\n\n[1] Ten years ago, nobody in our town walked along the river. It was grey, it smelled of rotting rubbish, and plastic bags hung from the branches like sad flags. Parents told children to stay away.\n\n[2] Then a group of retired teachers, college students and shopkeepers decided they had seen enough. Every Sunday morning they met at the old bridge with gloves, sacks and a stubborn sense of hope. In the first month they pulled out more than two tonnes of waste.\n\n[3] Their work did not stay small for long. Local schools joined in. The town council installed nets to catch rubbish before it reached the water and fined factories that dumped waste. Volunteers planted native trees along the banks to hold the soil and give shade.\n\n[4] Today, the change is astonishing. Herons stand in the shallows. Families picnic on the grass. Last year, for the first time in decades, fishermen reported catching fish in the town stretch. Water tests show that the river is far cleaner than it was.\n\n[5] The volunteers are quick to say the job is not finished. Rubbish still floats down after heavy rain, and new buildings threaten the green banks. 'A river is not cleaned once,' one founder says. 'It is cared for every day.' Perhaps that is the real lesson: a place recovers when people decide it belongs to them.", qs: [
+M("What is the passage mainly about?", ["How rivers are formed", "How a community restored a polluted river", "Why fishing is banned", "The history of a bridge"], 1),
+M("'plastic bags hung from the branches like sad flags' is", ["a simile", "a metaphor", "a statistic", "an exaggeration only"], 0),
+M("Who started the clean-up?", ["The town council", "A factory owner", "Retired teachers, students and shopkeepers", "Fishermen"], 2),
+M("Which action did the town council take?", ["Built a new bridge", "Installed nets and fined factories", "Banned picnics", "Closed the schools"], 1),
+M("The final sentence of the passage expresses", ["a statistic", "a conclusion about community responsibility", "a complaint about volunteers", "a weather forecast"], 1),
+W(2, "Give two signs, from paragraph 4, that the river has recovered.", "Any two [1 each]: herons in the shallows; families picnic; fish caught again; water tests show it is cleaner."),
+W(3, "In your own words, explain why the volunteers say 'the job is not finished'.", "Rubbish still arrives after heavy rain [1]; new buildings threaten the banks [1]; caring for a river must continue all the time [1]."),
+W(2, "Identify one fact and one opinion from the passage.", "Fact, e.g. more than two tonnes of waste removed in the first month [1]. Opinion, e.g. 'the change is astonishing' / the real lesson is… [1]."),
+W(6, "How does the writer use language to show how much the river has changed? Refer to paragraphs 1 and 4.", "Up to 2 marks per developed point, max 6. E.g. negative sensory details 'grey', 'smelled of rotting rubbish' vs lively images 'herons stand', 'families picnic'; simile 'sad flags' personifies decay; 'astonishing' signals dramatic change; contrast 'nobody walked' vs families enjoying it; evidence 'for the first time in decades' emphasises scale."),
+W(7, "Summarise HOW the river was cleaned up. Write 60–80 words in your own words.", "Content (up to 5): weekly volunteer clean-ups; removed large amounts of waste; schools joined; council nets; fines for factories; trees planted to hold soil/give shade; ongoing care. 1 mark each, max 5.\nWriting (up to 2): own words, concise, within limit.")
+] },
+{ name: "Section B · Writing (answer ONE task)", qs: [ENGW("(a) Non-fiction writing: Write a speech for your school assembly encouraging students to look after a local park, river or green space.\n\n(b) Formal letter: Write a letter to your town council asking for more dustbins and recycling points near a local park.\n\n(c) Informal letter: Write a letter to a cousin describing a volunteer activity you took part in and inviting them to join next time.")] }
+] }
+];
+
+/* ================= SCIENCE ================= */
+MOCKS_EXTRA.sci = [
+{ title: "Science Practice Paper 2", instructions: "Answer all questions. Use g = 10 N/kg. Write chemical formulae with normal digits (e.g. H2O).", sections: [
+{ name: "Section A · Multiple choice", qs: [
+M("An element in period 3 has how many occupied electron shells?", ["2", "3", "4", "8"], 1),
+M("Which element has a valency of 4?", ["Sodium", "Carbon", "Oxygen", "Neon"], 1),
+M("Down Group VII, the melting point of the halogens", ["decreases", "increases", "stays the same", "becomes zero"], 1),
+M("Potassium reacts with water to form potassium hydroxide and", ["oxygen", "hydrogen", "chlorine", "carbon dioxide"], 1),
+M("Sulfur (group VI) forms the ion", ["S²⁺", "S⁻", "S²⁻", "S⁶⁺"], 2),
+M("Which compound is ionic?", ["H₂O", "CO₂", "MgO", "CH₄"], 2),
+M("Which molecule contains a double bond?", ["H₂", "Cl₂", "O₂", "HCl"], 2),
+M("In photosynthesis, energy is transferred from", ["chemical to light", "light to chemical", "heat to light", "chemical to heat"], 1),
+M("Which reagent tests for starch?", ["Benedict's solution", "Iodine", "Limewater", "Ethanol"], 1),
+M("Most stomata are found in the", ["upper epidermis", "lower epidermis", "palisade layer", "xylem"], 1),
+M("Loss of water vapour from leaves is called", ["translocation", "transpiration", "respiration", "osmosis"], 1),
+M("Yellowing between the veins of leaves shows a lack of", ["nitrate", "phosphate", "magnesium", "potassium"], 2),
+M("The mass of 1 cm³ of water is", ["1 g", "10 g", "0.1 g", "100 g"], 0),
+M("Heat moves through liquids and gases mainly by", ["conduction", "convection", "radiation", "reflection"], 1),
+M("Which surface is the best reflector of thermal radiation?", ["Matt black", "Dull grey", "Shiny silver", "Dark green"], 2)
+] },
+{ name: "Section B · Short answer", qs: [
+S(1, "Give the electron arrangement of magnesium (atomic number 12).", ["2,8,2", "2.8.2", "282"], "2,8,2"),
+S(1, "Write the formula of potassium chloride.", ["kcl"], "KCl"),
+S(2, "Write the formula of aluminium chloride.", ["alcl3", "alcl₃"], "Al³⁺ with three Cl⁻ → AlCl₃"),
+S(1, "How many covalent bonds are in one ammonia (NH3) molecule?", ["3", "three"], "3"),
+S(1, "Name the gas given off in photosynthesis.", ["oxygen", "o2"], "Oxygen"),
+S(2, "An object has mass 250 g and volume 100 cm³. Find its density in g/cm³.", ["2.5", "2.5g/cm3"], "250 ÷ 100 = 2.5 g/cm³"),
+S(2, "A liquid has density 0.8 g/cm³. What volume (cm³) has a mass of 40 g?", ["50", "50cm3"], "V = m ÷ ρ = 40 ÷ 0.8 = 50 cm³"),
+S(1, "Find the weight in N of a 12 kg mass on Earth.", ["120", "120n"], "12 × 10 = 120 N"),
+S(2, "A machine takes in 400 J and wastes 100 J. Find its efficiency in %.", ["75", "75%"], "Useful = 300 J; 300 ÷ 400 × 100 = 75%"),
+S(1, "Forces of 30 N right and 18 N left act on a trolley. Give the size of the resultant in N.", ["12", "12n"], "12 N (to the right)"),
+S(1, "Will a block of density 1.3 g/cm³ float in water? (yes/no)", ["no"], "No—1.3 > 1 g/cm³")
+] },
+{ name: "Section C · Structured", qs: [
+W(5, "(a) Describe how the colour and state of the halogens change down Group VII. [2]\n(b) Will bromine displace iodine from potassium iodide? Explain and write a word equation. [3]", "(a) Colours get darker [1]; change from gas (chlorine) to liquid (bromine) to solid (iodine) [1].\n(b) Yes—bromine is more reactive than iodine [1]; bromine + potassium iodide [1] → potassium bromide + iodine [1]."),
+W(5, "(a) Describe how magnesium oxide forms from magnesium (2,8,2) and oxygen (2,6) atoms. [3]\n(b) Explain why magnesium oxide conducts electricity when molten but not when solid. [2]", "(a) Magnesium loses two electrons [1]; oxygen gains two electrons [1]; Mg²⁺ and O²⁻ ions attract strongly [1].\n(b) In the solid the ions are fixed [1]; when molten the ions are free to move and carry charge [1]."),
+W(4, "(a) State the function of the palisade layer and the spongy layer in a leaf. [2]\n(b) Explain how guard cells help a plant save water during drought. [2]", "(a) Palisade: main site of photosynthesis, many chloroplasts [1]; spongy: air spaces for gas exchange [1].\n(b) Guard cells close the stomata [1]; reducing water vapour lost by transpiration [1]."),
+W(6, "A student measured oxygen bubbles from pondweed at different temperatures:\n10 °C → 8; 20 °C → 18; 30 °C → 30; 40 °C → 34; 50 °C → 6 bubbles/min.\n(a) Describe the trend. [2]\n(b) Explain the result at 50 °C. [2]\n(c) Name the independent variable. [1]\n(d) Give one variable that must be controlled. [1]", "(a) Rate increases from 10 °C to 40 °C [1], then falls sharply at 50 °C [1].\n(b) Enzymes are denatured at high temperature [1], so photosynthesis slows [1].\n(c) Temperature [1].\n(d) Light intensity / CO₂ concentration / same pondweed / time [1]."),
+W(5, "(a) Name two processes that release carbon dioxide into the air. [2]\n(b) Explain how burning fossil fuels affects the climate. [3]", "(a) Any two: respiration, combustion, decomposition [2].\n(b) Burning releases stored carbon as CO₂ [1]; more CO₂ traps more heat (greenhouse effect) [1]; leading to global warming / climate change [1]."),
+W(5, "(a) Describe how to find the volume of an irregular stone using a measuring cylinder. [3]\n(b) Explain why the inside walls of a vacuum flask are silvered. [2]", "(a) Part-fill and read the water level [1]; lower the stone in fully [1]; volume = new reading − first reading [1].\n(b) Shiny surfaces reflect thermal radiation [1]; so less heat escapes/enters by radiation [1].")
+] }
+] },
+{ title: "Science Practice Paper 3", instructions: "Answer all questions. Use g = 10 N/kg. Write chemical formulae with normal digits (e.g. H2O).", sections: [
+{ name: "Section A · Multiple choice", qs: [
+M("The atomic number of an element tells you the number of", ["neutrons", "protons", "shells", "molecules"], 1),
+M("Group 0 elements are", ["very reactive metals", "unreactive gases", "liquid halogens", "alkali metals"], 1),
+M("Which Group I metal is the most reactive?", ["Lithium", "Sodium", "Potassium", "Rubidium"], 3),
+M("At room temperature chlorine is a", ["red-brown liquid", "yellow-green gas", "grey solid", "colourless liquid"], 1),
+M("The charge on an aluminium ion is", ["+1", "+2", "+3", "−3"], 2),
+M("The bonding in sodium chloride is", ["covalent", "ionic", "metallic", "hydrogen bonding"], 1),
+M("Simple molecular substances have", ["high melting points", "low melting points", "free ions", "giant lattices"], 1),
+M("The raw materials for photosynthesis are", ["glucose and oxygen", "carbon dioxide and water", "oxygen and water", "starch and water"], 1),
+M("Photosynthesis takes place in the", ["nucleus", "mitochondria", "chloroplasts", "cell wall"], 2),
+M("Phloem transports", ["water", "minerals only", "sugars", "oxygen"], 2),
+M("Water enters root hair cells by", ["diffusion of gas", "osmosis", "active transport only", "convection"], 1),
+M("Stunted growth and yellow older leaves show a lack of", ["nitrates", "magnesium", "phosphates", "iron"], 0),
+M("The unit of force is the", ["joule", "newton", "watt", "kilogram"], 1),
+M("Which energy transfer needs no medium?", ["Conduction", "Convection", "Radiation", "Evaporation"], 2),
+M("A sea breeze is an example of", ["conduction", "convection", "radiation", "reflection"], 1)
+] },
+{ name: "Section B · Short answer", qs: [
+S(1, "Give the electron arrangement of argon (atomic number 18).", ["2,8,8", "2.8.8", "288"], "2,8,8"),
+S(1, "What is the valency of chlorine?", ["1", "one"], "1"),
+S(2, "Write the formula of magnesium chloride.", ["mgcl2", "mgcl₂"], "Mg²⁺ with two Cl⁻ → MgCl₂"),
+S(1, "Write the ion formed by nitrogen, with its charge (e.g. O2-).", ["n3-", "n^3-", "n³⁻"], "N³⁻"),
+S(1, "Name the green pigment in chloroplasts.", ["chlorophyll"], "Chlorophyll"),
+S(2, "A 5 cm × 2 cm × 2 cm block has mass 180 g. Find its density in g/cm³.", ["9", "9g/cm3"], "V = 20 cm³; 180 ÷ 20 = 9 g/cm³"),
+S(2, "Oil has density 0.9 g/cm³. Find the mass in g of 30 cm³ of oil.", ["27", "27g"], "0.9 × 30 = 27 g"),
+S(1, "A cyclist pushes with 50 N and friction is 20 N. Find the resultant force in N.", ["30", "30n"], "50 − 20 = 30 N"),
+S(2, "A lamp gives 150 J of light from 600 J of electrical energy. Find its efficiency in %.", ["25", "25%"], "150 ÷ 600 × 100 = 25%"),
+S(1, "Find the weight in N of a 0.5 kg mass on Earth.", ["5", "5n"], "0.5 × 10 = 5 N"),
+S(1, "How many covalent bonds does carbon form in methane?", ["4", "four"], "4")
+] },
+{ name: "Section C · Structured", qs: [
+W(5, "(a) Sodium is 2,8,1 and chlorine is 2,8,7. Explain why they are in the same period. [2]\n(b) Describe and explain the trend in atomic size across a period. [3]", "(a) Both have three occupied shells [1]; period number = number of shells [1].\n(b) Atoms get smaller across a period [1]; more protons in the nucleus [1]; pull the electrons closer (same number of shells) [1]."),
+W(5, "(a) Describe the bonding in a methane (CH4) molecule. [2]\n(b) Compare the melting points of methane and sodium chloride and explain the difference. [3]", "(a) Carbon shares one pair of electrons with each of four hydrogen atoms [1]; four single covalent bonds [1].\n(b) Methane low, sodium chloride high [1]; methane has weak forces between molecules [1]; NaCl has strong ionic bonds throughout a giant lattice [1]."),
+W(5, "(a) Give three differences between xylem and phloem. [3]\n(b) Explain why plants wilt on a hot, windy day. [2]", "(a) Any three [1 each]: xylem carries water/minerals, phloem carries sugars; xylem one way (up), phloem both ways; xylem dead cells, phloem living; xylem has lignin.\n(b) Transpiration is faster [1]; water is lost faster than it is absorbed, so cells lose firmness [1]."),
+W(4, "(a) A farmer's crops have purple leaves and poor roots. Name the missing mineral and suggest what the farmer should do. [2]\n(b) Explain why plants need nitrates. [2]", "(a) Phosphate [1]; add a phosphate/NPK fertiliser [1].\n(b) To make amino acids/proteins [1]; needed for growth [1]."),
+W(6, "A skydiver of mass 60 kg is falling at a constant speed.\n(a) Describe the forces acting on her. [2]\n(b) Calculate her weight. [1]\n(c) Explain why opening the parachute slows her down. [3]", "(a) Weight down and air resistance up [1]; balanced/equal [1].\n(b) 60 × 10 = 600 N [1].\n(c) Larger surface area [1]; air resistance increases and becomes greater than weight [1]; resultant force upwards so she decelerates (until forces balance again) [1]."),
+W(5, "(a) A block has mass 450 g and volume 500 cm³. Calculate its density and say whether it floats in water. [2]\n(b) Explain how a steel ship floats. [3]", "(a) 0.9 g/cm³ [1]; floats because it is less dense than water [1].\n(b) Hollow hull contains air [1]; average density less than water [1]; displaces enough water for upthrust to balance weight [1].")
+] }
+] }
+];
+})();
+
+(function () {
+function M(q, o, a, m) { return { type: "mcq", m: m || 1, q: q, o: o, a: a }; }
+function S(m, q, a, ms) { return { type: "short", m: m, q: q, a: a, ms: ms || a[0] }; }
+function W(m, q, ms) { return { type: "written", m: m, q: q, ms: ms }; }
+function P(say, opts, a) { return { type: "mcq", m: 1, listen: say, q: "सुनिए और सही चित्र चुनिए।", o: opts, a: a, pic: true }; }
+var EXT = "Level 4 (7–8): balanced, well-supported argument with a clear, justified conclusion.\nLevel 3 (5–6): explains both sides with accurate detail; some judgement.\nLevel 2 (3–4): describes events with some detail.\nLevel 1 (1–2): basic, general points.\n";
+
+/* ================= HUMANITIES ================= */
+MOCKS_EXTRA.hum = [
+{ title: "Humanities Practice Paper 2", instructions: "Unit: Swaraj to Samvidhaan – The Birth of a Nation. Answer all questions. Use dates and named examples.", sections: [
+{ name: "Section A · Multiple choice", qs: [
+M("Gandhi's first satyagraha in India was at", ["Kheda", "Champaran", "Dandi", "Bardoli"], 1),
+M("The Jallianwala Bagh massacre took place in", ["Lahore", "Amritsar", "Delhi", "Lucknow"], 1),
+M("The Khilafat Movement was led by", ["the Ali brothers", "Motilal Nehru and C.R. Das", "Bhagat Singh", "Subhas Chandra Bose"], 0),
+M("The Salt March ended at", ["Sabarmati", "Bombay", "Dandi", "Ahmedabad"], 2),
+M("The Quit India Movement began in", ["1930", "1939", "1942", "1947"], 2),
+M("Who was given the title 'Sardar'?", ["Vallabhbhai Patel", "Jawaharlal Nehru", "C. Rajagopalachari", "Baba Ramchandra"], 0)
+] },
+{ name: "Section B · Short answer", qs: [
+W(2, "What is ahimsa? Give one example of how Gandhi used it.", "Non-violence in thought, word and action [1]; e.g. calling off Non-Cooperation after Chauri Chaura / satyagrahis not hitting back at Dharasana [1]."),
+W(2, "Why did Gandhi support the Khilafat Movement?", "To bring Hindus and Muslims together in one movement [1]; to widen support for Non-Cooperation against British rule [1]."),
+W(2, "Why did tea-garden workers in Assam leave the plantations in 1921?", "They wanted freedom to move/return to their villages [1]; they believed 'Gandhi Raj' was coming and linked it to their own grievances [1]."),
+W(2, "What was Purna Swaraj and when was it declared?", "Complete independence from British rule [1]; Lahore session of Congress, December 1929 [1]."),
+W(2, "Name two places where parallel governments were set up during Quit India.", "Any two [1 each]: Satara, Tamluk (Midnapore), Ballia.")
+] },
+{ name: "Section C · Source-based question", passage: "Source A (practice source written for this paper)\nA description of a town square in 1921:\n\n\"By evening the square was full. Students, shopkeepers and farmers carried bundles of foreign cloth—shirts, saris, even fine coats—and threw them onto a great pile. A young volunteer lit the fire. As the flames rose, someone began to sing, and soon the whole crowd joined in. An old weaver standing nearby wiped his eyes and said that, for the first time in years, people would buy the cloth he made.\"", qs: [
+W(2, "What does Source A tell you about the Non-Cooperation Movement?", "People from different groups took part (students, shopkeepers, farmers) [1]; they boycotted/burned foreign cloth, supporting swadeshi / mood of enthusiasm [1]."),
+W(3, "How useful is Source A to a historian studying the Non-Cooperation Movement?", "Useful—shows actions and feelings at the time, e.g. bonfire, singing [1]; limitation—one town only / may exaggerate / unknown author [1]; supported with own knowledge, e.g. foreign cloth imports fell 1921–22 [1]."),
+W(3, "Using your own knowledge, explain why boycotting foreign cloth was an important part of the movement.", "Hurt British trade/economy [1]; encouraged Indian weavers and khadi (swadeshi) [1]; something ordinary people could do, building mass participation [1].")
+] },
+{ name: "Section D · Extended response", qs: [
+W(8, "'Gandhi's non-violent methods were the main reason the freedom movement became a mass movement.' How far do you agree? Explain your answer.", EXT + "For: satyagraha let peasants, women and workers join safely; simple actions like spinning, boycotts and salt-making. Against/other factors: local grievances (Awadh peasants, Assam workers, tribal forest laws); anger at Rowlatt Act and Jallianwala Bagh; Khilafat unity; regional leaders such as Patel, Khan Abdul Ghaffar Khan.")] }
+] },
+{ title: "Humanities Practice Paper 3", instructions: "Unit: Swaraj to Samvidhaan – The Birth of a Nation. Answer all questions. Use dates and named examples.", sections: [
+{ name: "Section A · Multiple choice", qs: [
+M("Gandhi wrote Hind Swaraj in", ["1909", "1915", "1920", "1930"], 0),
+M("The Rowlatt Act was passed in", ["1915", "1919", "1922", "1929"], 1),
+M("Chauri Chaura is in the district of", ["Gorakhpur", "Amritsar", "Kheda", "Satara"], 0),
+M("The Gandhi–Irwin Pact was signed in", ["1928", "1930", "1931", "1942"], 2),
+M("The Cripps Mission came to India in", ["1919", "1930", "1942", "1946"], 2),
+M("Usha Mehta is remembered for", ["leading the Dandi March", "running a secret Congress Radio", "the Khilafat Movement", "founding Jamia Millia Islamia"], 1)
+] },
+{ name: "Section B · Short answer", qs: [
+W(2, "Explain swadeshi and give one example.", "Using goods made in India instead of foreign goods [1]; e.g. wearing khadi / spinning on the charkha / bonfires of foreign cloth [1]."),
+W(2, "Give two effects of the Jallianwala Bagh massacre.", "Any two [1 each]: widespread anger across India; loss of faith in British justice; Rabindranath Tagore returned his knighthood; strengthened support for Non-Cooperation."),
+W(2, "Who was Alluri Sitarama Raju and what did he oppose?", "Leader of tribal people in the Gudem Hills of Andhra [1]; opposed British forest laws that restricted their use of forests [1]."),
+W(2, "Why did Gandhi choose to walk to Dandi over 24 days instead of travelling quickly?", "The long march attracted publicity/news coverage [1]; people along the route joined and support grew [1]."),
+W(2, "Give two ways the Quit India Movement was different from the Non-Cooperation Movement.", "Any two [1 each]: demanded immediate independence; mostly leaderless after arrests; more violent incidents; underground activity and parallel governments; happened during World War II.")
+] },
+{ name: "Section C · Source-based question", passage: "Source A (practice source written for this paper)\nAn imagined letter from a student volunteer, August 1942:\n\n\"Dear Brother, the leaders were taken away before sunrise, but nobody went home. We gathered at the college gate and marched to the post office carrying the tricolour. The police chased us, so we split into small groups and slipped through the lanes. Tonight we will listen to the secret radio and decide what to do next. I am frightened, but I am not sorry.\"", qs: [
+W(2, "What does Source A suggest about how people continued the movement after the leaders were arrested?", "People kept protesting without leaders, e.g. marches with the flag [1]; they organised secretly/underground, e.g. secret radio, small groups [1]."),
+W(3, "How useful is Source A for studying the Quit India Movement?", "Useful—shows feelings and methods of young volunteers [1]; limitation—imagined/one person's view, cannot show the whole country [1]; supported with own knowledge, e.g. Congress Radio, mass arrests [1]."),
+W(3, "Using your own knowledge, explain why the British arrested Congress leaders so quickly in August 1942.", "Britain was fighting World War II and feared disruption [1]; the 'Do or Die' call threatened control of India [1]; arresting leaders early aimed to stop the movement spreading [1].")
+] },
+{ name: "Section D · Extended response", qs: [
+W(8, "'The Salt March was the most successful campaign led by Gandhi.' How far do you agree? Explain your answer.", EXT + "For: united all classes, huge publicity, Civil Disobedience spread across India, led to Gandhi–Irwin Pact and Round Table Conference. Against: did not win independence; salt tax remained; Non-Cooperation first made Congress a mass party; Quit India showed British rule could not last.")] }
+] }
+];
+
+/* ================= HINDI ================= */
+MOCKS_EXTRA.hin = [
+{ title: "Hindi Practice Paper 2", instructions: "Section A and B: press Play to hear each item (you may play each twice). If audio is unavailable, ask someone to read the transcript aloud. Sections C and D: answer in Hindi.", sections: [
+{ name: "Section A · Listening Exercise 1 – Choose the correct picture", listen: true, qs: [
+P("मेरे पास दो बिल्लियाँ हैं।", ["🐶", "🐱", "🐦", "🐟"], 1),
+P("मैं साइकिल से स्कूल जाती हूँ।", ["🚌", "🚲", "🚗", "🚶"], 1),
+P("आज धूप निकली है और मौसम गरम है।", ["☀️", "🌧️", "❄️", "🌪️"], 0),
+P("मुझे दूध पीना पसंद है।", ["☕", "🥛", "🧃", "🍵"], 1),
+P("हम रात को नौ बजे सोते हैं।", ["🕖 7:00", "🕘 9:00", "🕙 10:00", "🕕 6:00"], 1)
+] },
+{ name: "Section B · Listening Exercise 2 – MCQ", listen: true, listenPassage: "मेरा नाम कबीर है। मैं जयपुर में रहता हूँ। हर सुबह मैं छह बजे उठता हूँ और अपने दादाजी के साथ पार्क में टहलने जाता हूँ। मेरे स्कूल का नाम सरस्वती विद्यालय है। मुझे गणित सबसे अच्छा लगता है, लेकिन मेरी बहन को विज्ञान पसंद है। रविवार को हम सब मिलकर बाज़ार जाते हैं और शाम को टीवी देखते हैं। इस साल दिवाली पर हम मुंबई में अपनी बुआ के घर जाएँगे।", qs: [
+M("कबीर कहाँ रहता है?", ["दिल्ली", "जयपुर", "मुंबई", "पुणे"], 1),
+M("कबीर सुबह किसके साथ टहलने जाता है?", ["पिताजी", "बहन", "दादाजी", "दोस्त"], 2),
+M("कबीर को कौन-सा विषय सबसे अच्छा लगता है?", ["विज्ञान", "हिंदी", "गणित", "इतिहास"], 2),
+M("रविवार को परिवार क्या करता है?", ["पार्क जाता है", "बाज़ार जाता है", "सिनेमा जाता है", "घर पर सोता है"], 1),
+M("दिवाली पर वे कहाँ जाएँगे?", ["जयपुर", "दिल्ली", "मुंबई", "कोलकाता"], 2)
+] },
+{ name: "Section C · Unit 1 & 2 – Everyday Activity, Personal and Social Life", qs: [
+M("नानी मेरी ___ की माँ हैं।", ["माँ", "पिताजी", "चाचा", "भाई"], 0),
+M("वह लड़का बहुत ___ है।", ["अच्छा", "अच्छी", "अच्छे", "अच्छों"], 0),
+M("'पौने छह बजे' का अर्थ है", ["6:45", "5:45", "6:15", "5:15"], 1),
+M("'खुश' का विलोम शब्द चुनिए।", ["प्रसन्न", "उदास", "मज़ेदार", "सुंदर"], 1),
+W(4, "अपने सबसे अच्छे मित्र के बारे में चार वाक्य लिखिए।", "Four correct, relevant sentences [1 each]—name, appearance/qualities, what you do together, why you like them. Correct agreement (है/हैं, मेरा/मेरी)."),
+] },
+{ name: "Section D · Creative Writing", qs: [
+W(7, "डायरी लेखन: अपने जन्मदिन के दिन की डायरी लिखिए। (60–80 शब्द)", "Format [2]: दिनांक/दिन/समय, 'प्रिय डायरी', name.\nContent [3]: events, people, gifts, feelings, reflection.\nLanguage [2]: past tense, agreement, varied vocabulary."),
+W(8, "अनौपचारिक पत्र: अपने मित्र को पत्र लिखकर अपनी नई हॉबी के बारे में बताइए। (80–100 शब्द)", "Format [3]: पता, दिनांक, संबोधन (प्रिय मित्र…), अभिवादन (सप्रेम नमस्ते), समापन (तुम्हारा मित्र/तुम्हारी सहेली), नाम.\nContent [3]: कुशल-क्षेम; the hobby, how/when you do it, why you enjoy it; invite friend to try.\nLanguage [2]: तुम-forms, accurate grammar and spelling.")
+] }
+] },
+{ title: "Hindi Practice Paper 3", instructions: "Section A and B: press Play to hear each item (you may play each twice). If audio is unavailable, ask someone to read the transcript aloud. Sections C and D: answer in Hindi.", sections: [
+{ name: "Section A · Listening Exercise 1 – Choose the correct picture", listen: true, qs: [
+P("बाहर बहुत ठंड है, बर्फ़ गिर रही है।", ["☀️", "🌧️", "❄️", "🌈"], 2),
+P("मेरी माँ रसोई में खाना बना रही हैं।", ["🍳", "📚", "⚽", "🛏️"], 0),
+P("मैं शाम को पियानो बजाता हूँ।", ["🎸", "🥁", "🎹", "🎺"], 2),
+P("हमारे घर में एक तोता है।", ["🐶", "🐱", "🦜", "🐟"], 2),
+P("मैं रोज़ सुबह सात बजे नाश्ता करती हूँ।", ["🕕 6:00", "🕖 7:00", "🕗 8:00", "🕘 9:00"], 1)
+] },
+{ name: "Section B · Listening Exercise 2 – MCQ", listen: true, listenPassage: "नमस्ते, मैं प्रिया हूँ। मैं अपने माता-पिता और दो भाइयों के साथ लखनऊ में रहती हूँ। मेरे पिताजी डॉक्टर हैं और मेरी माँ अध्यापिका हैं। मुझे नाचना बहुत पसंद है और मैं हर शनिवार कथक सीखने जाती हूँ। पिछले हफ़्ते हमारे स्कूल में खेल-दिवस था। मैंने दौड़ में दूसरा स्थान पाया। मेरा सबसे अच्छा त्योहार होली है क्योंकि उस दिन सब मिलकर रंग खेलते हैं।", qs: [
+M("प्रिया कहाँ रहती है?", ["लखनऊ", "जयपुर", "पटना", "भोपाल"], 0),
+M("प्रिया के पिताजी क्या करते हैं?", ["अध्यापक हैं", "डॉक्टर हैं", "दुकानदार हैं", "किसान हैं"], 1),
+M("प्रिया हर शनिवार क्या सीखने जाती है?", ["गाना", "चित्रकला", "कथक", "तैराकी"], 2),
+M("दौड़ में प्रिया को कौन-सा स्थान मिला?", ["पहला", "दूसरा", "तीसरा", "चौथा"], 1),
+M("प्रिया का सबसे अच्छा त्योहार कौन-सा है?", ["दिवाली", "ईद", "होली", "क्रिसमस"], 2)
+] },
+{ name: "Section C · Unit 1 & 2 – Everyday Activity, Personal and Social Life", qs: [
+M("मेरे पिताजी के छोटे भाई मेरे ___ हैं।", ["चाचा", "मामा", "नाना", "दादा"], 0),
+M("हम कल बाज़ार ___।", ["गए", "गई", "गया", "जाता"], 0),
+M("'साढ़े तीन बजे' का अर्थ है", ["3:15", "3:30", "3:45", "2:30"], 1),
+M("'दिन' का विलोम शब्द चुनिए।", ["सुबह", "रात", "शाम", "दोपहर"], 1),
+W(4, "अपने स्कूल के बारे में चार वाक्य लिखिए।", "Four correct, relevant sentences [1 each]—name, where it is, teachers/subjects, activities you enjoy. Correct verb agreement.")
+] },
+{ name: "Section D · Creative Writing", qs: [
+W(7, "डायरी लेखन: किसी यादगार यात्रा के दिन की डायरी लिखिए। (60–80 शब्द)", "Format [2]: दिनांक/दिन/समय, 'प्रिय डायरी', name.\nContent [3]: where you went, what you saw/did, feelings, reflection.\nLanguage [2]: past tense, agreement, varied vocabulary."),
+W(8, "अनौपचारिक पत्र: अपने चाचाजी को पत्र लिखकर उन्हें जन्मदिन के उपहार के लिए धन्यवाद दीजिए। (80–100 शब्द)", "Format [3]: पता, दिनांक, संबोधन (आदरणीय चाचाजी), अभिवादन (सादर प्रणाम), समापन (आपका प्रिय भतीजा / आपकी प्रिय भतीजी), नाम.\nContent [3]: कुशल-क्षेम; thanks for the gift, how you use it, news, invitation/wishes.\nLanguage [2]: आप-forms, accurate grammar and spelling.")
+] }
+] }
+];
+
+/* ================= GLOBAL PERSPECTIVES ================= */
+MOCKS_EXTRA.gp = [
+{ title: "Global Perspectives Practice Paper 2", instructions: "Read the sources, then answer all questions. Refer to the sources where asked.", sections: [
+{ name: "Section A · Multiple choice", qs: [
+M("'Every family should collect rainwater.' This is a", ["fact", "prediction", "value judgement", "statistic"], 2),
+M("'Our city received 20% less rain this year than last year.' This is a", ["fact", "opinion", "prediction", "value judgement"], 0),
+M("Information from a government report you read online is", ["primary", "secondary", "an assumption", "an anomaly"], 1),
+M("A person or group affected by an issue is a", ["stakeholder", "criterion", "sample", "variable"], 0),
+M("Which question is most useful when testing a claim?", ["Is it interesting?", "What evidence supports it?", "Is it long?", "Do I agree with it?"], 1)
+] },
+{ name: "Section B · Source-based skills", passage: "Source 1 (practice source written for this paper) — a local newspaper report:\n\"Taps in our neighbourhood run dry for six hours every day. The city supplied 15% less water this summer than last summer. Residents should stop washing cars with hosepipes. Farmers outside the city say the new housing estates are using up the groundwater they need for their crops. Experts warn that, without action, wells could run dry within five years.\"\n\nSource 2 — results of a student survey (40 households on one street):\nRecycle or save water at home: Always 9 · Sometimes 21 · Never 10\nHouseholds that would pay for a rainwater tank: 14 of 40", qs: [
+W(4, "From Source 1, identify one fact, one prediction, one value judgement and one claim that needs testing.", "Fact: 15% less water supplied / taps dry six hours a day [1]; Prediction: wells could run dry within five years [1]; Value judgement: residents should stop washing cars with hosepipes [1]; Claim to test: housing estates are using up farmers' groundwater [1]."),
+W(6, "Compare the perspectives of city residents and farmers in Source 1. Identify each position, their reasoning, and why their situation shapes their view.", "Residents: concerned about daily supply / taps running dry [1–2]; farmers: blame housing estates for using groundwater needed for crops [1–2]; explanation of how needs/livelihood shape views (household use vs income from crops) [1]; comparative language [1]. Max 6."),
+W(6, "Identify two consequences of water shortage and explain which is the most important, using a clear criterion.", "Two valid consequences, e.g. crops fail/food prices rise, health and hygiene problems, conflict between users, wells drying [2]; clear judgement with criterion (number affected/severity/long-term) [2]; comparison explaining why the other is less important [2]."),
+W(7, "How reliable is the claim that 'new housing estates are using up the groundwater'? Explain how you could test it.", "It comes from farmers who are affected (possible bias/vested interest) [1]; no data given [1]; newspaper may simplify [1]; other causes possible (less rain) [1]; test: check groundwater level records, council/water board reports, independent experts, compare areas with and without new estates [2]; overall judgement [1]."),
+W(7, "Evaluate the survey in Source 2. What can be concluded, how reliable is it, and how could it be improved?", "Conclusion: only 9/40 (22.5%) always save water; 14/40 (35%) would pay for tanks [2]; limitations: one street only, small sample, self-reported answers, vague 'sometimes' [2]; improvements: larger random sample across areas, clearer questions, measure actual water use, repeat over seasons [2]; evaluative judgement [1].")
+] }
+] },
+{ title: "Global Perspectives Practice Paper 3", instructions: "Read the sources, then answer all questions. Refer to the sources where asked.", sections: [
+{ name: "Section A · Multiple choice", qs: [
+M("'Most students will learn online by 2035.' This is a", ["fact", "prediction", "value judgement", "anomaly"], 1),
+M("'Online lessons are boring.' This is an", ["opinion", "fact", "statistic", "prediction"], 0),
+M("Numerical data such as test scores is", ["qualitative", "quantitative", "an assumption", "a perspective"], 1),
+M("Checking a fact in two independent sources is", ["bias", "corroboration", "sampling", "speculation"], 1),
+M("Which makes a research conclusion stronger?", ["A tiny sample", "Data from many varied people", "Only asking friends", "Ignoring anomalies"], 1)
+] },
+{ name: "Section B · Source-based skills", passage: "Source 1 (practice source written for this paper) — a blog by a tutoring company:\n\"Students now spend an average of five hours a day on screens. Online learning is the best way to study because you can learn at your own pace. Our app improved one student's marks by 40%! Parents should give every child a tablet for homework. Teachers, however, worry that long screen time harms concentration and sleep.\"\n\nSource 2 — a student survey (60 students from three classes):\nDaily screen time: under 2 h: 12 · 2–4 h: 27 · over 4 h: 21\nStudents who say they sleep less than 8 hours: 33 of 60", qs: [
+W(4, "From Source 1, identify one fact, one opinion, one value judgement and one claim that needs testing.", "Fact/statistic: average five hours a day on screens [1]; Opinion: online learning is the best way to study [1]; Value judgement: parents should give every child a tablet [1]; Claim: the app improved marks by 40% [1]."),
+W(6, "Compare the perspectives of the tutoring company and the teachers in Source 1.", "Company: positive about online learning/its app [1–2]; teachers: worried about concentration and sleep [1–2]; explains how interests shape views (company sells the app; teachers see effects in class) [1]; comparative language [1]. Max 6."),
+W(6, "Identify two consequences of too much screen time for students and justify which is the most important.", "Two valid consequences, e.g. less sleep, poorer concentration, eye strain, less exercise, less time with family [2]; judgement with criterion [2]; comparison with the other [2]."),
+W(7, "Evaluate the claim 'Our app improved one student's marks by 40%'. How could it be tested?", "Vested interest—the company sells the app [1]; one student only, not representative [1]; no details of how marks were measured or other factors [1]; possibly selected as best example [1]; test: independent study with a larger group and a comparison group not using the app, check over time [2]; overall judgement [1]."),
+W(7, "Evaluate the survey in Source 2. What can be concluded, how reliable is it, and how could it be improved?", "Conclusion: 21/60 (35%) use screens over 4 h; 33/60 (55%) sleep under 8 h [2]; cannot prove screens cause less sleep—no link shown between the two answers [1]; limitations: three classes only, self-reported times [1]; improvements: larger varied sample, record screen time and sleep for each student to compare, use diaries/apps for accurate data [2]; judgement [1].")
+] }
+] }
+];
+
+/* ================= DIGITAL LITERACY ================= */
+MOCKS_EXTRA.dl = [
+{ title: "Digital Literacy Practice Paper 2", instructions: "Answer all questions. For number conversions, type digits only (letters for hexadecimal). For code output, type exactly what is printed.", sections: [
+{ name: "Section A · Multiple choice", qs: [
+M("The base of the binary number system is", ["2", "8", "10", "16"], 0),
+M("The hexadecimal digit F stands for", ["14", "15", "16", "10"], 1),
+M("How many bits are in a nibble?", ["2", "4", "8", "16"], 1),
+M("Linux file permissions such as 644 are written in", ["binary", "octal", "decimal", "hexadecimal"], 1),
+M("What does int(\"7\") + 3 give in Python?", ["73", "10", "\"10\"", "Error"], 1),
+M("Which operator raises a number to a power in Python?", ["^", "**", "//", "%"], 1),
+M("In Python, indentation is used to", ["make code colourful", "show which lines belong to a block", "add comments", "speed up the program"], 1),
+M("range(1, 4) produces", ["1, 2, 3, 4", "1, 2, 3", "0, 1, 2, 3", "4"], 1),
+M("A while loop keeps running while its condition is", ["False", "True", "zero", "a string"], 1),
+M("What is printed by print(17 // 4)?", ["4.25", "4", "1", "5"], 1)
+] },
+{ name: "Section B · Short answer", qs: [
+S(1, "Convert 1110₂ to decimal.", ["14"], "8 + 4 + 2 = 14"),
+S(2, "Convert 75 to binary.", ["1001011"], "64 + 8 + 2 + 1 → 1001011"),
+S(2, "Convert A7₁₆ to decimal.", ["167"], "10 × 16 + 7 = 167"),
+S(2, "Convert 11101001₂ to hexadecimal.", ["e9"], "1110 = E, 1001 = 9 → E9"),
+S(1, "What is 23 % 6?", ["5"], "5"),
+S(1, "What is 3 ** 4?", ["81"], "81"),
+S(1, "How many numbers does range(0, 10, 2) produce?", ["5"], "0, 2, 4, 6, 8 → 5"),
+S(2, "What is printed?\nfor i in range(5, 0, -2):\n    print(i, end=' ')", ["531", "5 3 1"], "5 3 1"),
+S(2, "Convert 17₈ to decimal.", ["15"], "1 × 8 + 7 = 15")
+] },
+{ name: "Section C · Written and programming", qs: [
+W(3, "Explain why computers use binary, and give one real use of the octal system.", "Circuits/transistors have two states, on and off [1]; these are represented by 1 and 0 [1]; octal use: Linux/Unix file permissions, e.g. 755 [1]."),
+W(2, "What is the output? Explain why.\nx = 12\nif x % 3 == 0 and x > 10:\n    print('Fizz')\nelif x > 10:\n    print('Big')\nelse:\n    print('Small')", "Fizz [1]; 12 % 3 is 0 and 12 > 10, so the first condition is True [1]."),
+W(4, "Write a Python program that asks the user for a whole number and prints 'Even' or 'Odd'.", "n = int(input(...)) [1]; if n % 2 == 0: [1]; print('Even') / else: print('Odd') [1]; correct colons and indentation [1]."),
+W(4, "Write a for loop using range() that prints the squares of the numbers 1 to 10.", "for i in range(1, 11): [2—correct range]; print(i * i) or print(i ** 2), indented [2]."),
+W(3, "Find and correct three errors:\nnum = input(\"Number: \")\nif num > 5\nprint(\"Big\")", "input must be converted: int(input(...)) [1]; missing colon after if num > 5 [1]; print must be indented inside the if [1].")
+] }
+] },
+{ title: "Digital Literacy Practice Paper 3", instructions: "Answer all questions. For number conversions, type digits only (letters for hexadecimal). For code output, type exactly what is printed.", sections: [
+{ name: "Section A · Multiple choice", qs: [
+M("How many different digits does hexadecimal use?", ["2", "8", "10", "16"], 3),
+M("How many different values can one byte store?", ["8", "128", "255", "256"], 3),
+M("The decimal number 10 in binary is", ["1010", "1100", "1001", "0110"], 0),
+M("The colour code #FFFFFF is", ["black", "white", "red", "blue"], 1),
+M("The data type of 3.5 in Python is", ["int", "float", "str", "bool"], 1),
+M("What is 'Hi' * 2 in Python?", ["Hi2", "HiHi", "Error", "2Hi"], 1),
+M("Which is a comparison operator?", ["=", "==", "+=", "**"], 1),
+M("What is printed by print(10 % 3)?", ["3", "1", "3.33", "0"], 1),
+M("range(2, 8, 2) produces", ["2, 4, 6, 8", "2, 4, 6", "2, 8", "4, 6, 8"], 1),
+M("Which keyword exits a loop immediately?", ["stop", "exit", "break", "continue"], 2)
+] },
+{ name: "Section B · Short answer", qs: [
+S(1, "Convert 100000₂ to decimal.", ["32"], "32"),
+S(2, "Convert 99 to binary.", ["1100011"], "64 + 32 + 2 + 1 → 1100011"),
+S(2, "Convert 1F₁₆ to decimal.", ["31"], "1 × 16 + 15 = 31"),
+S(2, "Convert 01011100₂ to hexadecimal.", ["5c"], "0101 = 5, 1100 = C → 5C"),
+S(1, "What is 5 + 2 * 3?", ["11"], "11"),
+S(1, "What is 15 // 4?", ["3"], "3"),
+S(1, "What does not (5 > 3) evaluate to?", ["false"], "False"),
+S(2, "What is printed?\ntotal = 0\nfor i in range(1, 5):\n    total += i * 2\nprint(total)", ["20"], "2 + 4 + 6 + 8 = 20"),
+S(2, "Convert 64₈ to decimal.", ["52"], "6 × 8 + 4 = 52")
+] },
+{ name: "Section C · Written and programming", qs: [
+W(3, "Explain what a bit, a nibble and a byte are, and how they are related.", "Bit: a single binary digit, 0 or 1 [1]; nibble: 4 bits [1]; byte: 8 bits = 2 nibbles [1]."),
+W(2, "What is the output? Explain why.\nmarks = 45\nif marks >= 50:\n    print('Pass')\nelse:\n    print('Retake')", "Retake [1]; 45 is not ≥ 50 so the else branch runs [1]."),
+W(4, "Write a Python program that asks for a temperature and prints 'Hot' if it is above 30, 'Warm' if it is from 20 to 30, otherwise 'Cold'.", "t = int(input(...)) or float [1]; if t > 30: print('Hot') [1]; elif t >= 20: print('Warm') [1]; else: print('Cold') with correct syntax [1]."),
+W(4, "Write a for loop that prints a countdown from 10 to 1 and then prints 'Lift off!'.", "for i in range(10, 0, -1): [2]; print(i) indented [1]; print('Lift off!') after the loop, not indented [1]."),
+W(3, "Find and correct three errors:\nFor i in range(1, 6):\nprint(i)\nprint(\"Done)", "For → for (lower case) [1]; print(i) must be indented [1]; missing closing quote: print(\"Done\") [1].")
+] }
+] }
+];
+})();
+
 /* ===== Profiles: the built-in syllabus is the default; visitors can add their own (stored only in their browser) ===== */
 var PROFILE_REG_KEY = "ecc.profiles", BASE_KEY = "ecc.nov2026.v1";
 var RULES = { id: "default", name: "November 2026 exams", start: "2026-11-01", end: "2026-11-30", restWeekdays: [4], dailyMax: 90, custom: false, label: "November 2026 · IST" };
@@ -2000,10 +2427,13 @@ function practiceText(s, names) {
   if (s.id === "hum" || s.id === "gp") return "Practice: answer the exam-style questions on " + names + " in the Quiz Centre. Plan one extended answer with point–evidence–explanation and self-mark it.";
   return "Practice: work through Quiz Centre questions on " + names + " (mixed difficulty). Mark them instantly, then redo every question you got wrong without looking.";
 }
-function mockParts(sid) {
+function papers(sid) { var p = MOCKS[sid], arr = !p ? [] : Array.isArray(p) ? p.slice() : [p]; if (!RULES.custom && typeof MOCKS_EXTRA !== "undefined" && MOCKS_EXTRA[sid]) arr = arr.concat(MOCKS_EXTRA[sid]); return arr; }
+function paperOf(sid, pi) { return papers(sid)[pi || 0] || null; }
+function mockParts(sid, pi) {
   var s = SUBJ[sid], total = s.duration + (s.reading || 0);
-  if (!MOCKS[sid]) return [{ secs: null, marks: s.marks, dur: Math.min(total, DAILY_MAX), label: total > DAILY_MAX ? "first " + DAILY_MAX + " minutes" : "all sections" }];
-  var secs = MOCKS[sid].sections;
+  var PP = paperOf(sid, pi);
+  if (!PP) return [{ secs: null, marks: s.marks, dur: Math.min(total, DAILY_MAX), label: total > DAILY_MAX ? "first " + DAILY_MAX + " minutes" : "all sections" }];
+  var secs = PP.sections;
   if (total <= DAILY_MAX) return [{ secs: secs.map(function (x, i) { return i; }), marks: s.marks, dur: total, label: "all sections" }];
   var half = s.marks / 2, acc = 0, cut = 1;
   for (var i = 0; i < secs.length; i++) { acc += secs[i].qs.reduce(function (a, q) { return a + q.m; }, 0); if (acc >= half) { cut = i + 1; break; } }
@@ -2490,9 +2920,10 @@ async function aiMakeMock(sid) {
   var s = SUBJ[sid], key = "mock:" + sid;
   if (AI.busy[key]) return AI.busy[key];
   AI.busy[key] = (async function () {
+    var nPrev = papers(sid).length;
     var topics = s.units.map(function (u) { return u.name + ": " + u.topics.map(function (t) { return t.t; }).join("; "); }).join("\n");
     var prompt = "Write a realistic school practice exam paper.\nSubject: " + s.name + "\nTotal marks: " + s.marks + "\nTime: " + s.duration + " minutes\nSyllabus:\n" + topics +
-      "\n\nReturn ONLY JSON: {\"instructions\":\"...\",\"sections\":[{\"name\":\"Section A · ...\",\"passage\":\"optional reading passage or source, else empty\",\"questions\":[{\"type\":\"mcq\",\"marks\":1,\"q\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer\":0},{\"type\":\"short\",\"marks\":1,\"q\":\"...\",\"answers\":[\"exact answer\"],\"markScheme\":\"...\"},{\"type\":\"written\",\"marks\":4,\"q\":\"...\",\"markScheme\":\"how marks are given\"}]}]}\n\nRules: marks across all questions must add up to exactly " + s.marks + ". Cover the whole syllabus. Use 2-4 sections, mixing mcq, short and written questions suited to the subject (essay subjects use mostly written). Short answers must be single exact values or words. Plain text, no markdown.";
+      "\n\nReturn ONLY JSON: {\"instructions\":\"...\",\"sections\":[{\"name\":\"Section A · ...\",\"passage\":\"optional reading passage or source, else empty\",\"questions\":[{\"type\":\"mcq\",\"marks\":1,\"q\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer\":0},{\"type\":\"short\",\"marks\":1,\"q\":\"...\",\"answers\":[\"exact answer\"],\"markScheme\":\"...\"},{\"type\":\"written\",\"marks\":4,\"q\":\"...\",\"markScheme\":\"how marks are given\"}]}]}\n\nRules: marks across all questions must add up to exactly " + s.marks + ". Cover the whole syllabus." + (nPrev ? " This is paper " + (nPrev + 1) + ": use different questions from the earlier papers, which began: " + papers(sid).map(function (P) { return P.sections.map(function (x) { return x.qs.map(function (q) { return q.q.slice(0, 40); }).join(" | "); }).join(" | "); }).join(" | ").slice(0, 1500) + "." : "") + " Use 2-4 sections, mixing mcq, short and written questions suited to the subject (essay subjects use mostly written). Short answers must be single exact values or words. Plain text, no markdown.";
     var v = await aiJSON(prompt, { modelTier: "complex" }), secs = [], total = 0;
     (Array.isArray(v.sections) ? v.sections : []).forEach(function (sec) {
       var qs = [];
@@ -2508,7 +2939,9 @@ async function aiMakeMock(sid) {
     });
     if (!secs.length) throw new Error("The AI paper was empty");
     if (total !== s.marks) { /* keep the paper's total equal to the real exam */ var w = null; secs.forEach(function (sec) { sec.qs.forEach(function (q) { if (q.type === "written" && (!w || q.m > w.m)) w = q; }); }); if (w && w.m + (s.marks - total) >= 1) { w.m += s.marks - total; total = s.marks; } }
-    S.ai.mocks[sid] = { title: s.name + " Practice Paper (AI-made)", instructions: String(v.instructions || "Answer all questions."), sections: secs, ai: true, total: total };
+    var ex = S.ai.mocks[sid], arr = !ex ? [] : Array.isArray(ex) ? ex : [ex];
+    arr.push({ title: s.name + " Practice Paper " + (arr.length + 1) + " (AI-made)", instructions: String(v.instructions || "Answer all questions."), sections: secs, ai: true, total: total });
+    S.ai.mocks[sid] = arr;
     save(); applyAI(); return true;
   })();
   try { return await AI.busy[key]; } finally { delete AI.busy[key]; }
@@ -3070,10 +3503,15 @@ function studyPane(x, tps) {
     return '<div class="card" style="margin-top:14px"><h2>Before the ' + esc(s.name) + ' exam</h2><p class="muted small">' + fmtD(s.exam, true) + " · " + examTimeText(s) + " · " + s.marks + " marks · " + s.duration + ' min</p><div class="stack" style="margin-top:12px">' + (RULES.custom ? ["Admit card / ID", "Pens, pencil, eraser, ruler", "Any equipment allowed for " + s.name, "Clear water bottle", "Watch (not a smartwatch)", "Sleep early; leave home in good time"] : CHECKLIST).map(function (c, i) { var k = s.id + ":" + i, on = S.checklist && S.checklist[k]; return '<label class="row"><input type="checkbox" class="check" data-on="stCheck" data-k="' + k + '"' + (on ? " checked" : "") + "><span>" + esc(c) + "</span></label>"; }).join("") + "</div></div>";
   }
   if (tab === "mock") {
-    if (!MOCKS[x.subj]) { var mb = !!AI.busy["mock:" + x.subj]; return '<div class="card" style="margin-top:14px;text-align:center"><div class="stack" style="justify-items:center">' + doodle("clock", 70) + "<h2>" + (mb ? "Pip is writing your paper…" : "No practice paper yet") + "</h2>" + (mb ? '<div class="spinner"></div>' : '<p class="muted">Pip can write a ' + s.marks + "-mark, " + s.duration + "-minute practice paper covering your whole " + esc(s.name) + " syllabus.</p>" + aiNeedsNote() + '<button class="btn primary" data-act="aiMock" data-s="' + x.subj + '"' + (AI.ready ? "" : " disabled") + ">✨ Make the paper</button>") + "</div></div>"; }
-    var part = x.part || null, p = part ? mockParts(x.subj)[part - 1] : null, A = S.mocks.active;
+    var PPs = papers(x.subj);
+    if (!PPs.length) { var mb = !!AI.busy["mock:" + x.subj]; return '<div class="card" style="margin-top:14px;text-align:center"><div class="stack" style="justify-items:center">' + doodle("clock", 70) + "<h2>" + (mb ? "Pip is writing your paper…" : "No practice paper yet") + "</h2>" + (mb ? '<div class="spinner"></div>' : '<p class="muted">Pip can write a ' + s.marks + "-mark, " + s.duration + "-minute practice paper covering your whole " + esc(s.name) + " syllabus.</p>" + aiNeedsNote() + '<button class="btn primary" data-act="aiMock" data-s="' + x.subj + '"' + (AI.ready ? "" : " disabled") + ">✨ Make the paper</button>") + "</div></div>"; }
+    if (UI.focus.pi === undefined) { var fresh = PPs.map(function (_, i) { return i; }).filter(function (i) { return !S.mocks.attempts.some(function (a) { return a.subj === x.subj && (a.pi || 0) === i; }); }); UI.focus.pi = fresh.length ? fresh[0] : 0; }
+    var mpi = Math.min(UI.focus.pi, PPs.length - 1), PPc = PPs[mpi];
+    var part = x.part || null, p = part ? mockParts(x.subj, mpi)[part - 1] : null, A = S.mocks.active;
+    if (part && !p) { part = null; }
     var mins = p ? Math.round(s.duration * p.marks / s.marks) : s.duration;
-    return '<div class="card" style="margin-top:14px"><h2>' + esc(MOCKS[x.subj].title) + (part ? " · Part " + part : "") + '</h2><p class="muted" style="margin-top:4px">' + (p ? esc(p.label) + " · " + p.marks + " marks" : s.marks + " marks") + " · " + mins + " minutes" + (s.reading && (!p || p.secs.indexOf(0) >= 0) ? " + " + S.settings.readingTime + " min reading time" : "") + '</p><p class="small" style="margin-top:10px">' + esc(MOCKS[x.subj].instructions) + '</p><ul class="small muted" style="margin-top:8px"><li>Sit somewhere quiet with no notes or phone.</li><li>Objective questions are marked automatically; you mark written answers yourself using the mark scheme.</li><li>Your result is saved in Mock Exams and counts in Analytics.</li></ul><div class="row" style="margin-top:14px">' + (A ? '<button class="btn primary lg" data-act="stMock">Continue the mock in progress</button>' : '<button class="btn primary lg" data-act="stMock">' + ic("play") + "Start mock paper</button>") + "</div></div>";
+    var pick = PPs.length > 1 ? '<div class="seg" style="margin:10px 0;flex-wrap:wrap">' + PPs.map(function (_, i) { var done = S.mocks.attempts.some(function (a) { return a.subj === x.subj && (a.pi || 0) === i; }); return '<button data-act="stPaper" data-pi="' + i + '" class="' + (i === mpi ? "on" : "") + '">Paper ' + (i + 1) + (done ? " ✓" : "") + "</button>"; }).join("") + "</div>" : "";
+    return '<div class="card" style="margin-top:14px"><h2>' + esc(PPc.title) + (part ? " · Part " + part : "") + "</h2>" + pick + '<p class="muted" style="margin-top:4px">' + (p ? esc(p.label) + " · " + p.marks + " marks" : s.marks + " marks") + " · " + mins + " minutes" + (s.reading && (!p || p.secs.indexOf(0) >= 0) ? " + " + S.settings.readingTime + " min reading time" : "") + '</p><p class="small" style="margin-top:10px">' + esc(PPc.instructions) + '</p><ul class="small muted" style="margin-top:8px"><li>Sit somewhere quiet with no notes or phone.</li><li>You can pause (the paper is hidden while paused).</li><li>Objective questions are marked automatically; you mark written answers using the mark scheme.</li></ul><div class="row wrap" style="margin-top:14px">' + (A ? '<button class="btn primary lg" data-act="stMock">Continue the mock in progress</button>' : '<button class="btn primary lg" data-act="stMock" data-pi="' + mpi + '">' + ic("play") + "Start Paper " + (mpi + 1) + "</button>") + '<button class="btn" data-act="mockPdf" data-s="' + x.subj + '" data-pi="' + mpi + '">' + ic("download") + "Print / PDF</button></div></div>";
   }
   if (tab === "tips") {
     var tips = { math: ["Show every step: method marks add up.", "Check signs and units; round only at the end.", "Leave hard questions and come back."], eng: ["Use the reading time to underline key ideas.", "Quote briefly and explain the effect.", "Plan your writing for 5 minutes before you start."], sci: ["Read graphs carefully: describe, then explain.", "Use key words: diffusion, electrostatic, limiting factor.", "Show working in calculations with units."], hum: ["Give dates and named examples.", "For sources: content, origin, purpose, then judgement.", "Plan the 8-mark answer with both sides and a conclusion."], hin: ["Listen for the key word in each item; use the second play to check.", "Follow letter and diary formats exactly.", "Check verb endings for gender."], dl: ["Write place values above binary digits.", "Trace code line by line with a table.", "Watch colons and indentation in Python."], gp: ["Name the type of information and the signal word.", "Always justify 'most important' with a criterion.", "Suggest specific improvements to research."] }[RULES.custom ? "" : x.subj] || ["Read every question twice and underline key words.", "Use the marks as a guide to how much to write.", "Leave time at the end to check your answers."];
@@ -3290,27 +3728,37 @@ function pgFlash() {
 }
 
 /* ---------- mocks ---------- */
-function flatQs(sid, part) { if (!MOCKS[sid]) return []; var allow = part ? mockParts(sid)[part - 1].secs : null, out = []; MOCKS[sid].sections.forEach(function (sec, si) { if (allow && allow.indexOf(si) < 0) return; sec.qs.forEach(function (q, qi) { out.push({ sec: sec, si: si, q: q, n: out.length }); }); }); return out; }
-function partLabel(sid, part) { return part ? "Part " + part + " (" + mockParts(sid)[part - 1].label + ")" : "Full paper"; }
+function flatQs(sid, part, pi) { var PP = paperOf(sid, pi); if (!PP) return []; var allow = part ? mockParts(sid, pi)[part - 1].secs : null, out = []; PP.sections.forEach(function (sec, si) { if (allow && allow.indexOf(si) < 0) return; sec.qs.forEach(function (q, qi) { out.push({ sec: sec, si: si, q: q, n: out.length }); }); }); return out; }
+function partLabel(sid, part, pi) { return part ? "Part " + part + " (" + mockParts(sid, pi)[part - 1].label + ")" : "Full paper"; }
 function pgMocks() {
   var lock = restLock("Mock examinations"); if (lock) return lock;
   var A = S.mocks.active;
   if (A) return mockRun(A);
   if (UI.mockView && UI.mockView.result) { var at = S.mocks.attempts.filter(function (x) { return x.id === UI.mockView.result; })[0]; if (at) return mockResult(at); }
-  var h = head("Mock Examinations", (RULES.custom ? "Practice papers made by AI for your subjects" : "Full practice papers matching the real marks and durations") + " · timed, with automatic and manual marking");
+  UI.mockPi = UI.mockPi || {};
+  var h = head("Mock Examinations", (RULES.custom ? "Practice papers made by AI for your subjects" : "Three full practice papers per subject, matching the real marks and durations") + " · timed, pausable and printable");
   h += '<div class="grid g-3">' + EXAM_ORDER.map(function (s) {
-    var at = S.mocks.attempts.filter(function (a) { return a.subj === s.id; }), best = at.filter(function (a) { return a.status === "marked"; }).reduce(function (m, a) { return Math.max(m, a.pct); }, -1), pend = at.filter(function (a) { return a.status === "pending"; }).length, qn = flatQs(s.id).length, parts = MOCKS[s.id] ? mockParts(s.id) : [];
-    if (!MOCKS[s.id]) return '<div class="card"><div class="row between"><div class="row" style="gap:8px"><span class="dot" style="background:' + s.color + ';width:10px;height:10px"></span><h3>' + esc(s.name) + "</h3></div>" + statusChip(subjectStatus(s)) + '</div><p class="small muted" style="margin:10px 0">' + s.marks + " marks · " + s.duration + " min · no paper yet</p>" + aiNeedsNote() + '<button class="btn primary" data-act="aiMock" data-s="' + s.id + '"' + (AI.ready && !AI.busy["mock:" + s.id] ? "" : " disabled") + ">" + (AI.busy["mock:" + s.id] ? "Writing the paper…" : "✨ Make a paper with AI") + "</button></div>";
-    return '<div class="card"><div class="row between"><div class="row" style="gap:8px"><span class="dot" style="background:' + s.color + ';width:10px;height:10px"></span><h3>' + esc(s.name) + "</h3></div>" + statusChip(subjectStatus(s)) + '</div><div class="row wrap small muted" style="margin:10px 0 12px;gap:12px"><span><b class="tabular" style="color:var(--text)">' + s.marks + "</b> marks</span><span><b class=\"tabular\" style=\"color:var(--text)\">" + s.duration + "</b> min" + (s.reading ? " + " + S.settings.readingTime + " min reading" : "") + "</span><span>" + qn + " questions</span></div>" + '<div class="row between small" style="margin-bottom:12px"><span class="muted">' + at.length + " attempt" + (at.length === 1 ? "" : "s") + (pend ? " · " + pend + " awaiting marking" : "") + "</span><span>" + (best >= 0 ? "Best <b>" + best + "%</b>" : '<span class="faint">No marked attempts</span>') + "</span></div>" + bar(Math.max(0, best), s.color) + (parts.length > 1 ? '<p class="tiny muted" style="margin-top:8px">The full paper is longer than your 1h 30m daily limit, so it is split into two parts for study days. You can still sit it all at once.</p>' : "") + '<div class="row wrap" style="margin-top:14px"><button class="btn primary" data-act="mockStart" data-s="' + s.id + '">' + ic("play") + (parts.length > 1 ? "Full paper" : "Start mock") + "</button>" + (parts.length > 1 ? parts.map(function (p, i) { return '<button class="btn" data-act="mockStart" data-s="' + s.id + '" data-p="' + (i + 1) + '">Part ' + (i + 1) + " · " + p.dur + " min</button>"; }).join("") : "") + (at.length ? '<button class="btn" data-act="mockLast" data-s="' + s.id + '">' + (pend ? "Mark answers" : "Last result") + "</button>" : "") + "</div></div>";
+    var pp = papers(s.id), aiBtn = RULES.custom ? aiNeedsNote() + '<button class="btn' + (pp.length ? "" : " primary") + ' sm" data-act="aiMock" data-s="' + s.id + '"' + (AI.ready && !AI.busy["mock:" + s.id] ? "" : " disabled") + ">" + (AI.busy["mock:" + s.id] ? "Writing a paper…" : pp.length ? "✨ Make another paper" : "✨ Make a paper with AI") + "</button>" : "";
+    var top = '<div class="row between"><div class="row" style="gap:8px"><span class="dot" style="background:' + s.color + ';width:10px;height:10px"></span><h3>' + esc(s.name) + "</h3></div>" + statusChip(subjectStatus(s)) + "</div>";
+    if (!pp.length) return '<div class="card">' + top + '<p class="small muted" style="margin:10px 0">' + s.marks + " marks · " + s.duration + " min · no paper yet</p>" + aiBtn + "</div>";
+    var pi = Math.min(UI.mockPi[s.id] || 0, pp.length - 1), P = pp[pi];
+    var at = S.mocks.attempts.filter(function (a) { return a.subj === s.id && (a.pi || 0) === pi; }), best = at.filter(function (a) { return a.status === "marked"; }).reduce(function (m, a) { return Math.max(m, a.pct); }, -1), pend = at.filter(function (a) { return a.status === "pending"; }).length, qn = flatQs(s.id, null, pi).length, parts = mockParts(s.id, pi);
+    var chips = '<div class="seg" style="margin:10px 0 0;flex-wrap:wrap">' + pp.map(function (x, i) { var done = S.mocks.attempts.some(function (a) { return a.subj === s.id && (a.pi || 0) === i; }); return '<button data-act="mockPaper" data-s="' + s.id + '" data-pi="' + i + '" class="' + (i === pi ? "on" : "") + '">Paper ' + (i + 1) + (done ? " ✓" : "") + "</button>"; }).join("") + "</div>";
+    return '<div class="card">' + top + chips + '<div class="row wrap small muted" style="margin:10px 0 12px;gap:12px"><span><b class="tabular" style="color:var(--text)">' + s.marks + "</b> marks</span><span><b class=\"tabular\" style=\"color:var(--text)\">" + s.duration + "</b> min" + (s.reading ? " + " + S.settings.readingTime + " min reading" : "") + "</span><span>" + qn + " questions</span>" + (P.ai ? aiBadge() : "") + '</div><div class="row between small" style="margin-bottom:12px"><span class="muted">' + at.length + " attempt" + (at.length === 1 ? "" : "s") + (pend ? " · " + pend + " awaiting marking" : "") + "</span><span>" + (best >= 0 ? "Best <b>" + best + "%</b>" : '<span class="faint">Not marked yet</span>') + "</span></div>" + bar(Math.max(0, best), s.color) + (parts.length > 1 ? '<p class="tiny muted" style="margin-top:8px">This paper is longer than your ' + fmtDur(DAILY_MAX) + " daily limit, so study days use it in two parts. You can still sit it all at once.</p>" : "") +
+      '<div class="row wrap" style="margin-top:14px"><button class="btn primary" data-act="mockStart" data-s="' + s.id + '" data-pi="' + pi + '">' + ic("play") + (parts.length > 1 ? "Full paper" : "Start") + "</button>" + (parts.length > 1 ? parts.map(function (p, i) { return '<button class="btn" data-act="mockStart" data-s="' + s.id + '" data-pi="' + pi + '" data-p="' + (i + 1) + '">Part ' + (i + 1) + " · " + p.dur + " min</button>"; }).join("") : "") + '<button class="btn" data-act="mockPdf" data-s="' + s.id + '" data-pi="' + pi + '">' + ic("download") + "Print / PDF</button>" + (at.length ? '<button class="btn" data-act="mockLast" data-s="' + s.id + '" data-pi="' + pi + '">' + (pend ? "Mark answers" : "Last result") + "</button>" : "") + "</div>" + (aiBtn ? '<div style="margin-top:10px">' + aiBtn + "</div>" : "") + "</div>";
   }).join("") + "</div>";
   var all = S.mocks.attempts.slice().reverse();
-  h += '<div class="card" style="margin-top:16px"><div class="card-h"><h2>Previous attempts</h2></div>' + (all.length ? '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Subject</th><th>Marks</th><th>Percentage</th><th>Time used</th><th>Status</th><th></th></tr></thead><tbody>' + all.map(function (a) { return "<tr><td>" + new Date(a.startedAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) + "</td><td>" + esc(SUBJ[a.subj].name) + (a.part ? " · Part " + a.part : "") + "</td><td>" + a.total + " / " + (a.max || SUBJ[a.subj].marks) + "</td><td>" + (a.status === "marked" ? a.pct + "%" : "—") + "</td><td>" + fmtDur(Math.round(a.timeUsed / 60)) + "</td><td>" + (a.status === "marked" ? '<span class="chip good">Marked</span>' : '<span class="chip warn">Needs marking</span>') + '</td><td><button class="btn sm" data-act="mockOpen" data-id="' + a.id + '">Review</button></td></tr>'; }).join("") + "</tbody></table></div>" : empty("No attempts yet", "Start a mock above. Your results and history are saved automatically.")) + "</div>";
+  h += '<div class="card" style="margin-top:16px"><div class="card-h"><h2>Previous attempts</h2></div>' + (all.length ? '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Paper</th><th>Marks</th><th>Percentage</th><th>Time used</th><th>Status</th><th></th></tr></thead><tbody>' + all.map(function (a) { return "<tr><td>" + new Date(a.startedAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) + "</td><td>" + esc(SUBJ[a.subj].name) + " · Paper " + ((a.pi || 0) + 1) + (a.part ? " · Part " + a.part : "") + "</td><td>" + a.total + " / " + (a.max || SUBJ[a.subj].marks) + "</td><td>" + (a.status === "marked" ? a.pct + "%" : "—") + "</td><td>" + fmtDur(Math.round(a.timeUsed / 60)) + "</td><td>" + (a.status === "marked" ? '<span class="chip good">Marked</span>' : '<span class="chip warn">Needs marking</span>') + '</td><td><button class="btn sm" data-act="mockOpen" data-id="' + a.id + '">Review</button></td></tr>'; }).join("") + "</tbody></table></div>" : empty("No attempts yet", "Start a mock above. Your results and history are saved automatically.")) + "</div>";
   return h;
 }
 function mockRun(A) {
-  var s = SUBJ[A.subj], qs = flatQs(A.subj, A.part), cur = qs[A.cur] || qs[0], q = cur.q, now = nowMs(), reading = A.readingEnds && now < A.readingEnds;
+  if (A.paused) {
+    var Sx = SUBJ[A.subj], rdg = A.readingEnds && A.paused < A.readingEnds, leftP = (rdg ? A.readingEnds : A.endsAt) - A.paused;
+    return '<div class="page-head"><div><div class="eyebrow">' + esc(paperOf(A.subj, A.pi).title) + '</div><h1 style="margin-top:4px">' + esc(Sx.name) + ' mock · paused</h1></div></div><div class="card" style="max-width:560px;margin:30px auto;text-align:center"><div class="stack" style="justify-items:center">' + doodle("clock", 90, "wiggle") + '<h2>Paper hidden while paused</h2><p class="muted">The timer is stopped. Your answers are saved. ' + (rdg ? "Reading" : "Writing") + ' time left: <b class="tabular" style="color:var(--text)">' + hms(leftP) + '</b></p><div class="row wrap" style="justify-content:center"><button class="btn primary lg" data-act="mockResume">' + ic("play") + 'Resume paper</button><button class="btn ghost" data-act="mockAbandon">Abandon attempt</button></div><p class="tiny faint">Paused so far: ' + fmtDur(Math.round(((A.pausedMs || 0) + nowMs() - A.paused) / 60000)) + ". Real exams can't be paused, so try to sit papers in one go when you can.</p></div></div>";
+  }
+  var s = SUBJ[A.subj], qs = flatQs(A.subj, A.part, A.pi), cur = qs[A.cur] || qs[0], q = cur.q, now = nowMs(), reading = A.readingEnds && now < A.readingEnds;
   var left = reading ? A.readingEnds - now : A.endsAt - now, ans = A.answers[cur.n];
-  var h = '<div class="page-head"><div><div class="eyebrow">' + esc(MOCKS[A.subj].title) + '</div><h1 style="margin-top:4px">' + esc(s.name) + " mock" + (A.part ? " · Part " + A.part : "") + '</h1><p class="sub">' + (A.part ? mockParts(A.subj)[A.part - 1].marks + " marks · " + partLabel(A.subj, A.part) : s.marks + " marks · " + s.duration + " minutes" + (s.reading ? " + reading time" : "")) + "</p></div></div>";
+  var h = '<div class="page-head"><div><div class="eyebrow">' + esc(paperOf(A.subj, A.pi).title) + '</div><h1 style="margin-top:4px">' + esc(s.name) + " mock" + (A.part ? " · Part " + A.part : "") + '</h1><p class="sub">' + (A.part ? mockParts(A.subj, A.pi)[A.part - 1].marks + " marks · " + partLabel(A.subj, A.part, A.pi) : s.marks + " marks · " + s.duration + " minutes" + (s.reading ? " + reading time" : "")) + "</p></div></div>";
   h += '<div class="mock-layout"><div class="stack-lg">';
   if (reading) h += '<div class="notice warn"><div class="grow"><b>Reading time.</b> Read the passage and questions. Answer boxes unlock when writing time starts.</div><button class="btn sm" data-act="mockSkipRead">Start writing now</button></div>';
   if (cur.si === 0 && A.cur === 0 || cur.n === 0 || qs[cur.n - 1].si !== cur.si) h += "";
@@ -3327,21 +3775,23 @@ function mockRun(A) {
   else h += '<textarea class="input" style="margin-top:16px;min-height:' + (q.m >= 7 ? 280 : 150) + 'px" id="mk-in" data-on="mockInput" placeholder="Write your answer"' + dis + ">" + esc(ans || "") + "</textarea>" + (q.m >= 6 ? '<div class="tiny faint" style="margin-top:4px" id="mk-wc">' + wordCount(ans) + " words</div>" : "");
   h += '<div class="row between wrap" style="margin-top:18px"><button class="btn" data-act="mockNav" data-n="-1"' + (cur.n ? "" : " disabled") + '>Previous</button><button class="btn ' + (A.flags[cur.n] ? "primary" : "") + '" data-act="mockFlag">' + ic("flag") + (A.flags[cur.n] ? "Unmark review" : "Mark for review") + '</button><button class="btn" data-act="mockNav" data-n="1"' + (cur.n < qs.length - 1 ? "" : " disabled") + ">Next</button></div></div></div>";
   var answered = qs.filter(function (x) { var v = A.answers[x.n]; return v !== undefined && v !== ""; }).length;
-  h += '<div class="mock-side"><div class="card"><div class="eyebrow">' + (reading ? "Reading time left" : "Time left") + '</div><div class="timer' + (left < 5 * 60000 ? " low" : "") + '" id="mock-timer">' + hms(left) + '</div><div class="small muted" style="margin-top:4px">' + answered + " of " + qs.length + ' answered</div><button class="btn primary" style="width:100%;margin-top:12px" data-act="mockSubmit">Submit paper</button><button class="btn ghost sm" style="width:100%;margin-top:6px" data-act="mockAbandon">Abandon attempt</button></div><div class="card"><div class="eyebrow" style="margin-bottom:10px">Questions</div><div class="palette">' + qs.map(function (x) { var v = A.answers[x.n], c = "pal"; if (v !== undefined && v !== "") c += " ans"; if (A.flags[x.n]) c += " rev"; if (x.n === cur.n) c += " cur"; return '<button class="' + c + '" data-act="mockGo" data-n="' + x.n + '" aria-label="Question ' + (x.n + 1) + '">' + (x.n + 1) + "</button>"; }).join("") + '</div><div class="row wrap tiny faint" style="margin-top:10px;gap:10px"><span><i class="lg-sw" style="background:var(--good-soft)"></i> Answered</span><span><i class="dot" style="background:var(--warn)"></i> For review</span></div></div></div></div>';
+  h += '<div class="mock-side"><div class="card"><div class="eyebrow">' + (reading ? "Reading time left" : "Time left") + '</div><div class="timer' + (left < 5 * 60000 ? " low" : "") + '" id="mock-timer">' + hms(left) + '</div><div class="small muted" style="margin-top:4px">' + answered + " of " + qs.length + ' answered</div><button class="btn primary" style="width:100%;margin-top:12px" data-act="mockSubmit">Submit paper</button><button class="btn" style="width:100%;margin-top:8px" data-act="mockPause">⏸ Pause (hide paper)</button><button class="btn ghost sm" style="width:100%;margin-top:6px" data-act="mockAbandon">Abandon attempt</button></div><div class="card"><div class="eyebrow" style="margin-bottom:10px">Questions</div><div class="palette">' + qs.map(function (x) { var v = A.answers[x.n], c = "pal"; if (v !== undefined && v !== "") c += " ans"; if (A.flags[x.n]) c += " rev"; if (x.n === cur.n) c += " cur"; return '<button class="' + c + '" data-act="mockGo" data-n="' + x.n + '" aria-label="Question ' + (x.n + 1) + '">' + (x.n + 1) + "</button>"; }).join("") + '</div><div class="row wrap tiny faint" style="margin-top:10px;gap:10px"><span><i class="lg-sw" style="background:var(--good-soft)"></i> Answered</span><span><i class="dot" style="background:var(--warn)"></i> For review</span></div></div></div></div>';
   return h;
 }
 function wordCount(t) { t = String(t || "").trim(); return t ? t.split(/\s+/).length : 0; }
 function hms(ms) { ms = Math.max(0, ms); var s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), ss = s % 60; return (h ? h + ":" : "") + String(m).padStart(2, "0") + ":" + String(ss).padStart(2, "0"); }
-function startMock(sid, part) {
-  if (!MOCKS[sid]) { toast("There is no practice paper for " + SUBJ[sid].name + " yet.", "bad"); return; }
-  var s = SUBJ[sid], now = nowMs(), p = part ? mockParts(sid)[part - 1] : null, withA = !p || p.secs.indexOf(0) >= 0;
+function startMock(sid, part, pi) {
+  pi = pi || 0;
+  if (!paperOf(sid, pi)) { toast("There is no practice paper for " + SUBJ[sid].name + " yet.", "bad"); return; }
+  var s = SUBJ[sid], now = nowMs(), p = part ? mockParts(sid, pi)[part - 1] : null, withA = !p || p.secs.indexOf(0) >= 0;
   var rd = s.reading && withA ? S.settings.readingTime : 0, write = p ? Math.round(s.duration * p.marks / s.marks) : s.duration;
-  S.mocks.active = { id: uid("m"), subj: sid, part: part || null, write: write, startedAt: now, readingEnds: rd ? now + rd * 60000 : null, endsAt: now + (rd + write) * 60000, answers: {}, flags: {}, cur: 0, plays: {} };
+  S.mocks.active = { id: uid("m"), subj: sid, pi: pi, part: part || null, write: write, startedAt: now, readingEnds: rd ? now + rd * 60000 : null, endsAt: now + (rd + write) * 60000, answers: {}, flags: {}, cur: 0, plays: {}, paused: null, pausedMs: 0 };
   save(); UI.mockView = null; render();
 }
 function submitMock(auto) {
   var A = S.mocks.active; if (!A) return;
-  var qs = flatQs(A.subj, A.part), auto_ = 0, marks = {}, pending = false, mx = A.part ? mockParts(A.subj)[A.part - 1].marks : SUBJ[A.subj].marks;
+  var qs = flatQs(A.subj, A.part, A.pi), auto_ = 0, marks = {}, pending = false, mx = A.part ? mockParts(A.subj, A.pi)[A.part - 1].marks : flatQs(A.subj, null, A.pi).reduce(function (t, x) { return t + x.q.m; }, 0) || SUBJ[A.subj].marks;
+  if (A.paused) { var sh = nowMs() - A.paused; A.pausedMs = (A.pausedMs || 0) + sh; A.endsAt += sh; A.paused = null; }
   qs.forEach(function (x) {
     var q = x.q, v = A.answers[x.n];
     if (q.type === "mcq") marks[x.n] = v === q.a ? q.m : 0;
@@ -3350,7 +3800,7 @@ function submitMock(auto) {
     if (marks[x.n]) auto_ += marks[x.n];
   });
   var end = Math.min(nowMs(), A.endsAt);
-  var at = { id: A.id, subj: A.subj, startedAt: A.startedAt, submittedAt: nowMs(), timeUsed: Math.round((end - A.startedAt) / 1000), answers: A.answers, flags: A.flags, marks: marks, total: auto_, max: mx, part: A.part || null, pct: pct(auto_, mx), status: pending ? "pending" : "marked", auto: !!auto };
+  var at = { id: A.id, subj: A.subj, startedAt: A.startedAt, submittedAt: nowMs(), timeUsed: Math.max(0, Math.round((end - A.startedAt - (A.pausedMs || 0)) / 1000)), pausedMs: A.pausedMs || 0, pi: A.pi || 0, answers: A.answers, flags: A.flags, marks: marks, total: auto_, max: mx, part: A.part || null, pct: pct(auto_, mx), status: pending ? "pending" : "marked", auto: !!auto };
   S.mocks.attempts.push(at); S.mocks.active = null; logActivity(Math.round(at.timeUsed / 60));
   var ms = S.sessions.filter(function (x) { return x.kind === "mock" && !x.done && x.subj === at.subj && (x.part || null) === (at.part || null) && x.date === today(); })[0];
   if (ms && !dayInfo(today()).free) { ms.done = true; ms.doneAt = nowMs(); ms.actual = Math.round(at.timeUsed / 60); }
@@ -3363,8 +3813,8 @@ function recalcMock(at) {
   at.total = t; at.pct = pct(t, at.max); at.status = pend ? "pending" : "marked";
 }
 function mockResult(at) {
-  var s = SUBJ[at.subj], qs = flatQs(at.subj, at.part), pend = qs.filter(function (x) { return at.marks[x.n] === null; }).length;
-  var h = head(s.name + " mock · result" + (at.part ? " (Part " + at.part + ")" : ""), new Date(at.startedAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) + " · time used " + fmtDur(Math.round(at.timeUsed / 60)), '<button class="btn" data-act="mockBack">All mocks</button><button class="btn primary" data-act="mockStart" data-s="' + s.id + '"' + (at.part ? ' data-p="' + at.part + '"' : "") + '>Try again</button>');
+  var s = SUBJ[at.subj], qs = flatQs(at.subj, at.part, at.pi), pend = qs.filter(function (x) { return at.marks[x.n] === null; }).length;
+  var h = head(s.name + " · Paper " + ((at.pi || 0) + 1) + " result" + (at.part ? " (Part " + at.part + ")" : ""), new Date(at.startedAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) + " · time used " + fmtDur(Math.round(at.timeUsed / 60)) + (at.pausedMs ? " · paused for " + fmtDur(Math.round(at.pausedMs / 60000)) : ""), '<button class="btn" data-act="mockBack">All mocks</button><button class="btn" data-act="mockPdf" data-s="' + s.id + '" data-pi="' + (at.pi || 0) + '">' + ic("download") + 'Print / PDF</button><button class="btn primary" data-act="mockStart" data-s="' + s.id + '" data-pi="' + (at.pi || 0) + '"' + (at.part ? ' data-p="' + at.part + '"' : "") + '>Try again</button>');
   h += '<div class="grid g-dash"><div class="card span-4"><div class="stack" style="justify-items:center;text-align:center">' + ring(at.pct, 140, s.color) + '<div class="stat"><span class="v">' + at.total + " / " + at.max + '</span><span class="l">' + (pend ? "marks so far" : "final marks") + "</span></div>" + (pend ? '<span class="chip warn">' + pend + " written answer" + (pend > 1 ? "s" : "") + " to mark</span>" : '<span class="chip good">Fully marked · ' + at.pct + "%</span>") + "</div></div>";
   var bySec = {}; qs.forEach(function (x) { var k = x.sec.name; bySec[k] = bySec[k] || { got: 0, max: 0 }; bySec[k].max += x.q.m; bySec[k].got += at.marks[x.n] || 0; });
   h += '<div class="card span-8"><div class="card-h"><h2>By section</h2></div><div class="stack">' + Object.keys(bySec).map(function (k) { var b = bySec[k]; return '<div class="hbar" style="grid-template-columns:minmax(120px,260px) 1fr 64px"><span class="small">' + esc(k) + "</span>" + bar(pct(b.got, b.max), s.color) + '<span class="small tabular" style="text-align:right">' + b.got + "/" + b.max + "</span></div>"; }).join("") + "</div></div></div>";
@@ -3473,8 +3923,8 @@ function pgPrefs() {
 }
 function exportJSON() {
   var data = JSON.stringify({ app: "exam-command-centre-nov-2026", exported: new Date(nowMs()).toISOString(), state: S }, null, 1);
-  try { var b = new Blob([data], { type: "application/json" }), a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "exam-progress-" + today() + ".json"; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000); } catch (e) { }
-  openModal('<div class="modal-h"><h2>Export progress</h2><button class="btn ghost icon-btn" data-act="closeModal" aria-label="Close">' + ic("x") + '</button></div><p class="small muted">If a download did not start, copy this backup and save it in a note or file. Keep it safe: it contains all of your progress.</p><textarea class="input code" id="ex-txt" style="min-height:220px;margin-top:10px" readonly>' + esc(data) + '</textarea><div class="modal-f"><button class="btn" data-act="closeModal">Close</button><button class="btn primary" id="ex-copy">Copy backup</button></div>', true);
+  saveFile("exam-progress-" + today() + ".json", new Blob([data], { type: "application/json" })).then(function (r) { if (r === "saved") toast("Backup saved. Keep the file somewhere safe. 💾", "good"); }, function () { });
+  openModal('<div class="modal-h"><h2>Export progress</h2><button class="btn ghost icon-btn" data-act="closeModal" aria-label="Close">' + ic("x") + '</button></div><p class="small muted">If the file didn\'t save, copy this backup and save it in a note or file. Keep it safe: it contains all of your progress.</p><textarea class="input code" id="ex-txt" style="min-height:220px;margin-top:10px" readonly>' + esc(data) + '</textarea><div class="modal-f"><button class="btn" data-act="closeModal">Close</button><button class="btn primary" id="ex-copy">Copy backup</button></div>', true);
   $("#ex-copy").onclick = function () { var t = $("#ex-txt"); t.select(); var done = function () { toast("Backup copied.", "good"); }; try { navigator.clipboard.writeText(t.value).then(done, function () { try { document.execCommand("copy"); done(); } catch (e) { toast("Copy failed. Select the text and copy it manually.", "bad"); } }); } catch (e) { try { document.execCommand("copy"); done(); } catch (er) { toast("Copy failed. Select the text and copy it manually.", "bad"); } } };
 }
 function importModal() {
@@ -3557,21 +4007,25 @@ var ACT = {
     F.i++; F.flip = false; render();
   },
   mockStart: function (el) {
-    var sid = el.getAttribute("data-s"), s = SUBJ[sid], part = +el.getAttribute("data-p") || null, p = part ? mockParts(sid)[part - 1] : null;
+    var sid = el.getAttribute("data-s"), s = SUBJ[sid], part = +el.getAttribute("data-p") || null, pi = +el.getAttribute("data-pi") || 0, p = part ? mockParts(sid, pi)[part - 1] : null;
     var mins = p ? Math.round(s.duration * p.marks / s.marks) : s.duration, rd = s.reading && (!p || p.secs.indexOf(0) >= 0);
-    confirmBox("Start the " + s.name + " mock" + (part ? " (Part " + part + ")" : "") + "?", (p ? partLabel(sid, part) + ", " + p.marks + " marks. " : "") + "Timer: " + mins + " minutes" + (rd ? " plus " + S.settings.readingTime + " minutes reading time" : "") + ". It keeps running if you leave this page, and the paper is submitted automatically when time runs out.", "Start now", function () { startMock(sid, part); });
+    confirmBox("Start " + s.name + " Paper " + (pi + 1) + (part ? " (Part " + part + ")" : "") + "?", (p ? partLabel(sid, part, pi) + ", " + p.marks + " marks. " : "") + "Timer: " + mins + " minutes" + (rd ? " plus " + S.settings.readingTime + " minutes reading time" : "") + ". It keeps running if you leave this page (use Pause to stop it), and the paper is submitted automatically when time runs out.", "Start now", function () { startMock(sid, part, pi); });
   },
-  mockLast: function (el) { var at = S.mocks.attempts.filter(function (a) { return a.subj === el.getAttribute("data-s"); }); if (at.length) { UI.mockView = { result: at[at.length - 1].id }; render(); } },
+  mockPaper: function (el) { UI.mockPi = UI.mockPi || {}; UI.mockPi[el.getAttribute("data-s")] = +el.getAttribute("data-pi"); render(); },
+  mockPause: function () { var A = S.mocks.active; if (!A || A.paused) return; A.paused = nowMs(); save(); render(); },
+  mockResume: function () { var A = S.mocks.active; if (!A || !A.paused) return; var sh = nowMs() - A.paused; A.endsAt += sh; if (A.readingEnds) A.readingEnds += sh; A.pausedMs = (A.pausedMs || 0) + sh; A.paused = null; save(); render(); },
+  mockPdf: function (el) { pdfModal(el.getAttribute("data-s"), +el.getAttribute("data-pi") || 0); },
+  mockLast: function (el) { var pi = +el.getAttribute("data-pi") || 0; var at = S.mocks.attempts.filter(function (a) { return a.subj === el.getAttribute("data-s") && (a.pi || 0) === pi; }); if (at.length) { UI.mockView = { result: at[at.length - 1].id }; render(); } },
   mockOpen: function (el) { UI.mockView = { result: el.getAttribute("data-id") }; render(); window.scrollTo(0, 0); },
   mockBack: function () { UI.mockView = null; render(); },
   mockPick: function (el) { var A = S.mocks.active; A.answers[A.cur] = +el.getAttribute("data-i"); save(); render(); },
-  mockNav: function (el) { var A = S.mocks.active; A.cur = Math.max(0, Math.min(flatQs(A.subj, A.part).length - 1, A.cur + +el.getAttribute("data-n"))); save(); render(); },
+  mockNav: function (el) { var A = S.mocks.active; A.cur = Math.max(0, Math.min(flatQs(A.subj, A.part, A.pi).length - 1, A.cur + +el.getAttribute("data-n"))); save(); render(); },
   mockGo: function (el) { var A = S.mocks.active; A.cur = +el.getAttribute("data-n"); save(); render(); },
   mockFlag: function () { var A = S.mocks.active; if (A.flags[A.cur]) delete A.flags[A.cur]; else A.flags[A.cur] = 1; save(); render(); },
   mockSkipRead: function () { var A = S.mocks.active, s = SUBJ[A.subj]; A.readingEnds = nowMs(); A.endsAt = nowMs() + (A.write || s.duration) * 60000; save(); render(); },
-  mockSubmit: function () { var A = S.mocks.active, qs = flatQs(A.subj, A.part), un = qs.filter(function (x) { var v = A.answers[x.n]; return v === undefined || v === ""; }).length, fl = Object.keys(A.flags).length; confirmBox("Submit your paper?", (un ? un + " question" + (un > 1 ? "s are" : " is") + " unanswered. " : "All questions answered. ") + (fl ? fl + " marked for review. " : "") + "You can't change answers after submitting.", "Submit", function () { submitMock(false); }); },
+  mockSubmit: function () { var A = S.mocks.active, qs = flatQs(A.subj, A.part, A.pi), un = qs.filter(function (x) { var v = A.answers[x.n]; return v === undefined || v === ""; }).length, fl = Object.keys(A.flags).length; confirmBox("Submit your paper?", (un ? un + " question" + (un > 1 ? "s are" : " is") + " unanswered. " : "All questions answered. ") + (fl ? fl + " marked for review. " : "") + "You can't change answers after submitting.", "Submit", function () { submitMock(false); }); },
   mockAbandon: function () { confirmBox("Abandon this attempt?", "Your answers will be discarded and nothing is saved to your history.", "Abandon", function () { S.mocks.active = null; save(); render(); }, true); },
-  listen: function (el) { var A = S.mocks.active, k = el.getAttribute("data-k"), qs = flatQs(A.subj, A.part), txt = /^p/.test(k) ? MOCKS[A.subj].sections[+k.slice(1)].listenPassage : qs[+k].q.listen; if ((A.plays[k] || 0) >= 2) return; if (speakHindi(txt)) { A.plays[k] = (A.plays[k] || 0) + 1; save(); render(); } },
+  listen: function (el) { var A = S.mocks.active, k = el.getAttribute("data-k"), qs = flatQs(A.subj, A.part, A.pi), txt = /^p/.test(k) ? paperOf(A.subj, A.pi).sections[+k.slice(1)].listenPassage : qs[+k].q.listen; if ((A.plays[k] || 0) >= 2) return; if (speakHindi(txt)) { A.plays[k] = (A.plays[k] || 0) + 1; save(); render(); } },
   showTranscript: function (el) { var t = $("#tr-" + el.getAttribute("data-k")); if (t) t.classList.toggle("hidden"); },
   export: exportJSON, import: importModal, reset: resetModal,
   importer: function () { openImporter(); },
@@ -3601,7 +4055,8 @@ var ACT = {
   sqCheck: function (el) { var q = QBY[el.getAttribute("data-q")], v = $("#sq-" + q.id).value; if (!v.trim()) { toast("Type an answer first.", "info"); return; } var ok = checkShort(v, q.a); studyMark(q, { given: v, ok: ok, got: ok ? 1 : 0 }); },
   sqReveal: function (el) { var q = QBY[el.getAttribute("data-q")]; UI.focus.ans[q.id] = { given: $("#sq-" + q.id).value, revealed: true }; drawFocus(); },
   sqSelf: function (el) { var q = QBY[el.getAttribute("data-q")], m = +el.getAttribute("data-m"), a = UI.focus.ans[q.id]; a.got = m; a.ok = m === q.m; studyMark(q, a); },
-  stMock: function () { var x = findSess(UI.focus.id), A = S.mocks.active; closeFocus(); if (!A) startMock(x.subj, x.part || null); UI.mockView = null; go("mocks"); }
+  stMock: function (el) { var x = findSess(UI.focus.id), A = S.mocks.active, pi = +el.getAttribute("data-pi") || 0; closeFocus(); if (!A) { var pt = x.part && mockParts(x.subj, pi)[x.part - 1] ? x.part : null; startMock(x.subj, pt, pi); } UI.mockView = null; go("mocks"); },
+  stPaper: function (el) { UI.focus.pi = +el.getAttribute("data-pi"); drawFocus(); }
 };
 var ON = {
   sylSubj: function (el) { UI.sylF.subj = el.value; render(); },
@@ -3618,7 +4073,7 @@ var ON = {
   mockInput: function (el) { var A = S.mocks.active; if (!A) return; A.answers[A.cur] = el.value; save(); var wc = $("#mk-wc"); if (wc) wc.textContent = wordCount(el.value) + " words"; var p = $all(".pal")[A.cur]; if (p) p.classList.toggle("ans", !!el.value); },
   stPick: function (el) { var f = UI.focus, x = findSess(f.id); f.pick = el.value || null; var t = studyTopics(x); f.qs = pickQs(x, t); f.cards = pickCards(x, t); f.ci = 0; drawFocus(); },
   stCheck: function (el) { S.checklist = S.checklist || {}; S.checklist[el.getAttribute("data-k")] = el.checked; save(); },
-  mockMark: function (el) { var at = S.mocks.attempts.filter(function (a) { return a.id === el.getAttribute("data-aid"); })[0], n = el.getAttribute("data-n"), q = flatQs(at.subj, at.part)[+n].q, v = el.value.trim(); if (v === "") at.marks[n] = null; else { var m = Math.round(+v); if (isNaN(m) || m < 0 || m > q.m) { toast("Enter a mark from 0 to " + q.m + ".", "bad"); el.value = at.marks[n] === null ? "" : at.marks[n]; return; } at.marks[n] = m; } recalcMock(at); save(); var y = window.scrollY; render(); window.scrollTo(0, y); },
+  mockMark: function (el) { var at = S.mocks.attempts.filter(function (a) { return a.id === el.getAttribute("data-aid"); })[0], n = el.getAttribute("data-n"), q = flatQs(at.subj, at.part, at.pi)[+n].q, v = el.value.trim(); if (v === "") at.marks[n] = null; else { var m = Math.round(+v); if (isNaN(m) || m < 0 || m > q.m) { toast("Enter a mark from 0 to " + q.m + ".", "bad"); el.value = at.marks[n] === null ? "" : at.marks[n]; return; } at.marks[n] = m; } recalcMock(at); save(); var y = window.scrollY; render(); window.scrollTo(0, y); },
   pref: function (el) {
     var k = el.getAttribute("data-k"), v = el.value;
     if (el.type === "time") { if (!/^\d\d:\d\d$/.test(v)) return; if (k === "dayEnd" && toMin(v) < toMin(S.settings.weekdayStart) + 30) { toast("The latest finish time must be after your start times.", "bad"); el.value = S.settings[k]; return; } S.settings[k] = v; }
@@ -3662,7 +4117,7 @@ function tick() {
   var now = nowMs();
   $all("[data-cd]").forEach(function (el) { el.innerHTML = cdUnits(+el.getAttribute("data-cd") - now); });
   var A = S.mocks.active;
-  if (A) {
+  if (A && !A.paused) {
     if (now >= A.endsAt) { submitMock(true); }
     else if (UI.page === "mocks") {
       var t = $("#mock-timer"), reading = A.readingEnds && now < A.readingEnds;
@@ -4185,6 +4640,133 @@ if (typeof ACT !== "undefined") {
     catch (e) { msg.style.color = "var(--bad)"; msg.textContent = (e && e.message) || "That didn't work."; if (e && e.code === "bad_key") { groqSave(old); } }
   };
   ACT.gqRemove = function () { confirmBox("Remove your Groq key?", "AI features will switch off on this device until you add a key again.", "Remove", function () { groqSave(null); AI.s = null; AI.ready = false; AI.status = "none"; AI.why = "Add your free Groq API key in Preferences to switch on AI."; render(); if (typeof pipDraw === "function") pipDraw(); }, true); };
+}
+
+/* ===== Print / PDF for mock papers ===== */
+var DL = { ns: null, tried: false };
+async function dlInit() {
+  if (DL.tried) return DL.ns; DL.tried = true;
+  try { if (window.claude && typeof window.claude.use === "function") DL.ns = await window.claude.use("downloads"); } catch (e) { DL.ns = null; }
+  return DL.ns;
+}
+/* Save a file: through claude.ai's download permission when available, otherwise a normal browser download */
+async function saveFile(filename, blob) {
+  var ns = await dlInit();
+  if (ns) {
+    try { await ns.save({ filename: filename, data: blob }); return "saved"; }
+    catch (e) { var c = e && e.code; if (c === "declined") return "declined"; if (c === "rate_limited") { toast("A save box is already open. Finish that one first.", "info"); return "busy"; } if (aiInFrame()) throw e; }
+  }
+  if (aiInFrame() && !ns) throw { code: "unavailable", message: "Saving files isn't available in this view." };
+  var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = filename; document.body.appendChild(a); a.click();
+  setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+  return "saved";
+}
+
+function pdfModal(sid, pi) {
+  var P = paperOf(sid, pi), s = SUBJ[sid]; if (!P) { toast("No paper to print.", "bad"); return; }
+  var canPrint = !aiInFrame();
+  openModal('<div class="modal-h"><h2>Print or save as PDF</h2><button class="btn ghost icon-btn" data-act="closeModal" aria-label="Close">' + ic("x") + '</button></div><p class="muted">' + esc(P.title) + " · " + s.marks + " marks · " + s.duration + ' minutes</p><div class="stack" style="margin-top:12px"><label class="row"><input type="checkbox" class="check" id="pdf-key"><span>Add the answer key and mark scheme at the end <span class="tiny faint">(leave off if someone else is sitting the paper)</span></span></label><label class="row"><input type="checkbox" class="check" id="pdf-lines" checked><span>Include lined space for written answers</span></label>' + (P.sections.some(function (x) { return x.listen; }) ? '<p class="tiny muted">The listening items get a separate “reader\'s sheet” page so someone can read them aloud.</p>' : "") + '<p class="small" id="pdf-msg" role="status"></p></div><div class="modal-f">' + (canPrint ? '<button class="btn" id="pdf-print">' + ic("download") + "Print</button>" : "") + '<button class="btn primary" id="pdf-go">' + ic("download") + "Download PDF</button></div>");
+  var opts = function () { return { key: $("#pdf-key").checked, lines: $("#pdf-lines").checked }; };
+  $("#pdf-go").onclick = async function () {
+    var btn = this, msg = $("#pdf-msg"); btn.disabled = true; msg.style.color = ""; msg.textContent = "Drawing the pages…";
+    try {
+      var blob = await paperPDF(sid, pi, opts(), function (t) { msg.textContent = t; });
+      msg.textContent = "Saving…";
+      var r = await saveFile(s.short.replace(/\s+/g, "-") + "-paper-" + (pi + 1) + (opts().key ? "-with-answers" : "") + ".pdf", blob);
+      if (r === "saved") { closeModal(); toast("PDF ready. Open it and print. 🖨️", "good"); } else { msg.textContent = r === "declined" ? "Save was cancelled." : ""; btn.disabled = false; }
+    } catch (e) { msg.style.color = "var(--bad)"; msg.textContent = (e && e.message) || "Couldn't make the PDF."; btn.disabled = false; }
+  };
+  if (canPrint) $("#pdf-print").onclick = function () { var o = opts(); closeModal(); printPaper(sid, pi, o); };
+}
+
+/* ---------- page layout ---------- */
+var PG = { w: 794, h: 1123, pad: 52 };
+function printCSS() {
+  return ".pp-page{width:" + PG.w + "px;height:" + PG.h + "px;background:#fff;color:#1f1d24;padding:" + PG.pad + "px " + PG.pad + "px 40px;box-sizing:border-box;position:relative;overflow:hidden;font-family:'Patrick Hand','Kalam','Comic Sans MS',cursive;font-size:16px;line-height:1.45}" +
+    ".pp-body{height:" + (PG.h - PG.pad - 40 - 26) + "px;overflow:hidden}" +
+    ".pp-foot{position:absolute;left:" + PG.pad + "px;right:" + PG.pad + "px;bottom:18px;display:flex;justify-content:space-between;font-size:12px;color:#777;border-top:1px solid #ddd;padding-top:4px}" +
+    ".pp-h1{font-family:'Schoolbell','Patrick Hand',cursive;font-size:28px;margin:0}.pp-meta{display:flex;flex-wrap:wrap;gap:18px;font-size:15px;margin:6px 0 10px}" +
+    ".pp-fill{display:flex;gap:24px;margin:8px 0}.pp-fill span{flex:1;border-bottom:1.5px solid #333;padding-bottom:2px}" +
+    ".pp-ins{border:1.5px dashed #888;border-radius:8px;padding:8px 12px;font-size:14.5px;margin:6px 0 14px}" +
+    ".pp-sec{font-family:'Schoolbell','Patrick Hand',cursive;font-size:21px;border-bottom:2px solid #1f1d24;margin:14px 0 8px;padding-bottom:2px}" +
+    ".pp-pass{border:1.5px solid #999;border-radius:6px;padding:8px 12px;font-size:15px;white-space:pre-wrap;background:#fbfaf5}" +
+    ".pp-q{margin:10px 0 4px;white-space:pre-wrap}.pp-q b{font-family:'Schoolbell','Patrick Hand',cursive;font-weight:400;font-size:18px;margin-right:6px}.pp-m{float:right;color:#555;font-size:14px;margin-left:10px}" +
+    ".pp-opts{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;margin:4px 0 4px 26px}.pp-opts.pics{grid-template-columns:repeat(4,1fr);font-size:30px}" +
+    ".pp-line{height:30px;border-bottom:1px solid #9a9a9a;margin-left:26px}.pp-ans{margin:6px 0 4px 26px}.pp-ans span{display:inline-block;min-width:220px;border-bottom:1.5px solid #333}" +
+    ".pp-key{font-size:14.5px;margin:6px 0;white-space:pre-wrap;border-left:3px solid #2f6fdb;padding-left:10px}.pp-key b{font-weight:400;font-family:'Schoolbell','Patrick Hand',cursive;font-size:16px}" +
+    ".pp-code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px}";
+}
+function ppBlocks(sid, pi, o) {
+  var s = SUBJ[sid], P = paperOf(sid, pi), B = [], n = 0, hasListen = false, keyB = [], tr = [];
+  var codeLike = function (t) { return sid === "dl" && /\n\s{2,}|\n(for|if|print|x =|num|total|marks)/.test(t); };
+  B.push('<h1 class="pp-h1">' + esc(P.title) + '</h1><div class="pp-meta"><span><b>' + esc(s.name) + "</b></span><span>Total: " + s.marks + " marks</span><span>Time: " + s.duration + " minutes" + (s.reading ? " + reading time" : "") + "</span></div><div class=\"pp-fill\"><span>Name:</span><span>Date:</span><span>Marks:       / " + s.marks + '</span></div><div class="pp-ins">' + esc(P.instructions || "Answer all questions.") + "</div>");
+  P.sections.forEach(function (sec, si) {
+    var head = '<div class="pp-sec">' + esc(sec.name) + "</div>", B0 = B.length;
+    if (sec.listen) { hasListen = true; B.push('<div class="pp-ins">🔊 Listening: someone reads each item aloud twice from the reader\'s sheet at the end.</div>'); if (sec.listenPassage) tr.push({ label: sec.name, text: sec.listenPassage }); }
+    if (sec.passage) sec.passage.split(/\n\n+/).forEach(function (para) { B.push('<div class="pp-pass">' + esc(para) + "</div>"); });
+    sec.qs.forEach(function (q) {
+      n++;
+      var qt = '<div class="pp-q"><span class="pp-m">[' + q.m + "]</span><b>" + n + ".</b><span" + (codeLike(q.q) ? ' class="pp-code"' : "") + ">" + esc(q.q) + "</span></div>";
+      if (q.listen) tr.push({ label: "Question " + n, text: q.listen });
+      if (q.type === "mcq") qt += '<div class="pp-opts' + (q.pic ? " pics" : "") + '">' + q.o.map(function (x, i) { return "<div>" + (q.pic ? "<span style=\"font-size:14px;font-family:'Patrick Hand',cursive\">" + "ABCD"[i] + "</span> " : "<b>" + "ABCD"[i] + ")</b> ") + esc(x) + "</div>"; }).join("") + "</div>";
+      if (q.type === "short") qt += '<div class="pp-ans">Answer: <span>&nbsp;</span></div>';
+      B.push(qt);
+      if (q.type === "written" && o.lines) { var L = Math.min(40, Math.max(3, Math.round(q.m * 2.2))); for (var k = 0; k < L; k += 4) B.push(new Array(Math.min(4, L - k) + 1).join('<div class="pp-line"></div>')); }
+      var ans = q.type === "mcq" ? "ABCD"[q.a] + ") " + q.o[q.a] : q.type === "short" ? q.a[0] + (q.ms && q.ms !== q.a[0] ? "  (" + q.ms + ")" : "") : q.ms;
+      keyB.push('<div class="pp-key"><b>' + n + ".</b> [" + q.m + "] " + esc(ans) + "</div>");
+    });
+    if (B.length > B0) B[B0] = head + B[B0]; else B.push(head);
+  });
+  var out = [{ blocks: B, title: P.title }];
+  if (hasListen) out.push({ blocks: ['<h1 class="pp-h1">Reader\'s sheet · listening</h1><div class="pp-ins">For the person reading aloud: read each item clearly twice, with a short pause between readings. Do not show this page to the student.</div>'].concat(tr.map(function (t) { return '<div class="pp-q"><b>' + esc(t.label) + "</b></div><div class=\"pp-pass\">" + esc(t.text) + "</div>"; })), title: "Reader's sheet" });
+  if (o.key) out.push({ blocks: ['<h1 class="pp-h1">Answer key and mark scheme</h1><div class="pp-meta"><span>' + esc(P.title) + "</span></div>"].concat(keyB), title: "Answer key" });
+  return out;
+}
+function ppPaginate(groups, host, label) {
+  var pages = [];
+  groups.forEach(function (g) {
+    var page = null, body = null;
+    var newPage = function () { page = document.createElement("div"); page.className = "pp-page"; body = document.createElement("div"); body.className = "pp-body"; page.appendChild(body); host.appendChild(page); pages.push({ el: page, title: g.title }); };
+    newPage();
+    g.blocks.forEach(function (html) {
+      var d = document.createElement("div"); d.innerHTML = html; body.appendChild(d);
+      if (body.scrollHeight > body.clientHeight + 1 && body.children.length > 1) { body.removeChild(d); newPage(); body.appendChild(d); }
+    });
+  });
+  pages.forEach(function (p, i) { var f = document.createElement("div"); f.className = "pp-foot"; f.innerHTML = "<span>" + esc(label) + " · " + esc(p.title) + "</span><span>Page " + (i + 1) + " of " + pages.length + "</span>"; p.el.appendChild(f); });
+  return pages.map(function (p) { return p.el; });
+}
+function ppHost(visible) {
+  var old = $("#pp-host"); if (old) old.remove();
+  var host = document.createElement("div"); host.id = "pp-host";
+  host.style.cssText = visible ? "" : "position:fixed;left:-12000px;top:0;z-index:-1;";
+  host.innerHTML = "<style>" + printCSS() + "</style>";
+  document.body.appendChild(host); return host;
+}
+var PDFLIBS = { h2c: "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js", jspdf: "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" };
+async function paperPDF(sid, pi, o, onStep) {
+  try { if (!window.html2canvas) await loadScript(PDFLIBS.h2c); if (!(window.jspdf && window.jspdf.jsPDF)) await loadScript(PDFLIBS.jspdf); }
+  catch (e) { throw { message: "The PDF maker needs an internet connection the first time. Connect and try again" + (aiInFrame() ? "." : ", or use Print.") }; }
+  try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) { }
+  var host = ppHost(false), s = SUBJ[sid];
+  var pages = ppPaginate(ppBlocks(sid, pi, o), host, s.name + " · Paper " + (pi + 1));
+  var doc = new window.jspdf.jsPDF({ unit: "pt", format: "a4", compress: true });
+  for (var i = 0; i < pages.length; i++) {
+    if (onStep) onStep("Drawing page " + (i + 1) + " of " + pages.length + "…");
+    var c = await window.html2canvas(pages[i], { scale: 2, backgroundColor: "#ffffff", logging: false, useCORS: true });
+    if (i) doc.addPage();
+    doc.addImage(c.toDataURL("image/jpeg", 0.88), "JPEG", 0, 0, 595.28, 841.89);
+  }
+  host.remove();
+  return doc.output("blob");
+}
+function printPaper(sid, pi, o) {
+  var host = ppHost(true); host.className = "pp-print";
+  ppPaginate(ppBlocks(sid, pi, o), host, SUBJ[sid].name + " · Paper " + (pi + 1));
+  document.body.classList.add("printing");
+  var done = function () { document.body.classList.remove("printing"); host.remove(); window.removeEventListener("afterprint", done); };
+  window.addEventListener("afterprint", done);
+  setTimeout(function () { try { window.print(); } catch (e) { toast("Printing isn't available here. Use Download PDF.", "bad"); } setTimeout(function () { if (document.body.classList.contains("printing")) done(); }, 60000); }, 300);
 }
 
 try { boot(); } catch (e) { console.error(e); document.getElementById("view").innerHTML = "<div class=\"notice bad\">The app could not start: " + String(e.message).replace(/</g,"&lt;") + "</div>"; }

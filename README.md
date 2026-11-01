@@ -11,7 +11,7 @@ Everything is in one file, `index.html`. It needs no server or build step and wo
 
 ## What's inside
 
-- **Built-in syllabus (default):** November 2026 exams with hand-written notes, 265 quiz questions, 161 flashcards and 7 mock papers.
+- **Built-in syllabus (default):** November 2026 exams with hand-written notes, 265 quiz questions, 161 flashcards and 21 mock papers (three per subject). Papers can be paused (the paper is hidden while paused) and printed or saved as PDF, with an optional answer key.
 - **Study planner:** respects the daily study limit, rest days, holidays and preparatory leave. You can edit, drag, add, delete and reschedule sessions, take a day off, or regenerate the plan.
 - **Study button:** opens the notes, practice questions and flashcards for that session on one screen.
 - **Pip:** handles maths, number-base conversions with working, definitions, exam countdowns, and commands like "quiz me on surds" or "take 9 Nov off".
