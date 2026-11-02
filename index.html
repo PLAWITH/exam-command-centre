@@ -496,6 +496,12 @@ label.f { display: grid; gap: 4px; font-size: 15.5px; color: var(--muted); }
   #pp-host .pp-page { page-break-after: always; break-after: page; }
 }
 
+/* model picker */
+.link-btn { background: none; border: 0; padding: 0; font: inherit; color: var(--accent, #2f6fdb); text-decoration: underline; text-decoration-style: wavy; text-underline-offset: 3px; cursor: pointer; }
+.pip-model { font: inherit; font-size: 14px; max-width: 190px; height: 28px; padding: 0 6px; border: 2px solid var(--ink, #2b2b2b); border-radius: 10px 14px 9px 13px; background: var(--paper, #fffdf6); color: inherit; cursor: pointer; }
+.pip-head > div:first-child { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; min-width: 0; }
+#pip-mode { display: inline-flex; align-items: center; gap: 4px; }
+
 </style>
 </head>
 <body>
@@ -4216,7 +4222,7 @@ function pipDraw() {
   log.scrollTop = log.scrollHeight;
   $("#pip-chips").innerHTML = PIP_CHIPS.map(function (c) { return '<button class="chip pip-chip" data-act="pipDo" data-cmd="' + esc(c[1]) + '">' + esc(c[0]) + "</button>"; }).join("");
   var p = $("#pip-panel"); if (p) p.hidden = !PIP.open;
-  var md = $("#pip-mode"); if (md) md.innerHTML = pipAIOn() ? "· AI helper (" + AI_NAME + ")" : S.settings.pipAI === false ? "· simple commands" : AI.status === "connecting" ? "· connecting…" : window.ECC_GROQ ? '· simple commands <button class="btn sm" data-act="nav" data-page="preferences" style="height:24px;font-size:13px;padding:0 8px">Add Groq key</button>' : '· simple commands (AI off) <button class="btn sm" data-act="aiRetry" style="height:24px;font-size:13px;padding:0 8px">Retry AI</button>';
+  var md = $("#pip-mode"); if (md) md.innerHTML = pipAIOn() ? (window.ECC_GROQ && typeof groqPipPicker === "function" && groqCfg() ? "· AI " + groqPipPicker() : "· AI helper (" + AI_NAME + ")") : S.settings.pipAI === false ? "· simple commands" : AI.status === "connecting" ? "· connecting…" : window.ECC_GROQ ? '· simple commands <button class="btn sm" data-act="nav" data-page="preferences" style="height:24px;font-size:13px;padding:0 8px">Add Groq key</button>' : '· simple commands (AI off) <button class="btn sm" data-act="aiRetry" style="height:24px;font-size:13px;padding:0 8px">Retry AI</button>';
   var inp = $("#pip-in"); if (inp) inp.placeholder = pipAIOn() ? "Ask me anything, or tell me what to do" : "Try: 15% of 80, 45 to binary, quiz me on surds";
   var b = $("#pip-btn"); if (b) b.classList.toggle("talking", PIP.open);
 }
@@ -4358,11 +4364,19 @@ function pipHandle(raw) {
   var restMsg = info.rest ? "It's " + (info.fest || DOWL[info.dow]) + ", a study-free day, so I won't open study tools today. Enjoy the break! 🎈" : null;
 
   if (/^(help|commands|what can you do|\?)\b/.test(s)) {
-    pipSay("Here's what I can do:<ul class=\"pip-list\"><li><b>Maths:</b> 12*(3+4), 15% of 80, sqrt 72, 2^10, 7!</li><li><b>Number bases:</b> 45 to binary, 101101 binary to decimal, 2F hex to decimal, 200 to hex</li><li><b>Maths helpers:</b> round 3.14159 to 3 sf, 45000 in standard form, pythagoras 6 8</li><li><b>Look things up:</b> define valency, what is a surd, formula for density</li><li><b>Open things:</b> open planner, notes on photosynthesis, flashcards science</li><li><b>Study:</b> start studying, quiz me on surds, start maths mock</li><li><b>Plan:</b> what's on today, next exam, when is hindi, take 9 Nov off, undo day off 9 Nov</li><li><b>Progress:</b> how am I doing, mark surds as done</li><li><b>Settings:</b> chalkboard mode, paper mode, timer 10 min</li><li><b>Your own syllabus:</b> upload syllabus</li></ul>" + (pipAIOn() ? "Anything else, just ask in your own words: I use AI (" + AI_NAME + ") for that, and I can open things and do stuff in the site for you." : "I follow these simple commands. " + (window.ECC_GROQ ? "Add a free Groq API key in Preferences and I can use AI to answer anything." : "On the claude.ai page I can also use AI to answer anything.")));
+    pipSay("Here's what I can do:<ul class=\"pip-list\"><li><b>Maths:</b> 12*(3+4), 15% of 80, sqrt 72, 2^10, 7!</li><li><b>Number bases:</b> 45 to binary, 101101 binary to decimal, 2F hex to decimal, 200 to hex</li><li><b>Maths helpers:</b> round 3.14159 to 3 sf, 45000 in standard form, pythagoras 6 8</li><li><b>Look things up:</b> define valency, what is a surd, formula for density</li><li><b>Open things:</b> open planner, notes on photosynthesis, flashcards science</li><li><b>Study:</b> start studying, quiz me on surds, start maths mock</li><li><b>Plan:</b> what's on today, next exam, when is hindi, take 9 Nov off, undo day off 9 Nov</li><li><b>Progress:</b> how am I doing, mark surds as done</li><li><b>Settings:</b> chalkboard mode, paper mode, timer 10 min</li><li><b>Your own syllabus:</b> upload syllabus</li>" + (window.ECC_GROQ ? "<li><b>AI model:</b> which model, use the fast model, list models</li>" : "") + "</ul>" + (pipAIOn() ? "Anything else, just ask in your own words: I use AI (" + AI_NAME + ") for that, and I can open things and do stuff in the site for you." : "I follow these simple commands. " + (window.ECC_GROQ ? "Add a free Groq API key in Preferences and I can use AI to answer anything." : "On the claude.ai page I can also use AI to answer anything.")));
     return;
   }
   if (/^(hi|hello|hey|namaste|hii+|yo)\b/.test(s)) { pipSay("Hello! 👋 " + (up[0] ? "Your next exam is " + esc(up[0].name) + " " + relDay(up[0].exam) + ". " : "") + "Type <b>help</b> to see what I can do."); return; }
   if (/\b(thank|thanks|thx|shukriya|dhanyavaad)\b/.test(s)) { pipSay("You're welcome! You've got this. 💪"); return; }
+  if (window.ECC_GROQ && typeof groqCfg === "function" && /\b(model|models|gpt|qwen|llama|oss)\b/.test(s)) {
+    var gc = groqCfg();
+    if (!gc) { navTo("preferences"); pipSay("Add a free Groq API key in Preferences first, then you can pick the AI model there. I opened it for you."); return; }
+    var want = /\b(20b|fast|fastest|quick|quicker|small)\b/.test(s) ? "openai/gpt-oss-20b" : /\b(120b|smart|smartest|best|big|default)\b/.test(s) ? "openai/gpt-oss-120b" : /\b(qwen|photo|photos|vision|image|images|picture)\b/.test(s) ? "qwen/qwen3.8-27b" : null;
+    if (want && /\b(use|switch|change|set|pick|choose|try)\b/.test(s)) { groqSetModel("model", want, true); pipSay("Done! I'm using <b>" + esc(groqName(want)) + "</b> now. " + esc(groqPick(want).note)); return; }
+    if (/\b(list|all|options|which models|what models|choose|pick|change|switch)\b/.test(s)) { pipSay("I'm using <b>" + esc(groqName(gc.model)) + "</b>. You can pick from:<ul class=\"pip-list\">" + GROQ_PICKS.map(function (p) { return "<li><b>" + esc(p.name) + "</b> (" + esc(p.tag) + "): " + esc(p.note) + "</li>"; }).join("") + "</ul>Say <i>use the fast model</i>, use the menu at the top of this chat, or open Preferences for every model on your key."); return; }
+    pipSay("I'm using <b>" + esc(groqName(gc.model)) + "</b> for answers and <b>" + esc(groqName(gc.vision)) + "</b> for photos. Change it with the menu at the top of this chat, or say <i>use the fast model</i>."); return;
+  }
   if (/\b(sign ?in|log ?in|login|google)\b/.test(s) && !/\bout\b/.test(s)) { navTo("preferences"); if (window.ECC_GROQ && typeof syncSignIn === "function" && SYNC.status === "out") { syncSignIn(); pipSay("Opening Google sign-in. Your progress will sync to your Google account. ☁️"); } else pipSay(window.ECC_GROQ ? (SYNC.status === "in" ? "You're already signed in as " + esc(SYNC.user.email) + ". ✔️" : "Google sign-in isn't ready yet on this copy of the site.") : "Google sign-in works on the GitHub version of this site (plawith.github.io/exam-command-centre). Export your progress here and import it there. I opened Preferences for you."); return; }
   if (/\b(upload|import|add|use|change|new|my own)\b.*\bsyllabus\b/.test(s)) { closeFocus(); openImporter(); pipSay("Opened the syllabus uploader. Add your date sheet and syllabus PDF and I'll read it. 📄"); return; }
   if (/\b(who are you|your name)\b/.test(s)) { pipSay("I'm Pip, a sheet of paper with legs. I help you get around this site, do quick maths and look things up in your notes."); return; }
@@ -4564,24 +4578,102 @@ ON.prefPipAI = function (el) { S.settings.pipAI = el.checked; save(); pipMount()
 
 /* ===== Groq version: each user adds their own Groq API key (stored only in their browser). ===== */
 var ECC_GROQ = typeof window !== "undefined" && !!window.ECC_GROQ;
-var GROQ_KEY = "ecc.groq";
-var GROQ_DEFAULTS = { model: "llama-3.3-70b-versatile", vision: "meta-llama/llama-4-scout-17b-16e-instruct" };
-function groqCfg() { try { var c = JSON.parse(localStorage.getItem(GROQ_KEY) || "null"); if (c && c.key) return { key: c.key, model: c.model || GROQ_DEFAULTS.model, vision: c.vision || GROQ_DEFAULTS.vision }; } catch (e) { } return null; }
+var GROQ_KEY = "ecc.groq", GROQ_MODELS_KEY = "ecc.groq.models";
+var GROQ_DEFAULTS = { model: "openai/gpt-oss-120b", vision: "qwen/qwen3.8-27b" };
+/* hand-picked models with a plain-words note; the live list from the user's key adds the rest */
+var GROQ_PICKS = [
+  { id: "openai/gpt-oss-120b", name: "GPT-OSS 120B", tag: "Recommended", note: "The smartest free model: best for notes, mock papers and reading your syllabus. Free: 1,000 requests a day." },
+  { id: "openai/gpt-oss-20b", name: "GPT-OSS 20B", tag: "Fastest", note: "Answers about twice as fast, but a little less careful with long jobs. Free: 1,000 requests a day." },
+  { id: "qwen/qwen3.8-27b", name: "Qwen 3.8 27B", tag: "Reads photos", vision: true, maxImages: 3, note: "Also reads photos and scanned pages (up to 3 pictures at a time). A Groq preview model, so it may change. Free: 1,000 requests a day." },
+  { id: "openai/gpt-oss-safeguard-20b", name: "GPT-OSS Safeguard 20B", tag: "Safety checker", note: "Made for checking text against safety rules, not for studying. Free but slow: only 3 requests a minute, so Pip and long jobs will often hit the limit." }
+];
+/* listed by Groq but not on free keys (enterprise only): kept out of the picker */
+var GROQ_PAID = { "llama-3.1-8b-instant": 1, "llama-3.3-70b-versatile": 1, "minimaxai/minimax-m2.7": 1, "meta-models/muse-spark-open": 1 };
+/* models Groq has switched off for free keys; saved choices move to the new defaults */
+var GROQ_RETIRED = { "groq/compound": "model", "groq/compound-mini": "model", "moonshotai/kimi-k2-instruct": "model", "allam-2-7b": "model", "llama-3.3-70b-versatile": "model", "llama-3.1-8b-instant": "model", "qwen/qwen3-32b": "model", "deepseek-r1-distill-llama-70b": "model", "gemma2-9b-it": "model", "mixtral-8x7b-32768": "model", "meta-llama/llama-4-scout-17b-16e-instruct": "vision", "meta-llama/llama-4-maverick-17b-128e-instruct": "vision", "llama-3.2-90b-vision-preview": "vision", "llama-3.2-11b-vision-preview": "vision", "qwen/qwen3.6-27b": "vision" };
+var GROQ_SKIP = /whisper|orpheus|tts|playai|prompt-guard|llama-guard|allam|compound/i;
+var GROQ_VISION_RE = /qwen3\.[5-9]|vision|llama-4|gemma-3|-vl\b|muse/i;
+
+function groqCfg() {
+  try {
+    var c = JSON.parse(localStorage.getItem(GROQ_KEY) || "null");
+    if (c && c.key) {
+      var m = c.model || GROQ_DEFAULTS.model, v = c.vision || GROQ_DEFAULTS.vision;
+      if (GROQ_RETIRED[m]) m = GROQ_DEFAULTS.model;
+      if (GROQ_RETIRED[v]) v = GROQ_DEFAULTS.vision;
+      if (m !== c.model || v !== c.vision) { c.model = m; c.vision = v; groqSave(c); }
+      return { key: c.key, model: m, vision: v };
+    }
+  } catch (e) { }
+  return null;
+}
 function groqSave(c) { try { if (c) localStorage.setItem(GROQ_KEY, JSON.stringify(c)); else localStorage.removeItem(GROQ_KEY); return true; } catch (e) { return false; } }
 function blobToDataURL(b) { return new Promise(function (ok, bad) { var r = new FileReader(); r.onload = function () { ok(r.result); }; r.onerror = bad; r.readAsDataURL(b); }); }
-async function groqFetch(body, signal) {
+function groqPick(id) { return GROQ_PICKS.filter(function (p) { return p.id === id; })[0] || null; }
+function groqName(id) { var p = groqPick(id); return p ? p.name : String(id || "").replace(/^[^/]+\//, ""); }
+function groqCanSee(id) { var p = groqPick(id); return p ? !!p.vision : GROQ_VISION_RE.test(id || ""); }
+
+/* the live list of models this key can use (cached for a day) */
+function groqModelsCached() { try { var j = JSON.parse(localStorage.getItem(GROQ_MODELS_KEY) || "null"); if (j && j.ids) return j; } catch (e) { } return null; }
+async function groqListModels(force, keyOverride) {
+  var cached = groqModelsCached();
+  if (!force && cached && Date.now() - cached.at < 864e5) return cached.ids;
+  var c = groqCfg(), key = keyOverride || (c && c.key); if (!key) return cached ? cached.ids : [];
+  var res = await fetch("https://api.groq.com/openai/v1/models", { headers: { "Authorization": "Bearer " + key } });
+  if (res.status === 401 || res.status === 403) throw { code: "bad_key", message: "Groq didn't accept the API key. Check it in Preferences." };
+  if (!res.ok) throw { code: "groq_" + res.status, message: "Couldn't load the model list (Groq error " + res.status + ")." };
+  var j = await res.json(), ids = (j.data || []).filter(function (m) { return m.active !== false && !GROQ_SKIP.test(m.id) && !GROQ_PAID[m.id] && !GROQ_RETIRED[m.id]; }).map(function (m) { return m.id; }).sort();
+  try { localStorage.setItem(GROQ_MODELS_KEY, JSON.stringify({ at: Date.now(), ids: ids })); } catch (e) { }
+  return ids;
+}
+/* if a chosen model has gone, pick the best one that still exists */
+function groqReplacement(kind, gone) {
+  var live = (groqModelsCached() || {}).ids || [];
+  var order = kind === "vision" ? GROQ_PICKS.filter(function (p) { return p.vision; }).map(function (p) { return p.id; }).concat(live.filter(groqCanSee))
+    : GROQ_PICKS.slice(0, 2).map(function (p) { return p.id; }).concat(["qwen/qwen3.8-27b"]);
+  for (var i = 0; i < order.length; i++) if (order[i] !== gone && (!live.length || live.indexOf(order[i]) >= 0)) return order[i];
+  return null;
+}
+function groqStrip(t) { return String(t || "").replace(/<think>[\s\S]*?<\/think>\s*/g, "").replace(/<think>[\s\S]*$/, ""); }
+
+async function groqFetch(body, signal, retried) {
   var c = groqCfg(); if (!c) throw { code: "not_granted", message: "No Groq API key" };
+  if (!/gpt-oss/.test(body.model) && body.reasoning_format === undefined && !retried) body.reasoning_format = "hidden";
   var res;
   try { res = await fetch("https://api.groq.com/openai/v1/chat/completions", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + c.key }, body: JSON.stringify(body), signal: signal }); }
   catch (e) { if (e && e.name === "AbortError") throw e; throw { code: "network", message: "Couldn't reach Groq. Check your internet connection." }; }
   if (!res.ok) {
-    var msg = ""; try { var j = await res.json(); msg = (j.error && j.error.message) || ""; } catch (e) { }
+    var msg = "", code = ""; try { var j = await res.json(); msg = (j.error && j.error.message) || ""; code = (j.error && j.error.code) || ""; } catch (e) { }
     if (res.status === 401 || res.status === 403) throw { code: "bad_key", message: "Groq didn't accept the API key. Check it in Preferences." };
-    if (res.status === 429) throw { code: "rate_limited", message: "Groq's free limit was reached. Wait a minute and try again." };
+    if (res.status === 429) throw { code: "rate_limited", message: "Groq's free limit for " + groqName(body.model) + " was reached. Wait a minute, or pick another model in Preferences." };
     if (res.status === 413) throw { code: "too_big", message: "That was too long for Groq's free limit. Try a shorter file or paste fewer pages." };
+    if (!retried && /reasoning_format/i.test(msg)) { var b2 = JSON.parse(JSON.stringify(body)); delete b2.reasoning_format; return groqFetch(b2, signal, true); }
+    if (!retried && (res.status === 404 || /decommission|model_not_found|does not exist|not found|no longer supported/i.test(msg + " " + code))) {
+      var kind = body.model === c.vision && body.model !== c.model ? "vision" : "model", next = groqReplacement(kind, body.model);
+      if (next) {
+        var saved = JSON.parse(localStorage.getItem(GROQ_KEY) || "{}"); saved[kind] = next; if (kind === "model" && saved.vision === body.model) saved.vision = GROQ_DEFAULTS.vision; groqSave(saved);
+        if (typeof toast === "function") toast(groqName(body.model) + " isn't available any more, so I switched to " + groqName(next) + ".", "info");
+        var b3 = JSON.parse(JSON.stringify(body)); b3.model = next; delete b3.reasoning_format; return groqFetch(b3, signal, true);
+      }
+    }
     throw { code: "groq_" + res.status, message: msg || ("Groq error " + res.status) };
   }
   return res;
+}
+/* pack many page pictures into a few tall ones when a model takes only a few images */
+async function groqPackImages(images, max) {
+  if (images.length <= max) return images;
+  var per = Math.ceil(images.length / max), out = [];
+  for (var g = 0; g < images.length; g += per) {
+    var group = images.slice(g, g + per), bitmaps = [];
+    for (var i = 0; i < group.length; i++) bitmaps.push(await createImageBitmap(group[i]));
+    var W = 1400, scaled = bitmaps.map(function (b) { var s = Math.min(1, W / b.width); return { b: b, w: b.width * s, h: b.height * s }; });
+    var H = scaled.reduce(function (a, x) { return a + x.h; }, 0), cv = document.createElement("canvas");
+    cv.width = W; cv.height = Math.min(H, 7800); var cx = cv.getContext("2d"); cx.fillStyle = "#fff"; cx.fillRect(0, 0, cv.width, cv.height);
+    var y = 0, k = Math.min(1, 7800 / H); scaled.forEach(function (x) { cx.drawImage(x.b, 0, y, x.w * k, x.h * k); y += x.h * k; });
+    out.push(await new Promise(function (ok) { cv.toBlob(ok, "image/jpeg", 0.88); }));
+  }
+  return out;
 }
 /* the same shape the rest of the app expects: sample(input, opts) -> {text} */
 async function groqSample(input, opts) {
@@ -4589,62 +4681,125 @@ async function groqSample(input, opts) {
   var c = groqCfg();
   var msgs = typeof input === "string" ? [{ role: "user", content: input }] : input.map(function (m) { return { role: m.role, content: m.content }; });
   var images = opts.images || [];
+  var model = images.length ? c.vision : c.model;
   if (images.length) {
+    var pick = groqPick(model), max = (pick && pick.maxImages) || 5;
+    try { images = await groqPackImages(images, max); } catch (e) { images = images.slice(0, max); }
     var parts = [{ type: "text", text: msgs[msgs.length - 1].content }];
-    for (var i = 0; i < Math.min(images.length, 5); i++) parts.push({ type: "image_url", image_url: { url: await blobToDataURL(images[i]) } });
+    for (var i = 0; i < Math.min(images.length, max); i++) parts.push({ type: "image_url", image_url: { url: await blobToDataURL(images[i]) } });
     msgs[msgs.length - 1] = { role: "user", content: parts };
   }
-  var model = images.length ? c.vision : c.model;
   var tools = (opts.tools || []).map(function (t) { return { type: "function", function: { name: t.name, description: t.description, parameters: t.inputSchema || { type: "object", properties: {} } } }; });
   if (tools.length) {
     for (var step = 0; step < 6; step++) {
-      var r = await (await groqFetch({ model: model, messages: msgs, tools: tools, tool_choice: "auto", temperature: 0.4 }, opts.signal)).json();
+      var body1 = { model: model, messages: msgs, tools: tools, tool_choice: "auto", temperature: 0.4 };
+      var r = await (await groqFetch(body1, opts.signal)).json();
       var m = r.choices && r.choices[0] && r.choices[0].message; if (!m) throw { code: "empty", message: "Groq sent an empty answer." };
-      if (!m.tool_calls || !m.tool_calls.length) { var txt = m.content || ""; if (opts.onText) opts.onText({ text: txt, delta: txt }); return { text: txt, truncated: false }; }
+      if (!m.tool_calls || !m.tool_calls.length) { var txt = groqStrip(m.content); if (opts.onText) opts.onText({ text: txt, delta: txt }); return { text: txt, truncated: false }; }
       msgs.push({ role: "assistant", content: m.content || "", tool_calls: m.tool_calls });
       for (var k = 0; k < m.tool_calls.length; k++) {
         var tc = m.tool_calls[k], tool = (opts.tools || []).filter(function (t) { return t.name === tc.function.name; })[0], out;
         try { var args = tc.function.arguments ? JSON.parse(tc.function.arguments) : {}; out = tool ? await tool.execute(args) : "Unknown tool"; } catch (e) { out = "Error: " + ((e && e.message) || e); }
         msgs.push({ role: "tool", tool_call_id: tc.id, content: typeof out === "string" ? out : JSON.stringify(out) });
       }
+      model = images.length ? groqCfg().vision : groqCfg().model;
     }
     return { text: "I tried a few things but couldn't finish. Please ask again.", truncated: false };
   }
   var body = { model: model, messages: msgs, temperature: opts.json ? 0.2 : 0.5, stream: !!opts.onText && !opts.json };
-  if (opts.json && !images.length) body.response_format = { type: "json_object" };
+  if (opts.json) body.response_format = { type: "json_object" };
   var res = await groqFetch(body, opts.signal);
-  if (!body.stream) { var jr = await res.json(); return { text: (jr.choices && jr.choices[0] && jr.choices[0].message && jr.choices[0].message.content) || "", truncated: false }; }
-  var reader = res.body.getReader(), dec = new TextDecoder(), buf = "", text = "";
+  if (!body.stream) { var jr = await res.json(); return { text: groqStrip(jr.choices && jr.choices[0] && jr.choices[0].message && jr.choices[0].message.content), truncated: false }; }
+  var reader = res.body.getReader(), dec = new TextDecoder(), buf = "", text = "", shown = "";
   for (;;) {
     var ch = await reader.read(); if (ch.done) break;
     buf += dec.decode(ch.value, { stream: true });
     var lines = buf.split("\n"); buf = lines.pop();
-    lines.forEach(function (l) { l = l.trim(); if (!l.startsWith("data:")) return; var d = l.slice(5).trim(); if (d === "[DONE]") return; try { var delta = JSON.parse(d).choices[0].delta.content || ""; if (delta) { text += delta; opts.onText({ text: text, delta: delta }); } } catch (e) { } });
+    lines.forEach(function (l) { l = l.trim(); if (!l.startsWith("data:")) return; var d = l.slice(5).trim(); if (d === "[DONE]") return; try { var delta = JSON.parse(d).choices[0].delta.content || ""; if (delta) { text += delta; var vis = groqStrip(text); if (vis !== shown) { var dd = vis.slice(shown.length); shown = vis; opts.onText({ text: vis, delta: dd }); } } } catch (e) { } });
   }
-  return { text: text, truncated: false };
+  return { text: groqStrip(text), truncated: false };
 }
 groqSample.json = async function (input, opts) { var o = {}; Object.keys(opts || {}).forEach(function (k) { o[k] = opts[k]; }); o.json = true; var r = await groqSample(input, o); return parseJSONLoose(r.text); };
 groqSample.limits = async function () { return { images: true }; };
 
-/* Preferences card for the key */
+/* ----- model picker ----- */
+function groqOptions(kind, current) {
+  var live = (groqModelsCached() || {}).ids || [];
+  var picks = GROQ_PICKS.filter(function (p) { return kind === "vision" ? p.vision : true; });
+  var h = '<optgroup label="Free models">' + picks.map(function (p) { var off = live.length && live.indexOf(p.id) < 0; return '<option value="' + esc(p.id) + '"' + (p.id === current ? " selected" : "") + (off ? " disabled" : "") + ">" + esc(p.name + " · " + p.tag + (off ? " (not on your key)" : "")) + "</option>"; }).join("") + "</optgroup>";
+  var others = live.filter(function (id) { return !groqPick(id) && (kind !== "vision" || groqCanSee(id)); });
+  if (others.length) h += '<optgroup label="' + (kind === "vision" ? "Other models on your key that can see pictures" : "Other models on your key (may need a paid Groq plan)") + '">' + others.map(function (id) { return '<option value="' + esc(id) + '"' + (id === current ? " selected" : "") + ">" + esc(id) + "</option>"; }).join("") + "</optgroup>";
+  var known = picks.some(function (p) { return p.id === current; }) || others.indexOf(current) >= 0;
+  if (current && !known) h += '<optgroup label="Your choice"><option value="' + esc(current) + '" selected>' + esc(current) + "</option></optgroup>";
+  h += '<option value="__custom">Type a model ID…</option>';
+  return h;
+}
+function groqNote(id, kind) {
+  var p = groqPick(id);
+  if (p) return esc(p.note);
+  if (kind === "vision" && !groqCanSee(id)) return "This model may not read pictures. If photo uploads fail, switch back to Qwen 3.8 27B.";
+  return "A model from Groq's list. If answers look odd, switch back to GPT-OSS 120B.";
+}
 function groqPrefsCard() {
-  var c = groqCfg();
+  var c = groqCfg(), cur = c || GROQ_DEFAULTS, cache = groqModelsCached();
+  if (c && !cache) setTimeout(function () { groqListModels(false).then(function () { if (UI.page === "preferences") render(); }).catch(function () { }); }, 50);
   return '<div class="card span-12"><div class="card-h"><h2>AI with your own Groq key</h2>' + (c ? '<span class="chip good">Key saved on this device</span>' : '<span class="chip">AI is off</span>') + '</div>' +
-    '<p class="small muted">AI is optional. It powers Pip\'s answers and reading your own syllabus PDF, plus notes, questions and papers for it. Get a free key at <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a> (sign in, Create API Key, copy it). The key is saved only in this browser and is never included in exports. Don\'t share your key with anyone.</p>' +
-    '<div class="grid g-3" style="gap:10px;margin-top:12px"><label class="f">Groq API key<input class="input" type="password" id="gq-key" autocomplete="off" placeholder="' + (c ? "•••••• saved (paste to replace)" : "gsk_…") + '"></label><label class="f">Model<input class="input" id="gq-model" value="' + esc(c ? c.model : GROQ_DEFAULTS.model) + '"></label><label class="f">Model for photos/scans<input class="input" id="gq-vision" value="' + esc(c ? c.vision : GROQ_DEFAULTS.vision) + '"></label></div>' +
+    '<p class="small muted">AI is optional. It powers Pip\'s answers and reading your own syllabus PDF, plus notes, questions and papers for it. Get a free key at <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a> (sign in, Create API Key, copy it). The key is saved only in this browser and is never included in exports or Google sync. Don\'t share your key with anyone.</p>' +
+    '<label class="f" style="margin-top:12px;max-width:520px">Groq API key<input class="input" type="password" id="gq-key" autocomplete="off" placeholder="' + (c ? "•••••• saved (paste to replace)" : "gsk_…") + '"></label>' +
+    '<h3 style="margin:16px 0 4px">Choose the AI model</h3>' +
+    '<div class="grid g-2" style="gap:12px">' +
+    '<div><label class="f">For chat, notes and papers<select class="input" id="gq-model" data-on="gqModelSel" data-kind="model">' + groqOptions("model", cur.model) + '</select></label><input class="input" id="gq-model-custom" placeholder="e.g. openai/gpt-oss-20b" hidden style="margin-top:6px"><p class="tiny muted" id="gq-model-note" style="margin:6px 0 0">' + groqNote(cur.model, "model") + '</p></div>' +
+    '<div><label class="f">For photos and scanned pages<select class="input" id="gq-vision" data-on="gqModelSel" data-kind="vision">' + groqOptions("vision", cur.vision) + '</select></label><input class="input" id="gq-vision-custom" placeholder="a model that reads images" hidden style="margin-top:6px"><p class="tiny muted" id="gq-vision-note" style="margin:6px 0 0">' + groqNote(cur.vision, "vision") + '</p></div>' +
+    '</div><p class="tiny muted" style="margin:8px 0 0">' + (cache ? cache.ids.length + " models on your key · list checked " + new Date(cache.at).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" }) + ' · <button class="link-btn" data-act="gqRefresh">Refresh list</button>' : c ? 'Loading the models your key can use… <button class="link-btn" data-act="gqRefresh">Refresh list</button>' : "Save a key to see every model your key can use.") + " If a model is switched off by Groq, the site moves to the next best one by itself.</p>" +
     '<div class="row wrap" style="margin-top:12px"><button class="btn primary" data-act="gqSave">Save and test</button>' + (c ? '<button class="btn danger" data-act="gqRemove">Remove key</button>' : "") + '<span class="small muted" id="gq-msg" role="status"></span></div></div>';
+}
+function groqSetModel(kind, id, quiet) {
+  var saved; try { saved = JSON.parse(localStorage.getItem(GROQ_KEY) || "null"); } catch (e) { }
+  if (!saved || !saved.key) return false;
+  saved[kind] = id; groqSave(saved);
+  if (!quiet && typeof toast === "function") toast((kind === "vision" ? "Photos will use " : "AI now uses ") + groqName(id) + ".", "good");
+  if (typeof pipDraw === "function") pipDraw();
+  return true;
+}
+function groqChosen(kind) {
+  var sel = $("#gq-" + kind), cu = $("#gq-" + kind + "-custom");
+  if (!sel) return GROQ_DEFAULTS[kind];
+  return sel.value === "__custom" ? ((cu && cu.value.trim()) || GROQ_DEFAULTS[kind]) : sel.value;
 }
 if (typeof ACT !== "undefined") {
   ACT.gqSave = async function () {
     var k = $("#gq-key").value.trim(), old = groqCfg(), msg = $("#gq-msg");
-    var c = { key: k || (old && old.key), model: $("#gq-model").value.trim() || GROQ_DEFAULTS.model, vision: $("#gq-vision").value.trim() || GROQ_DEFAULTS.vision };
+    var c = { key: k || (old && old.key), model: groqChosen("model"), vision: groqChosen("vision") };
     if (!c.key) { msg.textContent = "Paste your Groq API key first."; msg.style.color = "var(--bad)"; return; }
     if (!groqSave(c)) { msg.textContent = "Your browser blocked saving the key."; return; }
-    msg.style.color = ""; msg.textContent = "Testing…";
-    try { var r = await groqSample("Reply with the single word: ready"); if (!r.text) throw { message: "Empty answer" }; await aiInit(true); msg.style.color = "var(--good)"; msg.textContent = "It works! AI is on."; toast("Groq AI is on. ✨", "good"); setTimeout(render, 800); }
+    msg.style.color = ""; msg.textContent = "Testing " + groqName(c.model) + "…";
+    try {
+      var r = await groqSample("Reply with the single word: ready"); if (!r.text) throw { message: "Empty answer" };
+      await aiInit(true); try { await groqListModels(true); } catch (e) { }
+      msg.style.color = "var(--good)"; msg.textContent = "It works! AI is on with " + groqName(groqCfg().model) + "."; toast("Groq AI is on. ✨", "good"); setTimeout(render, 900);
+    }
     catch (e) { msg.style.color = "var(--bad)"; msg.textContent = (e && e.message) || "That didn't work."; if (e && e.code === "bad_key") { groqSave(old); } }
   };
-  ACT.gqRemove = function () { confirmBox("Remove your Groq key?", "AI features will switch off on this device until you add a key again.", "Remove", function () { groqSave(null); AI.s = null; AI.ready = false; AI.status = "none"; AI.why = "Add your free Groq API key in Preferences to switch on AI."; render(); if (typeof pipDraw === "function") pipDraw(); }, true); };
+  ACT.gqRemove = function () { confirmBox("Remove your Groq key?", "AI features will switch off on this device until you add a key again.", "Remove", function () { groqSave(null); try { localStorage.removeItem(GROQ_MODELS_KEY); } catch (e) { } AI.s = null; AI.ready = false; AI.status = "none"; AI.why = "Add your free Groq API key in Preferences to switch on AI."; render(); if (typeof pipDraw === "function") pipDraw(); }, true); };
+  ACT.gqRefresh = function () { toast("Checking which models your key can use…", "info"); groqListModels(true).then(function (ids) { toast(ids.length + " models found.", "good"); render(); }).catch(function (e) { toast((e && e.message) || "Couldn't load the list.", "bad"); }); };
+  ACT.pipModels = function () { go("preferences"); setTimeout(function () { var el = $("#gq-model"); if (el) { el.scrollIntoView({ block: "center" }); el.focus(); } }, 120); };
+}
+if (typeof ON !== "undefined") {
+  ON.gqModelSel = function (el) {
+    var kind = el.getAttribute("data-kind"), cu = $("#gq-" + kind + "-custom"), note = $("#gq-" + kind + "-note");
+    if (el.value === "__custom") { cu.hidden = false; cu.focus(); note.textContent = "Type the exact model ID from console.groq.com/docs/models, then press Save and test."; return; }
+    cu.hidden = true; note.innerHTML = groqNote(el.value, kind);
+    groqSetModel(kind, el.value);
+  };
+  ON.pipModel = function (el) { if (el.value === "__more") { el.value = groqCfg().model; ACT.pipModels(); return; } groqSetModel("model", el.value, true); var pk = groqPick(el.value); pipSay("Okay! I'll use <b>" + esc(groqName(el.value)) + "</b> from now on." + (pk ? " " + esc(pk.note) : "")); pipDraw(); };
+}
+/* the small picker in Pip's header */
+function groqPipPicker() {
+  var c = groqCfg(); if (!c) return "";
+  var live = (groqModelsCached() || {}).ids || [];
+  var list = GROQ_PICKS.filter(function (p) { return !live.length || live.indexOf(p.id) >= 0; }).map(function (p) { return p.id; });
+  if (list.indexOf(c.model) < 0) list.push(c.model);
+  return '<select class="pip-model" data-on="pipModel" aria-label="AI model Pip uses" title="Choose the AI model">' + list.map(function (id) { var p = groqPick(id); return '<option value="' + esc(id) + '"' + (id === c.model ? " selected" : "") + ">" + esc(p ? p.name + " · " + p.tag : id) + "</option>"; }).join("") + '<option value="__more">More models…</option></select>';
 }
 
 /* ===== Google sign-in + cloud sync (GitHub version). Uses the site owner's Firebase project (firebase-config.js).

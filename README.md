@@ -27,7 +27,7 @@ With a key, Pip answers anything in your own words and can do things in the site
 
 **About your key:** it is stored only in your browser's local storage, is never included in exports, and is sent only to `api.groq.com`. Use your own key and don't share it. Groq's free tier has rate limits; if you hit one, wait a minute.
 
-Default models: `llama-3.3-70b-versatile` (text) and `meta-llama/llama-4-scout-17b-16e-instruct` (scanned pages and photos). You can change both in Preferences if Groq renames them.
+**Choosing the AI model:** Preferences → *Choose the AI model* lists every model on Groq's free plan (GPT-OSS 120B, GPT-OSS 20B, Qwen 3.8 27B and GPT-OSS Safeguard 20B), plus any other model your key can use. You can also switch from the menu at the top of Pip's chat, or ask Pip "use the fast model". If Groq switches a model off, the site moves to the next best one by itself.
 
 ## Google sign-in and sync (optional)
 
