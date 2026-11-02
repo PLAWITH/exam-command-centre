@@ -1,12 +1,11 @@
-/* Google sign-in + sync settings (Firebase). Paste your Firebase web app config below and commit.
-   These values identify your Firebase project; they are safe to publish. Security comes from the Firestore rules
-   (see README → "Google sign-in setup"). Leave it as null to switch Google sign-in off. */
-window.ECC_FIREBASE = null;
-/* Example:
+/* Google sign-in + sync settings (Firebase). These values identify the Firebase project; they are safe to publish.
+   Each person's data is kept private by the Firestore rules (see README → "Google sign-in setup").
+   Set this to null to switch Google sign-in off. */
 window.ECC_FIREBASE = {
-  apiKey: "AIza...",
-  authDomain: "your-project.firebaseapp.com",
-  projectId: "your-project",
-  appId: "1:1234567890:web:abc123"
+  apiKey: "AIzaSyCopULKpVnQXW732d9vXrPE04kmSC7ABQQ",
+  authDomain: "exam-command-centre.firebaseapp.com",
+  projectId: "exam-command-centre",
+  storageBucket: "exam-command-centre.firebasestorage.app",
+  messagingSenderId: "939712820383",
+  appId: "1:939712820383:web:158c3500ad34de25531eaa"
 };
-*/
