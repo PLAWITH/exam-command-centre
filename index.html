@@ -1644,7 +1644,7 @@ function createProfile(cfg) {
   var id = "p" + Date.now().toString(36);
   cfg.subjects.forEach(function (s, i) { s.id = "s" + (i + 1); s.units.forEach(function (u, ui) { u.topics.forEach(function (t, ti) { t.id = s.id + "u" + (ui + 1) + "t" + (ti + 1); }); }); });
   var dm = +cfg.dailyMax || 90;
-  var st = { v: 4, cfg: cfg, settings: { theme: "light", sessionLen: 20, breakMin: 10, weekdayMin: dm, weekendMin: dm, prepMin: dm, examDayMin: Math.min(60, dm), weekdayStart: "16:30", weekendStart: "09:30", examDayStart: "14:30", dayEnd: "21:30", readingTime: 10, notify: { inApp: true, lead: 10, browser: false, daily: true }, pip: true, pipAI: true }, skipDays: [], ai: { topics: {}, mocks: {} } };
+  var st = { v: 5, cfg: cfg, settings: { theme: "light", sessionLen: 20, breakMin: 10, weekdayMin: dm, weekendMin: dm, prepMin: dm, examDayMin: Math.min(60, dm), weekdayStart: "16:30", weekendStart: "09:30", examDayStart: "14:30", dayEnd: "21:30", readingTime: 10, notify: { inApp: true, lead: 10, browser: false, daily: true }, pip: true, pipAI: true }, skipDays: [], ai: { topics: {}, mocks: {} } };
   try { localStorage.setItem(profileKey(id), JSON.stringify(st)); } catch (e) { return false; }
   REG.list.push({ id: id, name: cfg.name || "My exams", at: Date.now() }); writeReg(REG);
   switchProfile(id); return true;
@@ -1656,7 +1656,7 @@ function examTimeText(s) { var r = reportT(s); return (r ? "Report " + fmt12(r) 
 function restRuleText() {
   var w = RULES.restWeekdays.map(function (i) { return DOWL[i] + "s"; }), hol = Object.keys(FESTIVALS).map(function (d) { return fmtD(d); });
   var parts = []; if (w.length) parts.push(w.join(" and ")); if (hol.length) parts.push(hol.length > 2 ? hol.length + " holidays" : hol.join(", "));
-  return parts.length ? parts.join(" and ") + (parts.length === 1 && !hol.length ? " are" : " are") + " always free" : "no fixed rest days";
+  return parts.length ? parts.join(" and ") + " are always free" + (w.length && PREP_LEAVE.some(function (d) { return RULES.restWeekdays.indexOf(dow(d)) >= 0; }) ? " (except " + DOWL[RULES.restWeekdays[0]] + "s on preparatory leave)" : "") : "no fixed rest days";
 }
 function periodText() {
   var a = RULES.start.split("-"), b = RULES.end.split("-");
@@ -1701,7 +1701,7 @@ function monthDays() { var out = [], d = MONTH_START; while (d <= MONTH_END) { o
 /* ---------- day rules ---------- */
 function examOn(d) { for (var i = 0; i < SUBJECTS.length; i++) if (SUBJECTS[i].exam === d) return SUBJECTS[i]; return null; }
 function dayInfo(d) {
-  var w = dow(d), thu = RULES.restWeekdays.indexOf(w) >= 0, fest = FESTIVALS[d] || null, ex = examOn(d), prep = PREP_LEAVE.indexOf(d) >= 0;
+  var w = dow(d), fest = FESTIVALS[d] || null, ex = examOn(d), prep = PREP_LEAVE.indexOf(d) >= 0, thu = RULES.restWeekdays.indexOf(w) >= 0 && !prep; /* preparatory leave days are study days even on a rest weekday */
   var rest = thu || !!fest, off = !rest && !!(S && S.skipDays && S.skipDays.indexOf(d) >= 0);
   var kind = rest ? "rest" : ex ? "exam" : prep ? "prep" : (w === 0 || w === 6) ? "weekend" : "school";
   var restWhy = fest ? fest : thu ? DOWL[w] + " rest day" : "";
@@ -1725,7 +1725,7 @@ function priorityList() {
 }
 
 /* ---------- storage ---------- */
-var STORE_KEY = profileKey(RULES.id), storageOK = true, DAILY_MAX = RULES.dailyMax, STATE_V = 4;
+var STORE_KEY = profileKey(RULES.id), storageOK = true, DAILY_MAX = RULES.dailyMax, STATE_V = 5;
 function defaultSettings() {
   return { theme: "light", sessionLen: 20, breakMin: 10, weekdayMin: 90, weekendMin: 90, prepMin: 90, examDayMin: 60,
     weekdayStart: "16:30", weekendStart: "09:30", examDayStart: "14:30", dayEnd: "21:30", readingTime: 10,
@@ -1766,6 +1766,9 @@ function migrate(o) {
     o.sessions = (o.sessions || []).filter(function (x) { return x.kind !== "mock" && !/:M\d*$/.test(x.key || ""); });
     if (o.mocks) o.mocks.active = null;
     o.gen = null; o.v = 4;
+  }
+  if (o.v < 5) { /* v5: Thursdays on preparatory leave became study days; re-plan, keeping progress */
+    o.gen = null; o.v = 5;
   }
   ["weekdayMin", "weekendMin", "prepMin", "examDayMin"].forEach(function (k) { o.settings[k] = Math.max(0, Math.min(DAILY_MAX, +o.settings[k] || 0)); });
   return o;
