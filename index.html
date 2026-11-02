@@ -508,7 +508,7 @@ label.f { display: grid; gap: 4px; font-size: 15.5px; color: var(--muted); }
     <div class="brand" id="brand"><span id="brand-doodle"></span><div><div class="brand-t">Exam Command Centre</div><div class="brand-s">November 2026 · IST</div></div></div>
     <nav id="nav" class="stack-sm" style="gap:2px"></nav>
     <div class="side-foot">
-      <div class="side-next" id="side-next"></div><div id="side-prof"></div>
+      <div class="side-next" id="side-next"></div><div id="side-prof"></div><div id="side-sync"></div>
       <button class="nav-btn" id="theme-btn" data-act="theme"></button>
     </div>
   </aside>
@@ -518,6 +518,7 @@ label.f { display: grid; gap: 4px; font-size: 15.5px; color: var(--muted); }
 </div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <noscript><p style="padding:20px">This app needs JavaScript to run.</p></noscript>
+<script src="firebase-config.js" onerror="window.ECC_FIREBASE=null"></script>
 <script>
 window.ECC_GROQ = true;
 /* Syllabus + revision notes. Every subtopic from the syllabus focus list is a trackable item.
@@ -2400,6 +2401,7 @@ function migrate(o) {
 var _saveT = null;
 function save() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); storageOK = true; } catch (e) { storageOK = false; }
+  if (storageOK && typeof syncTouched === "function") syncTouched();
 }
 function uid(p) { S.seq = (S.seq || 1) + 1; return (p || "x") + S.seq.toString(36) + Math.floor(Math.random() * 1296).toString(36); }
 function logActivity(min, d) { d = d || today(); S.activity[d] = (S.activity[d] || 0) + (min || 1); }
@@ -3903,6 +3905,7 @@ function pgPrefs() {
   var tm = function (id, label, val) { return '<label class="f">' + label + '<input class="input" type="time" id="' + id + '" data-on="pref" data-k="' + id + '" value="' + val + '"></label>'; };
   var h = head("Preferences", "Syllabus, workload, appearance, reminders and your data");
   h += '<div class="grid g-dash">';
+  if (window.ECC_GROQ && typeof syncCard === "function") h += syncCard();
   if (window.ECC_GROQ) h += groqPrefsCard();
   h += '<div class="card span-12"><div class="card-h"><h2>Syllabus</h2><button class="btn primary" data-act="importer">' + ic("upload") + 'Upload a syllabus</button></div><p class="small muted">The built-in syllabus is the default. Anyone can add their own exam date sheet and syllabus; it is saved only in their browser. Switch between them any time; each keeps its own progress.</p><div class="stack" style="margin-top:12px">' +
     [{ id: "default", name: "Built-in syllabus · November 2026 exams" }].concat(REG.list).map(function (p) { var on = p.id === RULES.id; return '<div class="session-row"><span class="stripe" style="background:' + (on ? "var(--good)" : "var(--line-2)") + '"></span><div class="grow"><div class="s-title">' + esc(p.name) + "</div>" + (p.id === "default" ? '<div class="s-meta">7 subjects with hand-written notes, quizzes, flashcards and mock papers</div>' : '<div class="s-meta">Your upload · notes and questions are made by AI</div>') + '</div><div class="day-actions">' + (on ? '<span class="chip good">In use</span>' : '<button class="btn sm" data-act="useProfile" data-id="' + p.id + '">Switch to this</button>') + (p.id !== "default" ? '<button class="btn sm ghost" data-act="delProfile" data-id="' + p.id + '">Delete</button>' : "") + "</div></div>"; }).join("") + "</div></div>";
@@ -3918,7 +3921,7 @@ function pgPrefs() {
   h += num("readingTime", "English reading time (min)", st.readingTime, 0, 20, 1, "Used in the English mock");
   h += tm("weekdayStart", "School-day start time", st.weekdayStart) + tm("weekendStart", "Weekend / leave start time", st.weekendStart) + tm("examDayStart", "Exam-day afternoon start", st.examDayStart) + tm("dayEnd", "Latest finish time", st.dayEnd);
   h += '</div><p class="small muted" style="margin-top:12px">Changes apply when you regenerate. Completed sessions, sessions you added and sessions you edited are kept.</p></div>';
-  h += '<div class="card span-12"><div class="card-h"><h2>Your data</h2><span class="small muted">' + (storageOK ? "Saved automatically in this browser" : "Browser storage unavailable") + '</span></div><div class="row wrap"><button class="btn" data-act="export">' + ic("download") + 'Export progress</button><button class="btn" data-act="import">' + ic("upload") + 'Import backup</button><div class="grow"></div><button class="btn danger" data-act="reset">' + ic("trash") + 'Reset progress</button></div><p class="small muted" style="margin-top:10px">Export creates a JSON backup of your timetable, syllabus progress, notes, quiz and mock history and flashcard reviews. Import restores it on any device.</p></div>';
+  h += '<div class="card span-12"><div class="card-h"><h2>Your data</h2><span class="small muted">' + (storageOK ? "Saved automatically in this browser" : "Browser storage unavailable") + '</span></div><div class="row wrap"><button class="btn" data-act="export">' + ic("download") + 'Export progress</button><button class="btn" data-act="import">' + ic("upload") + 'Import backup</button><div class="grow"></div><button class="btn danger" data-act="reset">' + ic("trash") + 'Reset progress</button></div>' + (window.ECC_GROQ ? "" : '<div class="notice" style="margin-top:12px"><div class="grow"><b>Want to sign in with Google and sync between devices?</b> That works on the GitHub version of this site: <a href="https://plawith.github.io/exam-command-centre/" target="_blank" rel="noopener">plawith.github.io/exam-command-centre</a>. Export your progress here, import it there, then sign in with Google. This page can\'t connect to Google because claude.ai keeps pages sealed off from other websites.</div></div>') + '<p class="small muted" style="margin-top:10px">Export creates a JSON backup of your timetable, syllabus progress, notes, quiz and mock history and flashcard reviews. Import restores it on any device.</p></div>';
   return h + "</div>";
 }
 function exportJSON() {
@@ -4159,6 +4162,7 @@ function boot() {
   render();
   try { pipMount(); } catch (e) { console.error(e); }
   aiInit();
+  if (window.ECC_GROQ && typeof syncInit === "function") syncInit();
   var info = dayInfo(today());
   if (S.settings.notify.daily && !info.free && inMonth(today())) { var ss = sessionsOn(today()).filter(function (x) { return !x.done; }); if (ss.length) setTimeout(function () { toast("Today: " + ss.length + " session" + (ss.length > 1 ? "s" : "") + " planned (" + fmtDur(ss.reduce(function (a, x) { return a + x.dur; }, 0)) + ").", "info"); }, 600); }
   setInterval(tick, 1000);
@@ -4359,6 +4363,7 @@ function pipHandle(raw) {
   }
   if (/^(hi|hello|hey|namaste|hii+|yo)\b/.test(s)) { pipSay("Hello! 👋 " + (up[0] ? "Your next exam is " + esc(up[0].name) + " " + relDay(up[0].exam) + ". " : "") + "Type <b>help</b> to see what I can do."); return; }
   if (/\b(thank|thanks|thx|shukriya|dhanyavaad)\b/.test(s)) { pipSay("You're welcome! You've got this. 💪"); return; }
+  if (/\b(sign ?in|log ?in|login|google)\b/.test(s) && !/\bout\b/.test(s)) { navTo("preferences"); if (window.ECC_GROQ && typeof syncSignIn === "function" && SYNC.status === "out") { syncSignIn(); pipSay("Opening Google sign-in. Your progress will sync to your Google account. ☁️"); } else pipSay(window.ECC_GROQ ? (SYNC.status === "in" ? "You're already signed in as " + esc(SYNC.user.email) + ". ✔️" : "Google sign-in isn't ready yet on this copy of the site.") : "Google sign-in works on the GitHub version of this site (plawith.github.io/exam-command-centre). Export your progress here and import it there. I opened Preferences for you."); return; }
   if (/\b(upload|import|add|use|change|new|my own)\b.*\bsyllabus\b/.test(s)) { closeFocus(); openImporter(); pipSay("Opened the syllabus uploader. Add your date sheet and syllabus PDF and I'll read it. 📄"); return; }
   if (/\b(who are you|your name)\b/.test(s)) { pipSay("I'm Pip, a sheet of paper with legs. I help you get around this site, do quick maths and look things up in your notes."); return; }
 
@@ -4640,6 +4645,125 @@ if (typeof ACT !== "undefined") {
     catch (e) { msg.style.color = "var(--bad)"; msg.textContent = (e && e.message) || "That didn't work."; if (e && e.code === "bad_key") { groqSave(old); } }
   };
   ACT.gqRemove = function () { confirmBox("Remove your Groq key?", "AI features will switch off on this device until you add a key again.", "Remove", function () { groqSave(null); AI.s = null; AI.ready = false; AI.status = "none"; AI.why = "Add your free Groq API key in Preferences to switch on AI."; render(); if (typeof pipDraw === "function") pipDraw(); }, true); };
+}
+
+/* ===== Google sign-in + cloud sync (GitHub version). Uses the site owner's Firebase project (firebase-config.js).
+   Each person's data is stored under their own Google account; nobody else can read it. Groq keys are never synced. ===== */
+var SYNC = { cfg: null, fb: null, user: null, status: "off", why: "", timer: null, busy: false, meta: null };
+var SYNC_META = "ecc.sync";
+var FB_V = "10.12.2", FB_BASE = "https://www.gstatic.com/firebasejs/" + FB_V + "/";
+function syncMeta() { try { return JSON.parse(localStorage.getItem(SYNC_META) || "{}") || {}; } catch (e) { return {}; } }
+function syncSetMeta(m) { try { localStorage.setItem(SYNC_META, JSON.stringify(m)); } catch (e) { } }
+function syncKeys() { var out = [{ id: "default", key: profileKey("default") }]; REG.list.forEach(function (p) { out.push({ id: p.id, key: profileKey(p.id) }); }); return out; }
+function localHasProgress() {
+  return syncKeys().some(function (k) { try { var o = JSON.parse(localStorage.getItem(k.key) || "null"); return o && ((o.sessions || []).some(function (x) { return x.done; }) || (o.quiz && o.quiz.history && o.quiz.history.length) || (o.mocks && o.mocks.attempts && o.mocks.attempts.length) || Object.keys(o.topics || {}).length || Object.keys(o.notes || {}).length); } catch (e) { return false; } }) || REG.list.length > 0;
+}
+async function syncInit() {
+  SYNC.cfg = window.ECC_FIREBASE || null;
+  if (!SYNC.cfg || !SYNC.cfg.apiKey) { SYNC.status = "unconfigured"; return; }
+  SYNC.status = "loading";
+  try {
+    await loadScript(FB_BASE + "firebase-app-compat.js"); await loadScript(FB_BASE + "firebase-auth-compat.js"); await loadScript(FB_BASE + "firebase-firestore-compat.js");
+    var app = window.firebase.apps && window.firebase.apps.length ? window.firebase.app() : window.firebase.initializeApp(SYNC.cfg);
+    SYNC.fb = { auth: window.firebase.auth(), db: window.firebase.firestore() };
+  } catch (e) { SYNC.status = "error"; SYNC.why = "Couldn't load Google sign-in (are you offline?)."; syncUI(); return; }
+  try { var rr = await SYNC.fb.auth.getRedirectResult(); if (rr && rr.user) toast("Signed in as " + (rr.user.email || rr.user.displayName) + ".", "good"); } catch (e) { if (e && e.code !== "auth/no-auth-event") toast(syncErr(e), "bad"); }
+  SYNC.fb.auth.onAuthStateChanged(function (u) {
+    SYNC.user = u ? { uid: u.uid, name: u.displayName || "", email: u.email || "", photo: u.photoURL || "" } : null;
+    SYNC.status = u ? "in" : "out"; syncUI();
+    if (u) syncOnSignIn();
+  });
+}
+function syncErr(e) {
+  var c = (e && e.code) || "";
+  if (/popup-closed|cancelled-popup/.test(c)) return "Sign-in was cancelled.";
+  if (/popup-blocked/.test(c)) return "Your browser blocked the sign-in window. Allow pop-ups, or try again.";
+  if (/unauthorized-domain/.test(c)) return "This website address isn't allowed in the Firebase project yet (Authentication → Settings → Authorized domains).";
+  if (/permission-denied/.test(c)) return "The cloud refused access. The Firestore security rules may not be set up yet.";
+  if (/network/.test(c) || /unavailable/.test(c)) return "Couldn't reach Google. Check your internet connection.";
+  return (e && e.message) || "Something went wrong with Google sign-in.";
+}
+async function syncSignIn() {
+  if (!SYNC.fb) { toast(SYNC.status === "unconfigured" ? "Google sign-in isn't set up on this copy of the site." : SYNC.why || "Google sign-in is still loading.", "bad"); return; }
+  var prov = new window.firebase.auth.GoogleAuthProvider(); prov.setCustomParameters({ prompt: "select_account" });
+  try { await SYNC.fb.auth.signInWithPopup(prov); }
+  catch (e) {
+    if (e && /popup-blocked|operation-not-supported/.test(e.code || "")) { try { await SYNC.fb.auth.signInWithRedirect(prov); return; } catch (e2) { toast(syncErr(e2), "bad"); return; } }
+    toast(syncErr(e), "bad");
+  }
+}
+async function syncSignOut() { if (!SYNC.fb) return; await syncPush(true).catch(function () { }); await SYNC.fb.auth.signOut(); var m = syncMeta(); delete m.uid; syncSetMeta(m); toast("Signed out. Your data stays on this device and in your Google account.", "info"); }
+function userDoc() { return SYNC.fb.db.collection("users").doc(SYNC.user.uid); }
+async function cloudRead() {
+  var top = await userDoc().get(); if (!top.exists) return null;
+  var d = top.data(), profs = {};
+  var snap = await userDoc().collection("profiles").get();
+  snap.forEach(function (doc) { profs[doc.id] = doc.data(); });
+  return { reg: d.reg ? JSON.parse(d.reg) : null, updatedAt: d.updatedAt || 0, device: d.device || "", profiles: profs };
+}
+async function syncPush(all) {
+  if (!SYNC.user || !SYNC.fb) return;
+  var now = Date.now(), batch = SYNC.fb.db.batch(), keys = all ? syncKeys() : [{ id: RULES.id, key: STORE_KEY }];
+  for (var i = 0; i < keys.length; i++) {
+    var raw = null; try { raw = localStorage.getItem(keys[i].key); } catch (e) { }
+    if (!raw) continue;
+    if (raw.length > 900000) { toast("“" + keys[i].id + "” is too large to sync (over 900 KB).", "bad"); continue; }
+    batch.set(userDoc().collection("profiles").doc(keys[i].id), { json: raw, updatedAt: now });
+  }
+  batch.set(userDoc(), { reg: JSON.stringify(REG), updatedAt: now, device: navigator.userAgent.slice(0, 80), name: SYNC.user.name || "" }, { merge: true });
+  await batch.commit();
+  var m = syncMeta(); m.uid = SYNC.user.uid; m.lastSync = now; m.dirty = false; syncSetMeta(m); syncUI();
+}
+function syncApply(cloud) {
+  try {
+    Object.keys(cloud.profiles).forEach(function (id) { localStorage.setItem(profileKey(id), cloud.profiles[id].json); });
+    if (cloud.reg) { var keepActive = cloud.reg.list.some(function (p) { return p.id === REG.active; }) || REG.active === "default"; var reg = cloud.reg; if (keepActive) reg.active = REG.active; writeReg(reg); }
+  } catch (e) { toast("Couldn't save the downloaded data on this device (storage full?).", "bad"); return false; }
+  var m = syncMeta(); m.uid = SYNC.user.uid; m.lastSync = cloud.updatedAt; m.dirty = false; syncSetMeta(m);
+  return true;
+}
+async function syncOnSignIn() {
+  if (SYNC.busy) return; SYNC.busy = true;
+  try {
+    var m = syncMeta(), cloud = await cloudRead();
+    if (!cloud) { await syncPush(true); toast("Signed in. Your progress is now backed up to your Google account. ☁️", "good"); return; }
+    var sameAcct = m.uid === SYNC.user.uid;
+    if (sameAcct && cloud.updatedAt <= (m.lastSync || 0)) { if (m.dirty) await syncPush(true); return; }
+    if (sameAcct && !m.dirty) { if (syncApply(cloud)) { toast("Loaded your latest progress from your Google account.", "good"); setTimeout(function () { location.reload(); }, 600); } return; }
+    if (!localHasProgress()) { if (syncApply(cloud)) { toast("Welcome back! Your progress was loaded from your Google account.", "good"); setTimeout(function () { location.reload(); }, 600); } return; }
+    syncConflict(cloud);
+  } catch (e) { toast(syncErr(e), "bad"); }
+  finally { SYNC.busy = false; }
+}
+function syncConflict(cloud) {
+  var when = cloud.updatedAt ? new Date(cloud.updatedAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "earlier";
+  openModal('<div class="modal-h"><h2>Which progress should we keep?</h2></div><p class="muted">Your Google account already has saved progress (last updated ' + esc(when) + "), and this device has its own progress too.</p>" +
+    '<div class="stack" style="margin-top:14px"><button class="btn primary lg" id="sc-cloud">☁️ Use my Google account\'s progress</button><button class="btn lg" id="sc-local">💻 Keep this device\'s progress and replace the cloud copy</button><p class="tiny muted">Tip: if you\'re unsure, export a backup from Preferences first.</p></div>');
+  $("#sc-cloud").onclick = function () { closeModal(); if (syncApply(cloud)) { toast("Loaded your progress from Google.", "good"); setTimeout(function () { location.reload(); }, 500); } };
+  $("#sc-local").onclick = function () { closeModal(); syncPush(true).then(function () { toast("This device's progress is now saved to your Google account.", "good"); }, function (e) { toast(syncErr(e), "bad"); }); };
+}
+/* called after every local save */
+function syncTouched() {
+  if (!SYNC.user) { var m0 = syncMeta(); if (m0.uid) { m0.dirty = true; syncSetMeta(m0); } return; }
+  var m = syncMeta(); m.dirty = true; syncSetMeta(m);
+  clearTimeout(SYNC.timer); SYNC.timer = setTimeout(function () { syncPush(false).catch(function (e) { SYNC.why = syncErr(e); syncUI(); }); }, 4000);
+}
+window.addEventListener("beforeunload", function () { if (SYNC.user && syncMeta().dirty) { try { syncPush(false); } catch (e) { } } });
+function syncCard() {
+  var st = SYNC.status, m = syncMeta(), h = '<div class="card span-12" id="sync-card"><div class="card-h"><h2>Sign in with Google</h2>' + (st === "in" ? '<span class="chip good">Syncing</span>' : "") + "</div>";
+  if (st === "unconfigured") return h + '<p class="small muted">Google sign-in isn\'t set up on this copy of the site yet. (Site owner: see “Google sign-in setup” in the README.)</p></div>';
+  if (st === "loading") return h + '<p class="small muted">Loading Google sign-in…</p></div>';
+  if (st === "error") return h + '<p class="small muted">' + esc(SYNC.why) + '</p><button class="btn sm" data-act="syncRetry">Try again</button></div>';
+  if (st === "out") return h + '<p class="small muted">Sign in to save your progress to your Google account and carry it to any phone or computer. This is separate from Claude. Your Groq key is never uploaded.</p><button class="btn primary" data-act="syncIn" style="margin-top:10px"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Sign in with Google</button></div>';
+  var u = SYNC.user || {};
+  return h + '<div class="row wrap" style="gap:12px">' + (u.photo ? '<img src="' + esc(u.photo) + '" alt="" width="40" height="40" style="border-radius:50%;border:2px solid var(--ink)" referrerpolicy="no-referrer">' : "") + '<div class="grow"><div><b style="font-family:var(--display);font-weight:400;font-size:19px">' + esc(u.name || "Signed in") + '</b></div><div class="small muted">' + esc(u.email) + " · " + (m.lastSync ? "last synced " + new Date(m.lastSync).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "not synced yet") + (SYNC.why ? " · " + esc(SYNC.why) : "") + '</div></div><button class="btn sm" data-act="syncNow">Sync now</button><button class="btn sm ghost" data-act="syncOut">Sign out</button></div><p class="tiny muted" style="margin-top:8px">Changes save to your Google account automatically a few seconds after you make them. All your syllabuses are included; your Groq key is not.</p></div>';
+}
+function syncUI() { var c = $("#sync-card"); if (c) c.outerHTML = syncCard(); var b = $("#side-sync"); if (b) b.innerHTML = SYNC.status === "in" ? '<span class="tiny muted">☁️ Synced to ' + esc((SYNC.user && SYNC.user.email) || "Google") + "</span>" : ""; }
+if (typeof ACT !== "undefined") {
+  ACT.syncIn = function () { syncSignIn(); };
+  ACT.syncOut = function () { confirmBox("Sign out of Google?", "Your progress stays on this device and in your Google account. Sign in again any time to keep syncing.", "Sign out", function () { syncSignOut().then(render); }); };
+  ACT.syncNow = function () { SYNC.why = ""; syncPush(true).then(function () { toast("Synced. ☁️", "good"); }, function (e) { SYNC.why = syncErr(e); syncUI(); toast(SYNC.why, "bad"); }); };
+  ACT.syncRetry = function () { SYNC.status = "loading"; syncUI(); syncInit(); };
 }
 
 /* ===== Print / PDF for mock papers ===== */
