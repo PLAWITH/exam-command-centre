@@ -4607,7 +4607,7 @@ function groqCfg() {
   } catch (e) { }
   return null;
 }
-function groqSave(c) { try { if (c) localStorage.setItem(GROQ_KEY, JSON.stringify(c)); else localStorage.removeItem(GROQ_KEY); return true; } catch (e) { return false; } }
+function groqSave(c) { try { if (c) { c.at = Date.now(); localStorage.setItem(GROQ_KEY, JSON.stringify(c)); } else localStorage.removeItem(GROQ_KEY); } catch (e) { return false; } if (typeof syncGroqTouched === "function") syncGroqTouched(); return true; }
 function blobToDataURL(b) { return new Promise(function (ok, bad) { var r = new FileReader(); r.onload = function () { ok(r.result); }; r.onerror = bad; r.readAsDataURL(b); }); }
 function groqPick(id) { return GROQ_PICKS.filter(function (p) { return p.id === id; })[0] || null; }
 function groqName(id) { var p = groqPick(id); return p ? p.name : String(id || "").replace(/^[^/]+\//, ""); }
@@ -4743,8 +4743,9 @@ function groqNote(id, kind) {
 function groqPrefsCard() {
   var c = groqCfg(), cur = c || GROQ_DEFAULTS, cache = groqModelsCached();
   if (c && !cache) setTimeout(function () { groqListModels(false).then(function () { if (UI.page === "preferences") render(); }).catch(function () { }); }, 50);
-  return '<div class="card span-12"><div class="card-h"><h2>AI with your own Groq key</h2>' + (c ? '<span class="chip good">Key saved on this device</span>' : '<span class="chip">AI is off</span>') + '</div>' +
-    '<p class="small muted">AI is optional. It powers Pip\'s answers and reading your own syllabus PDF, plus notes, questions and papers for it. Get a free key at <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a> (sign in, Create API Key, copy it). The key is saved only in this browser and is never included in exports or Google sync. Don\'t share your key with anyone.</p>' +
+  var synced = typeof SYNC !== "undefined" && SYNC.status === "in" && syncMeta().keySync;
+  return '<div class="card span-12" id="gq-card"><div class="card-h"><h2>AI with your own Groq key</h2>' + (c ? '<span class="chip good">Key saved on this device</span>' : '<span class="chip">AI is off</span>') + '</div>' +
+    '<p class="small muted">AI is optional. It powers Pip\'s answers and reading your own syllabus PDF, plus notes, questions and papers for it. Get a free key at <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a> (sign in, Create API Key, copy it). ' + (synced ? "Your key is saved in this browser and in your Google account (you turned on key sync under Sign in with Google). It's never included in exports." : "The key is saved only in this browser and is never included in exports. If you sign in with Google, you can choose to sync it.") + ' Don\'t share your key with anyone.</p>' +
     '<label class="f" style="margin-top:12px;max-width:520px">Groq API key<input class="input" type="password" id="gq-key" autocomplete="off" placeholder="' + (c ? "•••••• saved (paste to replace)" : "gsk_…") + '"></label>' +
     '<h3 style="margin:16px 0 4px">Choose the AI model</h3>' +
     '<div class="grid g-2" style="gap:12px">' +
@@ -4780,7 +4781,7 @@ if (typeof ACT !== "undefined") {
     }
     catch (e) { msg.style.color = "var(--bad)"; msg.textContent = (e && e.message) || "That didn't work."; if (e && e.code === "bad_key") { groqSave(old); } }
   };
-  ACT.gqRemove = function () { confirmBox("Remove your Groq key?", "AI features will switch off on this device until you add a key again.", "Remove", function () { groqSave(null); try { localStorage.removeItem(GROQ_MODELS_KEY); } catch (e) { } AI.s = null; AI.ready = false; AI.status = "none"; AI.why = "Add your free Groq API key in Preferences to switch on AI."; render(); if (typeof pipDraw === "function") pipDraw(); }, true); };
+  ACT.gqRemove = function () { confirmBox("Remove your Groq key?", "AI features will switch off on this device until you add a key again." + (typeof SYNC !== "undefined" && SYNC.user && syncMeta().keySync ? " Key sync is on, so it will also be deleted from your Google account." : ""), "Remove", function () { if (typeof SYNC !== "undefined" && SYNC.user && syncMeta().keySync) syncSetKey(false, true); groqSave(null); try { localStorage.removeItem(GROQ_MODELS_KEY); } catch (e) { } AI.s = null; AI.ready = false; AI.status = "none"; AI.why = "Add your free Groq API key in Preferences to switch on AI."; render(); if (typeof pipDraw === "function") pipDraw(); }, true); };
   ACT.gqRefresh = function () { toast("Checking which models your key can use…", "info"); groqListModels(true).then(function (ids) { toast(ids.length + " models found.", "good"); render(); }).catch(function (e) { toast((e && e.message) || "Couldn't load the list.", "bad"); }); };
   ACT.pipModels = function () { go("preferences"); setTimeout(function () { var el = $("#gq-model"); if (el) { el.scrollIntoView({ block: "center" }); el.focus(); } }, 120); };
 }
@@ -4803,7 +4804,7 @@ function groqPipPicker() {
 }
 
 /* ===== Google sign-in + cloud sync (GitHub version). Uses the site owner's Firebase project (firebase-config.js).
-   Each person's data is stored under their own Google account; nobody else can read it. Groq keys are never synced. ===== */
+   Each person's data is stored under their own Google account; nobody else can read it. The Groq key syncs only if the person turns that on. ===== */
 var SYNC = { cfg: null, fb: null, user: null, status: "off", why: "", timer: null, busy: false, meta: null };
 var SYNC_META = "ecc.sync";
 var FB_V = "10.12.2", FB_BASE = "https://www.gstatic.com/firebasejs/" + FB_V + "/";
@@ -4854,7 +4855,7 @@ async function cloudRead() {
   var d = top.data(), profs = {};
   var snap = await userDoc().collection("profiles").get();
   snap.forEach(function (doc) { profs[doc.id] = doc.data(); });
-  return { reg: d.reg ? JSON.parse(d.reg) : null, updatedAt: d.updatedAt || 0, device: d.device || "", profiles: profs };
+  return { reg: d.reg ? JSON.parse(d.reg) : null, updatedAt: d.updatedAt || 0, device: d.device || "", profiles: profs, top: d };
 }
 async function syncPush(all) {
   if (!SYNC.user || !SYNC.fb) return;
@@ -4865,7 +4866,7 @@ async function syncPush(all) {
     if (raw.length > 900000) { toast("“" + keys[i].id + "” is too large to sync (over 900 KB).", "bad"); continue; }
     batch.set(userDoc().collection("profiles").doc(keys[i].id), { json: raw, updatedAt: now });
   }
-  batch.set(userDoc(), { reg: JSON.stringify(REG), updatedAt: now, device: navigator.userAgent.slice(0, 80), name: SYNC.user.name || "" }, { merge: true });
+  batch.set(userDoc(), Object.assign({ reg: JSON.stringify(REG), updatedAt: now, device: navigator.userAgent.slice(0, 80), name: SYNC.user.name || "" }, syncGroqFields()), { merge: true });
   await batch.commit();
   var m = syncMeta(); m.uid = SYNC.user.uid; m.lastSync = now; m.dirty = false; syncSetMeta(m); syncUI();
 }
@@ -4881,6 +4882,7 @@ async function syncOnSignIn() {
   if (SYNC.busy) return; SYNC.busy = true;
   try {
     var m = syncMeta(), cloud = await cloudRead();
+    if (cloud) syncGroqPull(cloud.top);
     if (!cloud) { await syncPush(true); toast("Signed in. Your progress is now backed up to your Google account. ☁️", "good"); return; }
     var sameAcct = m.uid === SYNC.user.uid;
     if (sameAcct && cloud.updatedAt <= (m.lastSync || 0)) { if (m.dirty) await syncPush(true); return; }
@@ -4909,9 +4911,9 @@ function syncCard() {
   if (st === "unconfigured") return h + '<p class="small muted">Google sign-in isn\'t set up on this copy of the site yet. (Site owner: see “Google sign-in setup” in the README.)</p></div>';
   if (st === "loading") return h + '<p class="small muted">Loading Google sign-in…</p></div>';
   if (st === "error") return h + '<p class="small muted">' + esc(SYNC.why) + '</p><button class="btn sm" data-act="syncRetry">Try again</button></div>';
-  if (st === "out") return h + '<p class="small muted">Sign in to save your progress to your Google account and carry it to any phone or computer. This is separate from Claude. Your Groq key is never uploaded.</p><button class="btn primary" data-act="syncIn" style="margin-top:10px"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Sign in with Google</button></div>';
+  if (st === "out") return h + '<p class="small muted">Sign in to save your progress to your Google account and carry it to any phone or computer. This is separate from Claude. Your Groq key is only uploaded if you choose to sync it.</p><button class="btn primary" data-act="syncIn" style="margin-top:10px"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Sign in with Google</button></div>';
   var u = SYNC.user || {};
-  return h + '<div class="row wrap" style="gap:12px">' + (u.photo ? '<img src="' + esc(u.photo) + '" alt="" width="40" height="40" style="border-radius:50%;border:2px solid var(--ink)" referrerpolicy="no-referrer">' : "") + '<div class="grow"><div><b style="font-family:var(--display);font-weight:400;font-size:19px">' + esc(u.name || "Signed in") + '</b></div><div class="small muted">' + esc(u.email) + " · " + (m.lastSync ? "last synced " + new Date(m.lastSync).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "not synced yet") + (SYNC.why ? " · " + esc(SYNC.why) : "") + '</div></div><button class="btn sm" data-act="syncNow">Sync now</button><button class="btn sm ghost" data-act="syncOut">Sign out</button></div><p class="tiny muted" style="margin-top:8px">Changes save to your Google account automatically a few seconds after you make them. All your syllabuses are included; your Groq key is not.</p></div>';
+  return h + '<div class="row wrap" style="gap:12px">' + (u.photo ? '<img src="' + esc(u.photo) + '" alt="" width="40" height="40" style="border-radius:50%;border:2px solid var(--ink)" referrerpolicy="no-referrer">' : "") + '<div class="grow"><div><b style="font-family:var(--display);font-weight:400;font-size:19px">' + esc(u.name || "Signed in") + '</b></div><div class="small muted">' + esc(u.email) + " · " + (m.lastSync ? "last synced " + new Date(m.lastSync).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "not synced yet") + (SYNC.why ? " · " + esc(SYNC.why) : "") + '</div></div><button class="btn sm" data-act="syncNow">Sync now</button><button class="btn sm ghost" data-act="syncOut">Sign out</button></div><p class="tiny muted" style="margin-top:8px">Changes save to your Google account automatically a few seconds after you make them. All your syllabuses and your AI model choice are included.</p>' + syncKeyRow() + '</div>';
 }
 function syncUI() { var c = $("#sync-card"); if (c) c.outerHTML = syncCard(); var b = $("#side-sync"); if (b) b.innerHTML = SYNC.status === "in" ? '<span class="tiny muted">☁️ Synced to ' + esc((SYNC.user && SYNC.user.email) || "Google") + "</span>" : ""; }
 if (typeof ACT !== "undefined") {
@@ -4920,6 +4922,54 @@ if (typeof ACT !== "undefined") {
   ACT.syncNow = function () { SYNC.why = ""; syncPush(true).then(function () { toast("Synced. ☁️", "good"); }, function (e) { SYNC.why = syncErr(e); syncUI(); toast(SYNC.why, "bad"); }); };
   ACT.syncRetry = function () { SYNC.status = "loading"; syncUI(); syncInit(); };
 }
+
+/* ----- optional: sync the Groq key and model choice ----- */
+function groqLocal() { try { return JSON.parse(localStorage.getItem("ecc.groq") || "null"); } catch (e) { return null; } }
+function syncGroqFields() {
+  if (typeof groqSave !== "function") return {};
+  var g = groqLocal(), m = syncMeta(), out = {};
+  if (g && (g.model || g.vision)) out.groqModels = { model: g.model || "", vision: g.vision || "", at: g.at || 0 };
+  if (m.keySync && g && g.key) out.groqKey = g.key;
+  return out;
+}
+function syncGroqPull(d) {
+  if (typeof groqSave !== "function" || !d) return;
+  var g = groqLocal() || {}, m = syncMeta(), cm = d.groqModels || {}, cAt = cm.at || 0, lAt = g.at || 0, changed = false, gotKey = false;
+  if (typeof d.keySync === "boolean" && d.keySync !== !!m.keySync) { m.keySync = d.keySync; syncSetMeta(m); }
+  if (cAt > lAt) { if (cm.model) g.model = cm.model; if (cm.vision) g.vision = cm.vision; g.at = cAt; changed = true; }
+  if (m.keySync && d.groqKey && g.key !== d.groqKey && (!g.key || cAt >= lAt)) { g.key = d.groqKey; gotKey = changed = true; }
+  if (changed) {
+    try { localStorage.setItem("ecc.groq", JSON.stringify(g)); } catch (e) { return; }
+    if (gotKey) { aiInit(true); if (AI.p) AI.p.then(function (ok) { toast(ok ? "Your Groq key was loaded from your Google account. AI is on. ✨" : "Your Groq key was loaded from your Google account, but Groq didn't accept it. Check it in Preferences.", ok ? "good" : "bad"); if (typeof pipDraw === "function") pipDraw(); if (UI.page === "preferences") render(); }); }
+    else if (typeof pipDraw === "function") pipDraw();
+  } else if (lAt > cAt || (m.keySync && g.key && !d.groqKey)) syncPushGroq();
+}
+function syncPushGroq() { if (!SYNC.user || !SYNC.fb) return Promise.resolve(); return userDoc().set(syncGroqFields(), { merge: true }); }
+/* called by groq.js whenever the key or model changes */
+function syncGroqTouched() {
+  if (!SYNC.user) return;
+  clearTimeout(SYNC.gtimer); SYNC.gtimer = setTimeout(function () {
+    syncPushGroq().catch(function (e) { toast(syncErr(e), "bad"); });
+  }, 1500);
+}
+async function syncSetKey(on, quiet) {
+  if (!SYNC.user || !SYNC.fb) return;
+  var g = groqLocal(), m = syncMeta();
+  if (on && !(g && g.key)) { toast("Add your Groq key in the box below first, then turn this on.", "bad"); syncUI(); return; }
+  try {
+    var f = { keySync: !!on }; if (on) f.groqKey = g.key; else f.groqKey = window.firebase.firestore.FieldValue.delete();
+    await userDoc().set(Object.assign(f, on ? syncGroqFields() : {}), { merge: true });
+    m.keySync = !!on; syncSetMeta(m);
+    if (!quiet) toast(on ? "Your Groq key will now follow you to any device you sign in on. 🔑" : "Your Groq key was removed from your Google account. It stays on this device.", "good");
+  } catch (e) { toast(syncErr(e), "bad"); }
+  syncUI(); if (UI.page === "preferences" && typeof groqPrefsCard === "function") { var gc = $("#gq-card"); if (gc) gc.outerHTML = groqPrefsCard(); }
+}
+function syncKeyRow() {
+  if (typeof groqSave !== "function") return "";
+  var on = !!syncMeta().keySync, g = groqLocal();
+  return '<div style="margin-top:12px;padding-top:12px;border-top:2px dashed var(--line, rgba(0,0,0,.15))"><label class="row between" style="gap:12px"><span><b>Also sync my Groq API key</b><br><span class="tiny muted">' + (on ? "On: your key is saved in your private space in your Google account, so AI turns on by itself when you sign in on another device. Turn off to delete it from the cloud." : "Off: your key stays only on this device" + (g && g.key ? "" : " (no key added yet)") + ". Turn on to have AI switch on by itself on every device you sign in on. Only your Google account can read it.") + '</span></span><input type="checkbox" class="toggle" data-on="syncKeyToggle"' + (on ? " checked" : "") + ' aria-label="Also sync my Groq API key"></label></div>';
+}
+if (typeof ON !== "undefined") ON.syncKeyToggle = function (el) { syncSetKey(el.checked); };
 
 /* ===== Print / PDF for mock papers ===== */
 var DL = { ns: null, tried: false };

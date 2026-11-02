@@ -31,7 +31,7 @@ With a key, Pip answers anything in your own words and can do things in the site
 
 ## Google sign-in and sync (optional)
 
-People can press **Sign in with Google** in Preferences, and their progress (every syllabus, timetable, notes, quiz and mock history) is saved to their Google account and synced across their devices. It's separate from Claude, and Groq keys are never uploaded. Each person can only read their own data.
+People can press **Sign in with Google** in Preferences, and their progress (every syllabus, timetable, notes, quiz and mock history, and their AI model choice) is saved to their Google account and synced across their devices. It's separate from Claude. The Groq key is uploaded only if they turn on **Also sync my Groq API key** (off by default); turning it off deletes it from the cloud. Each person can only read their own data.
 
 ### Google sign-in setup (site owner, one time, free)
 
