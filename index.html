@@ -488,6 +488,43 @@ label.f { display: grid; gap: 4px; font-size: 15.5px; color: var(--muted); }
 .pip-head > div:first-child { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; min-width: 0; }
 #pip-mode { display: inline-flex; align-items: center; gap: 4px; }
 
+/* ---------- Answer Notes ---------- */
+.an-subjs { flex-wrap: wrap; margin: 4px 0 14px; }
+.an-subjs .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; border: 1.5px solid var(--ink); }
+.an-intro { border-left: 8px solid var(--c); margin-bottom: 16px; }
+.an-jump .chip { text-decoration: none; color: inherit; cursor: pointer; }
+.an-jump .chip b { font-family: var(--display); font-weight: 400; color: var(--c); }
+.an-type { margin-bottom: 18px; scroll-margin-top: 16px; }
+.an-top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.an-badge { width: 54px; height: 54px; flex: 0 0 54px; display: grid; place-items: center; border: 3px solid var(--ink); border-radius: 52% 46% 55% 44% / 47% 55% 45% 53%; background: var(--c); color: #fff; font-family: var(--display); font-size: 30px; transform: rotate(-4deg); box-shadow: 3px 3px 0 var(--ink); }
+.an-mk { font-size: 15px; }
+.an-q { margin: 14px 0 6px; padding: 10px 14px; border: 2.5px dashed var(--c); border-radius: 14px 10px 16px 9px; background: var(--panel-hi); font-size: 17px; }
+.an-h { font-family: var(--display); font-weight: 400; font-size: 22px; margin: 16px 0 8px; }
+.an-steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; counter-reset: an; }
+.an-step { position: relative; padding: 10px 14px 10px 46px; border: 2px solid var(--ink); border-radius: 12px 16px 10px 15px / 14px 10px 15px 11px; background: var(--panel); counter-increment: an; }
+.an-step:before { content: counter(an); position: absolute; left: 10px; top: 9px; width: 26px; height: 26px; border-radius: 50%; background: var(--c); color: #fff; display: grid; place-items: center; font-family: var(--display); font-size: 16px; border: 2px solid var(--ink); }
+.an-step-h { font-family: var(--display); font-size: 19px; margin-bottom: 2px; }
+.an-pts { margin: 2px 0 0 18px; padding: 0; }
+.an-pts li { margin: 2px 0; }
+.an-ex { margin: 8px 0 2px; padding: 8px 12px; background: #fff3a8; color: #2d2a32; border: 1.5px solid #e0c64a; border-radius: 4px 12px 6px 14px; transform: rotate(-.4deg); box-shadow: 2px 3px 0 rgba(0,0,0,.08); }
+.an-eg { font-family: var(--display); color: #a07d00; margin-right: 8px; }
+.an-note { margin-top: 12px; padding: 9px 14px; background: #ffe1ea; color: #2d2a32; border: 1.5px solid #f39ab4; border-radius: 12px 6px 14px 7px; }
+.an-levels { display: grid; gap: 8px; }
+.an-lv { display: flex; gap: 12px; align-items: flex-start; }
+.an-lv-tag { flex: 0 0 112px; text-align: center; border: 2px solid var(--ink); border-radius: 10px 14px 9px 13px; padding: 4px 6px; color: #2d2a32; background: color-mix(in srgb, #b7e4c7 calc((1 - var(--k)) * 100%), #ece4f0); }
+.an-lv-tag b { display: block; font-family: var(--display); font-weight: 400; font-size: 17px; }
+.an-lv-tag span { font-size: 14px; }
+.an-lv .an-pts { flex: 1; margin-top: 4px; }
+@media (max-width: 640px) { .an-lv { flex-direction: column; gap: 4px; } .an-lv-tag { flex: none; } .an-step { padding-left: 42px; } }
+.an-print { position: fixed; inset: 0; z-index: 300; overflow: auto; background: #fff; }
+@media print {
+  @page { size: A4; margin: 0; }
+  body.an-printing { background: #fff !important; }
+  body.an-printing > *:not(#an-host) { display: none !important; }
+  body.an-printing #an-host { position: static !important; overflow: visible !important; }
+  #an-host .an-page { page-break-after: always; break-after: page; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
 </style>
 </head>
 <body>
@@ -1607,6 +1644,196 @@ var FLASH = [
 ["d10","range(10, 0, -2) produces","10, 8, 6, 4, 2"]
 ];
 
+/* Answer-writing notes: question types and how to write them. Humanities comes from the student's class guidance;
+   the other subjects are starter notes to be changed as we go. */
+var ANSWER_NOTES = [
+{ subj: "hum", from: "class", intro: "Source-based questions. The source letters change in every paper, so read which sources each question names.",
+types: [
+{ code: "A", name: "How far do these sources agree?", marks: 7,
+q: "How far do these sources agree? Explain your answer using details of the sources. [7]",
+steps: [
+{ h: "Paragraph 1: Introduction", pts: [
+"Write one sentence about what each source is talking about.",
+"Write the opinion/claim/judgement you have arrived at when comparing both sources.",
+"Write the type of each source and why: primary and why, or secondary and why."],
+ex: ["Source A is talking about _____ while Source B is about _____.", "Source A and B mostly disagree / agree / completely agree / disagree with each other."] },
+{ h: "Paragraph 2: Agreements", pts: ["Points of agreement between Source A and Source B, with evidence from each source."],
+ex: ["Source A and Source B agree about the success of NCM. Source A mentions “evidence from source” and similarly Source B writes “evidence from source”."] },
+{ h: "Paragraph 3: Disagreements", pts: ["Points of disagreement between Source A and Source B, with evidence from each source."],
+ex: ["Source A suggests that the NCM bridged Hindu-Muslim unity by supporting the Khilafat movement “evidence from source”, whereas Source B states that the Khilafat movement did not help in building this unity during NCM “evidence from source”."] },
+{ h: "Paragraph 4: Conclusion (collate everything)", pts: ["What is your final overall strong judgement when comparing both sources?"],
+ex: ["Source A and Source B highly agree with each other about the success and impact of NCM, while they both slightly disagree about the role the Khilafat Movement played in bridging Hindu-Muslim unity during the NCM."] }],
+note: "Write a total of 4–5 comparisons with their evidence, mixing agreements and disagreements. If you write 1 agreement, give 3–4 disagreements; if you write 4 agreements, give 1 disagreement.",
+levels: [
+{ l: "Level 4", m: "7", pts: ["Overall summative judgement: to what extent they agree.", "Compares the big messages of the two sources.", "All elements of Paragraphs 1, 2, 3 and 4."] },
+{ l: "Level 3", m: "5–6", pts: ["Compares agreement(s) AND disagreement(s) between the sources.", "All elements of Paragraphs 2 and 3, with a conclusion that has a clear judgement."] },
+{ l: "Level 2", m: "2–4", pts: ["Compares agreement(s) OR disagreement(s).", "All elements of Paragraph 2 or Paragraph 3.", "May have an introduction and/or a conclusion.", "No clear judgement: 2 marks."] },
+{ l: "Level 1", m: "1", pts: ["Attempts to compare but makes no valid comparison, OR uses only one source, OR makes a general statement without explaining how they agree or disagree, OR identifies a similarity/difference without details from both sources, OR compares provenance (origin) instead of content."] }] },
+
+{ code: "B", name: "Cartoon / poster: message and why published", marks: 8,
+q: "Study Source C. Why was this cartoon published at this time? (or: What is the message of the cartoonist?) Explain your answer using details of the source and your knowledge. [8]",
+steps: [
+{ h: "The big message", pts: ["The overall point of view or argument the cartoonist is communicating.", "It answers: “What does the cartoonist want the viewer to understand or believe?”"],
+ex: ["The cartoonist supports Gandhi's Non-Cooperation Movement and wants Indians to collectively challenge British rule through boycott, hartal and Swadeshi."] },
+{ h: "The sub-messages", pts: ["The individual ideas inside the source that build up to the big message. Give the evidence for each."],
+ex: ["Indians should boycott the Prince's visit. Evidence: “Boycott the Prince's visit”", "Indians should take part in a complete hartal. Evidence: “Complete hartal”", "Indians should reject foreign cloth. Evidence: “Bonfire of foreign cloth”", "Indians should wear khadi. Evidence: “IN KHADI”", "Indians should join Gandhi's non-cooperation campaign. Evidence: “Mahatma Gandhi will preside”"] },
+{ h: "Context for each sub-message", pts: ["For each sub-message and its evidence, explain the context/content of the event that supports it.", "Do this for every sub-message and its evidence."],
+ex: ["Sub-message: Indians should boycott the Prince's visit. Evidence: “Boycott the Prince's visit”. Context: explain that the boycott programme was part of Non-Cooperation."] },
+{ h: "Concluding paragraph", pts: ["Bring the big message, the sub-messages and the context together."],
+ex: ["Overall, the cartoonist's message is that Indians should unite in opposing British rule through Gandhi's policy of non-violent non-cooperation. The calls to boycott the Prince's visit, observe a complete hartal, burn foreign cloth and wear khadi show that the cartoonist believed collective action and Swadeshi could weaken British authority and help Indians move towards Swaraj.", "Or: Overall, the cartoonist is encouraging Indians to stand together against British rule. The boycott of the Prince's visit, hartal and rejection of foreign cloth show that Gandhi's methods of non-cooperation and Swadeshi were seen as powerful ways of achieving Swaraj."] }],
+levels: [
+{ l: "Level 5", m: "7–8", pts: ["Explains the creator's point of view.", "Explains the source's big message with well-selected source details.", "Adds relevant contextual knowledge."] },
+{ l: "Level 4", m: "5–6", pts: ["Explains the big message with supporting source details and/or relevant contextual knowledge."] },
+{ l: "Level 3", m: "3–4", pts: ["Explains valid sub-messages, supported with details from the source.", "Does not provide relevant contextual knowledge.", "Only 2 marks if limited to explaining incidental details."] },
+{ l: "Level 2", m: "2", pts: ["Identifies a plausible interpretation or inference.", "Does not adequately explain the overall message.", "Or the answer is limited to incidental details."] },
+{ l: "Level 1", m: "1", pts: ["Describes the surface features of the source.", "Does not explain the big message or a sub-message."] }] },
+
+{ code: "C", name: "Is this source surprising?", marks: 8,
+q: "Study Sources A and B. Are you surprised by Source A? Explain your answer using details of the sources and your knowledge. [8]",
+steps: [
+{ h: "Paragraph 1: Explain Source B", pts: ["Explain the main message or viewpoint of Source B.", "Support it with specific evidence from the source.", "Use relevant historical knowledge to explain the context, where appropriate."] },
+{ h: "Paragraph 2: Explain Source A", pts: ["Explain the main message or viewpoint of Source A using specific evidence.", "Clearly state whether Source A is surprising or unsurprising.", "Evaluate it using its provenance (who created it, when, where, primary/secondary), purpose or historical knowledge to explain why its viewpoint is expected or unexpected.", "Explain how the creator, intended audience or purpose may have influenced the viewpoint.", "Consider whether the source is reliable or limited for understanding the issue, where relevant."] },
+{ h: "Paragraph 3: Compare Sources A and B", pts: ["Explain a clear agreement or difference between the two sources.", "Support it with specific evidence from both sources.", "Explain how this agreement or difference affects your judgement about whether Source A is surprising.", "If they disagree: does Source B make Source A's view more unexpected?", "If they agree: does Source B reinforce Source A and make its view more expected?"] },
+{ h: "Paragraph 4: Overall judgement", pts: ["Give a clear conclusion: Source A is surprising or unsurprising.", "Support it with evidence from both sources and relevant historical knowledge.", "Refer back to your evaluation of at least one source to show why your conclusion is convincing."] }],
+note: "Don't write four paragraphs that just describe the sources. Each paragraph should build the argument. The strongest answers connect source evidence + comparison + evaluation + historical knowledge to explain why Source A is or isn't surprising.",
+levels: [
+{ l: "Level 6", m: "7–8", pts: ["Compares both sources for agreements and/or differences.", "Evaluates at least one source (purpose, provenance, cross-reference or context) to explain why it is or isn't surprising.", "Clear overall judgement supported by evidence from both sources."] },
+{ l: "Level 5", m: "6", pts: ["Explains the views in both sources and says it is unsurprising, with evidence; OR explains the differences between them, so it is surprising."] },
+{ l: "Level 4", m: "5", pts: ["Compares the sources and uses their agreements/differences as the reason it is or isn't surprising.", "Uses details from both sources but does not develop evaluation."] },
+{ l: "Level 3", m: "3–4", pts: ["Evaluates the source being asked about, but makes no relevant use of the other source; OR identifies a surprising feature or contrast inside the source."] },
+{ l: "Level 2", m: "2", pts: ["Compares or analyses the sources but doesn't say whether the source is surprising; OR says what is/isn't surprising with no valid explanation."] },
+{ l: "Level 1", m: "1", pts: ["Simple assertions based mainly on provenance, e.g. “It is not surprising because…”, with no valid use of the sources' content."] },
+{ l: "Level 0", m: "0", pts: ["No creditable response."] }] },
+
+{ code: "D", name: "How far do the sources provide convincing evidence?", marks: 9,
+q: "Study all the sources. How far do these sources provide convincing evidence that (statement)? Use the sources to explain your answer. [9]",
+steps: [
+{ h: "Paragraph 1: Sources that support the statement", pts: ["Identify the sources that agree with the statement.", "Pick a relevant detail or quotation.", "Explain how the detail supports the statement.", "Link your explanation back to the question."] },
+{ h: "Paragraph 2: More supporting evidence", pts: ["Use another source that agrees with the statement.", "Pick a relevant detail.", "Explain what it tells you and how it supports the statement.", "Connect it to the evidence in Paragraph 1."] },
+{ h: "Paragraph 3: Sources that disagree", pts: ["Identify the sources that disagree with or challenge the statement.", "Pick a relevant detail or quotation.", "Explain why this evidence does not support the statement.", "Use another source if it gives a different view."] },
+{ h: "Paragraph 4: Your final judgement", pts: ["Look at both sides of the argument.", "Decide which side is better supported by the sources.", "Explain why, using the evidence discussed.", "Answer the question directly: “To a large extent…”, “To some extent…” or “Only to a limited extent…”"] }],
+note: "Refer to each source by its letter, its provenance or a quote. Use the source's content and explain how it supports or doesn't support the statement.",
+levels: [
+{ l: "Level 4", m: "6–9", pts: ["Uses the sources to support AND reject the statement."] },
+{ l: "Level 3", m: "3–5", pts: ["Uses the sources to support OR reject the statement.", "Some sources can be used both ways (in one paper: supporting A, C, E, F; not supporting A, B, D, E, F)."] },
+{ l: "Level 2", m: "2", pts: ["Uses the sources but doesn't use them to test the statement."] },
+{ l: "Level 1", m: "1", pts: ["Writes about the topic but doesn't use the sources."] },
+{ l: "Level 0", m: "0", pts: ["No creditable response."] }] }
+] },
+
+{ subj: "eng", from: "starter", intro: "Section A is reading (questions on a non-fiction text in an insert); Section B is one writing task. Spend about half the time on each.",
+types: [
+{ code: "1", name: "Find and retrieve", marks: "1–2",
+q: "Look at lines 4–11. Give two things that show… [2]",
+steps: [{ h: "How to answer", pts: ["Only look inside the lines the question gives you.", "Copy the exact words, or put them in short, clear words of your own.", "Give exactly as many points as asked; one mark each."], ex: ["• the trees are cut down to widen roads\n• saplings die because nobody waters them"] }],
+levels: [{ l: "Marks", m: "1 each", pts: ["One mark for each correct point from the right lines."] }] },
+{ code: "2", name: "Word and phrase meaning", marks: "1",
+q: "Give one word from paragraph 3 that means the same as ‘…’. [1]",
+steps: [{ h: "How to answer", pts: ["Find a word that could replace the given phrase in the sentence.", "Write ONE word (or the number of words asked for); don't copy the whole sentence.", "Check it fits by reading the sentence with your word in it."] }],
+levels: [{ l: "Marks", m: "1", pts: ["The exact word from the text. Extra words that change the meaning lose the mark."] }] },
+{ code: "3", name: "Quotation + explanation (language and effect)", marks: "2–4",
+q: "Give two quotations that show… Explain how each quotation shows this. [4]",
+steps: [{ h: "How to answer", pts: ["Quotation: short and exact, in quotation marks.", "Explanation: in your OWN words; say what it suggests or how it makes the reader feel.", "Name a technique only if you also explain its effect (emotive language, rhetorical question, statistic, direct address)."],
+ex: ["Quotation: “a free air-conditioner, water filter and wildlife shelter rolled into one”\nExplanation: the list makes a single tree seem incredibly useful, so the reader feels it is foolish to cut trees down."] }],
+levels: [{ l: "Marks", m: "1 + 1", pts: ["One mark for a relevant quotation, one for an explanation partly in your own words."] }] },
+{ code: "4", name: "Features, purpose and order", marks: "1–3",
+q: "What features tell the reader this is an article? Give two features. / Put these events in order. [2–3]",
+steps: [{ h: "How to answer", pts: ["Name the feature and point to where it is (headline, subheading, date, greeting, sign-off, rhetorical question).", "For purpose: inform, persuade, advise, explain, entertain; say who it's for.", "For ordering tasks, find each event in the text and number them in the order they happen."] }] },
+{ code: "5", name: "Writing task (article, speech, report, review or letter)", marks: "25",
+q: "Write an article / a speech / a formal or informal letter about… You should think about: … [25]",
+steps: [
+{ h: "Plan (about 5 minutes)", pts: ["GAP: genre, audience, purpose.", "Cover every bullet point in the task.", "Plan 4–5 paragraphs: hook → main points → (counter-argument) → strong ending."] },
+{ h: "Write", pts: ["Use the right layout: headline for an article, greeting for a speech, full letter format for letters.", "Formal letter: addresses, date, subject, “Dear Sir/Madam” → “Yours faithfully”; named person → “Yours sincerely”.", "Informal letter: friendly tone, questions and news, still in paragraphs.", "Vary sentence openings and lengths; use linking words (however, furthermore, as a result)."] },
+{ h: "Check (last 3 minutes)", pts: ["Spelling, full stops and commas, paragraphs, capital letters."] }],
+levels: [{ l: "Marked on", m: "25", pts: ["Content and purpose (5)", "Vocabulary and language (3)", "Grammar and punctuation (7)", "Structure and paragraphs (7)", "Spelling (3)", "Very short answers are capped, so write a full response."] }] }
+] },
+
+{ subj: "math", from: "starter", intro: "Show your working everywhere: method marks are given even if the final answer is wrong.",
+types: [
+{ code: "1", name: "Calculate / work out", marks: "1–3",
+q: "Write 0.0034567 correct to 3 significant figures. / Simplify √72. [2]",
+steps: [{ h: "How to answer", pts: ["Write the method line first, then each step on its own line.", "Keep exact values (surds, fractions) until the end; round only at the last step.", "Give the answer in the form asked: s.f., standard form, simplest surd, units."], ex: ["√72 = √36 × √2 = 6√2"] }],
+levels: [{ l: "Marks", m: "M + A", pts: ["M = method mark for a correct method.", "A = accuracy mark for the correct answer (needs the method).", "B = mark for a correct answer on its own."] }] },
+{ code: "2", name: "Show that / prove", marks: "2–4",
+q: "Show that (x + 3)² − (x − 3)² = 12x. [3]",
+steps: [{ h: "How to answer", pts: ["Start from the left-hand side (what you're given), never from the answer.", "One step per line; show every expansion.", "Finish by writing the exact statement you were asked to show."], ex: ["(x² + 6x + 9) − (x² − 6x + 9)\n= x² + 6x + 9 − x² + 6x − 9\n= 12x  ✓"] }] },
+{ code: "3", name: "Give a reason / explain", marks: "1–2",
+q: "Find angle x. Give a reason for your answer. [2]",
+steps: [{ h: "How to answer", pts: ["Write the full geometric reason, not just a number.", "Use standard phrases: “angles in a triangle add up to 180°”, “exterior angles of a polygon add up to 360°”, “angles on a straight line add up to 180°”.", "For functions: “a vertical line cuts the graph more than once, so it is not a function”."] }] },
+{ code: "4", name: "Multi-step problems (Pythagoras, bearings, inequalities)", marks: "3–6",
+q: "A ship sails 8 km on a bearing of 090° and then 6 km on a bearing of 180°. How far is it from its start? [4]",
+steps: [{ h: "How to answer", pts: ["Draw and label a sketch (north lines for bearings).", "Say which rule you're using, then substitute.", "Bearings: measured clockwise from north, always 3 figures (e.g. 045°).", "Check the answer is sensible (the hypotenuse is the longest side)."], ex: ["d² = 8² + 6² = 100, so d = 10 km"] }] }
+] },
+
+{ subj: "sci", from: "starter", intro: "Read the command word first: it tells you what kind of answer gets the marks.",
+types: [
+{ code: "1", name: "State / name / give", marks: "1",
+q: "Name the gas released during photosynthesis. [1]",
+steps: [{ h: "How to answer", pts: ["One short, exact answer using the correct science word.", "No explanation needed."], ex: ["oxygen"] }] },
+{ code: "2", name: "Describe (including graphs and data)", marks: "2–3",
+q: "Describe how the rate of photosynthesis changes as light intensity increases. [3]",
+steps: [{ h: "How to answer", pts: ["Say WHAT happens, not why.", "Describe the trend, then any change (it levels off).", "Quote numbers with units from the graph or table."], ex: ["The rate increases as light intensity increases up to about 40 units, then stays the same at 12 bubbles per minute."] }] },
+{ code: "3", name: "Explain", marks: "2–4",
+q: "Explain why sodium chloride has a high melting point. [3]",
+steps: [{ h: "How to answer", pts: ["Give the reason using “because…”, then the effect using “so…”.", "Use key words: ions, electrostatic attraction, valency, convection current, transpiration.", "One linked idea for each mark."], ex: ["It has strong electrostatic forces of attraction between oppositely charged ions, so a lot of energy is needed to break them."] }] },
+{ code: "4", name: "Calculate", marks: "2–3",
+q: "A block has a mass of 240 g and a volume of 30 cm³. Calculate its density. [2]",
+steps: [{ h: "How to answer", pts: ["Write the formula, substitute the numbers, then give the answer WITH the unit.", "Rearrange if needed: volume = mass ÷ density."], ex: ["density = mass ÷ volume = 240 ÷ 30 = 8 g/cm³"] }] },
+{ code: "5", name: "Investigations and practicals", marks: "3–6",
+q: "Plan an investigation into how temperature affects the rate of photosynthesis. [5]",
+steps: [{ h: "How to answer", pts: ["Variables: independent (what you change), dependent (what you measure), control (what you keep the same).", "Method in numbered steps with equipment and amounts.", "Repeat and calculate a mean to make results reliable.", "Make a prediction and give a scientific reason; mention one safety point."] }] }
+] },
+
+{ subj: "hin", from: "starter", intro: "Write in Hindi with the correct format. Use तुम with friends and आप with elders.",
+types: [
+{ code: "1", name: "Listening: pictures and MCQ (सुनकर उत्तर दीजिए)", marks: "1 each",
+q: "Listen and choose the correct picture / option.",
+steps: [{ h: "How to answer", pts: ["Read all the options before the audio starts.", "Listen for key words: time (बजे), place, numbers, days, activities.", "Choose on the first listening, check on the second."] }] },
+{ code: "2", name: "Reading and vocabulary (दैनिक गतिविधियाँ, व्यक्तिगत और सामाजिक जीवन)", marks: "1–2",
+q: "Read the passage and answer the questions in Hindi.",
+steps: [{ h: "How to answer", pts: ["Underline the answer in the passage first.", "Answer in a full Hindi sentence using words from the question.", "Check verb endings match the person (गया/गई)."] }] },
+{ code: "3", name: "Diary writing (डायरी लेखन)", marks: "5–8",
+q: "Write a diary entry about your school trip. (Cover every point given.)",
+steps: [{ h: "Format", pts: ["Top: दिनांक, दिन, समय", "प्रिय डायरी,", "What happened (past tense) → how you felt → what you learnt / plan next.", "End with your name."], ex: ["दिनांक: 14 नवंबर 2026, शनिवार, रात 9 बजे\nप्रिय डायरी,\nआज का दिन बहुत मज़ेदार था…"] }],
+levels: [{ l: "Marks for", m: "", pts: ["Format", "Content covering every point", "Language and grammar"] }] },
+{ code: "4", name: "Informal letter (अनौपचारिक पत्र)", marks: "5–8",
+q: "Write a letter to your friend inviting them for Diwali.",
+steps: [{ h: "Format", pts: ["प्रेषक का पता → दिनांक", "संबोधन: प्रिय मित्र आरव, / आदरणीय पिताजी,", "अभिवादन: सप्रेम नमस्ते। / सादर प्रणाम।", "कुशल-क्षेम → मुख्य विषय (2 paragraphs) → समापन", "तुम्हारा मित्र / आपका पुत्र → नाम"], ex: ["प्रिय मित्र आरव,\nसप्रेम नमस्ते।\nमैं यहाँ कुशल हूँ और आशा करती हूँ कि तुम भी वहाँ कुशल होगे।"] }] }
+] },
+
+{ subj: "dl", from: "starter", intro: "Show working for conversions and trace code line by line.",
+types: [
+{ code: "1", name: "Number conversions", marks: "2–3",
+q: "Convert 45 (decimal) to binary. / Convert 101101₂ to decimal. [2]",
+steps: [{ h: "How to answer", pts: ["Decimal → binary: divide by 2 repeatedly, write the remainders, read them bottom to top.", "Binary → decimal: write place values 32 16 8 4 2 1 above the digits and add the ones that are 1.", "Write the base: 101101₂, 45₁₀, 2F₁₆."], ex: ["45 ÷ 2 = 22 r1, 22 ÷ 2 = 11 r0, 11 ÷ 2 = 5 r1, 5 ÷ 2 = 2 r1, 2 ÷ 2 = 1 r0, 1 ÷ 2 = 0 r1 → 101101₂"] }] },
+{ code: "2", name: "Define and explain", marks: "1–2",
+q: "What is hexadecimal used for? Give an example. [2]",
+steps: [{ h: "How to answer", pts: ["Give the definition in one sentence, then a real example.", "Examples: hex colour codes (#FF0000), memory addresses; binary in computer storage."] }] },
+{ code: "3", name: "Trace code / predict the output", marks: "2–4",
+q: "What is printed when this code runs? for i in range(1, 6, 2): print(i * 2) [3]",
+steps: [{ h: "How to answer", pts: ["Make a trace table: one column per variable, one row per loop.", "range(start, stop, step) stops BEFORE stop.", "Check conditions: == compares, = assigns; and/or."], ex: ["i = 1, 3, 5 → prints 2, 6, 10"] }] },
+{ code: "4", name: "Write or fix code", marks: "3–6",
+q: "Write a program that asks for a mark and prints “Pass” if it is 40 or more. [4]",
+steps: [{ h: "How to answer", pts: ["Convert input: mark = int(input(\"Enter mark: \"))", "Colon after if / elif / else / for, and indent the block.", "Use the right operator (>=, ==, !=).", "Test with sample values, including the boundary (39, 40)."], ex: ["mark = int(input(\"Enter mark: \"))\nif mark >= 40:\n    print(\"Pass\")\nelse:\n    print(\"Fail\")"] }] }
+] },
+
+{ subj: "gp", from: "starter", intro: "Sources are in the insert. Quote them, but explain in your own words.",
+types: [
+{ code: "1", name: "Fact and opinion", marks: "1 + 2",
+q: "(i) Identify one opinion in the sources. [1]  (ii) Explain why it is an opinion. [2]",
+steps: [{ h: "How to answer", pts: ["Quote the exact words.", "Opinion: a personal view or judgement that can't be proven; look for words like “I think”, “not fair”, “best”.", "Fact: can be checked and proven with evidence, often a number or statistic.", "Explain in two parts: what it is + how you can tell."], ex: ["“In my view this is not fair.” It is an opinion because it is the writer's personal judgement, and fairness can't be proven or checked."] }] },
+{ code: "2", name: "Most significant cause or consequence", marks: "8",
+q: "Which cause of … do you think is the most significant? Explain why. [8]",
+steps: [{ h: "How to answer", pts: ["Identify 2–3 causes from the sources.", "Explain each one with evidence from the sources.", "Compare them using criteria: how many people it affects, how serious, how long-lasting, whether it leads to other problems.", "Judgement: “The most significant cause is … because …, whereas …”"] }] },
+{ code: "3", name: "Testing a claim", marks: "8",
+q: "“…” Explain how this claim could be tested. Consider the research methods and evidence that could be used. [8]",
+steps: [{ h: "How to answer", pts: ["Primary research: survey or interview (who, how many, what you'd ask).", "Secondary research: reliable sources such as government statistics, UN reports, recent studies.", "Say what evidence would support or disprove the claim.", "Reliability: large, varied sample; up-to-date, unbiased sources; compare several sources (corroboration)."] }] },
+{ code: "4", name: "Evaluating research", marks: "8",
+q: "Explain the strengths and weaknesses of the research outlined in Source 3. [8]",
+steps: [{ h: "How to answer", pts: ["Strengths: mix of primary and secondary research, expert or official sources, real experiences.", "Weaknesses: small sample (only parents and neighbours), biased sources (e.g. a magazine promoting one side), one country only, conclusion too general (“around the world”).", "Give an improvement for each weakness.", "End with an overall judgement of how reliable the research is."] }] }
+] }
+];
+
 /* ===== Profiles: the built-in syllabus is the default; visitors can add their own (stored only in their browser) ===== */
 var PROFILE_REG_KEY = "ecc.profiles", BASE_KEY = "ecc.nov2026.v1";
 var RULES = { id: "default", name: "November 2026 exams", start: "2026-11-01", end: "2026-11-30", restWeekdays: [4], dailyMax: 90, custom: false, label: "November 2026 · IST" };
@@ -2170,7 +2397,7 @@ var DOODLE = {
 function doodle(name, size, cls) {
   return '<svg class="doodle ' + (cls || "") + '" width="' + size + '" height="' + size + '" viewBox="0 0 100 100" aria-hidden="true"><g filter="url(#crayon)" stroke="' + INK + '" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">' + (DOODLE[name] || "") + "</g></svg>";
 }
-var PAGE_DOODLE = { dashboard: "sun", planner: "calendar", syllabus: "checklist", resources: "books", quiz: "bulb", flashcards: "cards", analytics: "chart", preferences: "palette" };
+var PAGE_DOODLE = { dashboard: "sun", planner: "calendar", syllabus: "checklist", resources: "books", notes: "pencil", quiz: "bulb", flashcards: "cards", analytics: "chart", preferences: "palette" };
 var NAV_COLORS = ["#e23b3b", "#2f6fdb", "#0f8f6e", "#e8761a", "#8b48dc", "#d4a000", "#139ccd", "#ff5c9a", "#5d5766"];
 
 /* ===== AI (Claude, via the claude.ai page). Everything degrades gracefully when it isn't available. ===== */
@@ -2378,10 +2605,11 @@ function editorModal(d) {
 
 /* ===== UI base: helpers, shell, dashboard, planner ===== */
 var UI = { page: "dashboard", planView: "month", selDate: null, weekStart: null, focus: null, sylF: { subj: "all", st: "all" }, sylOpen: {}, resSubj: null, resOpen: {}, resQ: "", quiz: null, fc: null, anaTab: "overview" };
-var PAGES = ["dashboard", "planner", "syllabus", "resources", "quiz", "flashcards", "analytics", "preferences"];
-var PAGE_T = { dashboard: "Dashboard", planner: "Study Planner", syllabus: "Syllabus Tracker", resources: "Study Resources", quiz: "Quiz Centre", flashcards: "Flashcards", analytics: "Progress Analytics", preferences: "Preferences" };
+var PAGES = ["dashboard", "planner", "syllabus", "resources", "notes", "quiz", "flashcards", "analytics", "preferences"];
+var PAGE_T = { dashboard: "Dashboard", planner: "Study Planner", syllabus: "Syllabus Tracker", resources: "Study Resources", notes: "Answer Notes", quiz: "Quiz Centre", flashcards: "Flashcards", analytics: "Progress Analytics", preferences: "Preferences" };
 var ICON = {
   dashboard: '<path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 3v6h8V3z"/>',
+  notes: '<path d="M6 3.5h9l3.5 3.5v13.5H6z"/><path d="M15 3.5V7h3.5M9 11h6M9 14.5h6M9 18h4"/><path d="m3 17 2-2"/>',
   planner: '<rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/>',
   syllabus: '<path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1.5 1.5L7.5 5M3.5 12l1.5 1.5L7.5 11M3.5 18l1.5 1.5L7.5 17"/>',
   resources: '<path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H19v15H5.5A1.5 1.5 0 0 0 4 19.5z"/><path d="M4 19.5A1.5 1.5 0 0 0 5.5 21H19v-3"/>',
@@ -2447,7 +2675,7 @@ function go(p, keepScroll) {
 }
 function render() {
   updateSide();
-  var v = $("#view"), fn = { dashboard: pgDashboard, planner: pgPlanner, syllabus: pgSyllabus, resources: pgResources, quiz: pgQuiz, flashcards: pgFlash, analytics: pgAnalytics, preferences: pgPrefs }[UI.page];
+  var v = $("#view"), fn = { dashboard: pgDashboard, planner: pgPlanner, syllabus: pgSyllabus, resources: pgResources, notes: pgNotes, quiz: pgQuiz, flashcards: pgFlash, analytics: pgAnalytics, preferences: pgPrefs }[UI.page];
   try { v.innerHTML = fn(); if (fn.after) fn.after(); }
   catch (e) { console.error(e); v.innerHTML = '<div class="notice bad">Something went wrong while showing this page: ' + esc(e.message) + '. Your data is safe. <button class="btn sm" data-act="nav" data-page="dashboard">Back to dashboard</button></div>'; }
   if (!storageOK) v.insertAdjacentHTML("afterbegin", '<div class="notice warn" style="margin-bottom:14px">Your browser is blocking local storage, so progress will be lost when you close this page. Use Preferences → Export progress to keep a backup.</div>');
@@ -3636,7 +3864,7 @@ function pipHandle(raw) {
   /* open notes for a topic */
   var wantsNotes = /\b(notes?|explain|revise|read|learn|teach)\b/.test(s);
   /* open a page */
-  var pageMap = [["dashboard", /\b(dashboard|home)\b/], ["planner", /\b(planner|timetable|calendar|schedule)\b/], ["syllabus", /\b(syllabus|tracker)\b/], ["resources", /\b(resources|notes page)\b/], ["quiz", /\bquiz cent(re|er)\b/], ["flashcards", /\bflashcards page\b/], ["analytics", /\b(analytics|charts?)\b/], ["preferences", /\b(preferences|settings|options)\b/]];
+  var pageMap = [["dashboard", /\b(dashboard|home)\b/], ["planner", /\b(planner|timetable|calendar|schedule)\b/], ["syllabus", /\b(syllabus|tracker)\b/], ["resources", /\b(resources|notes page)\b/], ["notes", /\b(answer notes|how to (write|answer)|question types?|answer writing)\b/], ["quiz", /\bquiz cent(re|er)\b/], ["flashcards", /\bflashcards page\b/], ["analytics", /\b(analytics|charts?)\b/], ["preferences", /\b(preferences|settings|options)\b/]];
   if (/\b(open|go to|show|take me|goto)\b/.test(s) || !wantsNotes) {
     for (var k = 0; k < pageMap.length; k++) if (pageMap[k][1].test(s)) { var pg = pageMap[k][0]; if (restMsg && ["resources", "quiz", "flashcards"].indexOf(pg) >= 0) return pipSay(restMsg); navTo(pg); pipSay("Opened <b>" + PAGE_T[pg] + "</b>. 📂"); return; }
   }
@@ -4129,6 +4357,142 @@ async function saveFile(filename, blob) {
   return "saved";
 }
 
+
+/* ===== Answer Notes: how to write each type of question, per subject; printable / PDF ===== */
+function anList() { return ANSWER_NOTES.filter(function (n) { return n.subj; }); }
+function anGet(sid) { return ANSWER_NOTES.filter(function (n) { return n.subj === sid; })[0] || ANSWER_NOTES[0]; }
+var AN_SUBJ = { hum: ["Humanities", "Humanities", "#8b48dc"], eng: ["English", "English", "#e8761a"], math: ["Mathematics", "Maths", "#2f6fdb"], sci: ["Science", "Science", "#0f8f6e"], hin: ["Hindi", "Hindi", "#e23b3b"], dl: ["Digital Literacy", "DL", "#139ccd"], gp: ["Global Perspectives", "GP", "#bf9000"] };
+function anSubj(sid) { var a = AN_SUBJ[sid]; return a ? { id: sid, name: a[0], short: a[1], color: a[2] } : { id: sid, name: sid, short: sid, color: "#5d5766" }; }
+function anMarks(m) { return m === "" || m === undefined ? "" : m + (/^\d+$/.test(String(m)) && +m === 1 ? " mark" : " marks"); }
+function anText(t) { return esc(t).replace(/\n/g, "<br>"); }
+function pgNotes() {
+  var list = anList(), sid = UI.notesSubj && list.some(function (n) { return n.subj === UI.notesSubj; }) ? UI.notesSubj : list[0].subj, N = anGet(sid), s = anSubj(sid);
+  UI.notesSubj = sid;
+  var canPrint = !aiInFrame();
+  var h = head("Answer Notes", "How to write each type of question, step by step, with how the marks are given", (canPrint ? '<button class="btn" data-act="notesPrint">' + ic("download") + "Print</button>" : "") + '<button class="btn primary" data-act="notesPdf">' + ic("download") + "Save as PDF</button>");
+  h += '<div class="seg an-subjs" role="tablist" aria-label="Subject">' + list.map(function (n) { var x = anSubj(n.subj); return '<button role="tab" aria-selected="' + (n.subj === sid) + '" class="' + (n.subj === sid ? "on" : "") + '" style="--c:' + x.color + '" data-act="notesSubj" data-s="' + n.subj + '"><span class="dot" style="background:' + x.color + '"></span>' + esc(x.short) + "</button>"; }).join("") + "</div>";
+  h += '<div class="an-intro card" style="--c:' + s.color + '"><div class="row between wrap" style="gap:8px"><h2 style="margin:0">' + esc(s.name) + '</h2><span class="chip ' + (N.from === "class" ? "good" : "") + '">' + (N.from === "class" ? "From your class notes" : "Starter notes · we'll change these as we go") + "</span></div>" + (N.intro ? '<p class="muted" style="margin:6px 0 0">' + esc(N.intro) + "</p>" : "") +
+    '<div class="row wrap an-jump" style="margin-top:10px">' + N.types.map(function (t) { return '<a class="chip" href="#an-' + sid + "-" + t.code + '" data-act="anJump" data-id="an-' + sid + "-" + t.code + '"><b>' + esc(t.code) + "</b>&nbsp;" + esc(t.name) + "</a>"; }).join("") + "</div></div>";
+  N.types.forEach(function (t) { h += anTypeCard(t, s); });
+  return h;
+}
+function anTypeCard(t, s) {
+  var h = '<section class="card an-type" id="an-' + s.id + "-" + esc(t.code) + '" style="--c:' + s.color + '">';
+  h += '<div class="an-top"><div class="an-badge" aria-hidden="true">' + esc(t.code) + '</div><div class="grow"><div class="eyebrow">' + (/^[A-Z]$/.test(t.code) ? "Type " + esc(t.code) : "Question type " + esc(t.code)) + '</div><h2 style="margin:2px 0 0">' + esc(t.name) + "</h2></div>" + (t.marks !== undefined ? '<span class="chip accent an-mk">' + esc(anMarks(t.marks)) + "</span>" : "") + "</div>";
+  if (t.q) h += '<div class="an-q"><div class="tiny muted">The question looks like this</div><div>' + anText(t.q) + "</div></div>";
+  h += '<h3 class="an-h">✏️ How to write it</h3><ol class="an-steps">';
+  t.steps.forEach(function (st) {
+    h += '<li class="an-step"><div class="an-step-h">' + esc(st.h) + '</div><ul class="an-pts">' + st.pts.map(function (p) { return "<li>" + anText(p) + "</li>"; }).join("") + "</ul>";
+    if (st.ex && st.ex.length) h += st.ex.map(function (e) { return '<div class="an-ex"><span class="an-eg">e.g.</span>' + anText(e) + "</div>"; }).join("");
+    h += "</li>";
+  });
+  h += "</ol>";
+  if (t.note) h += '<div class="an-note"><b>Remember:</b> ' + anText(t.note) + "</div>";
+  if (t.levels && t.levels.length) {
+    h += '<h3 class="an-h">🏆 How the marks are given</h3><div class="an-levels">';
+    t.levels.forEach(function (lv, i) {
+      var tone = t.levels.length > 1 ? i / (t.levels.length - 1) : 0;
+      h += '<div class="an-lv" style="--k:' + tone.toFixed(2) + '"><div class="an-lv-tag"><b>' + esc(lv.l) + "</b>" + (lv.m !== "" ? "<span>" + esc(lv.m) + (/^\d/.test(lv.m) ? (lv.m === "1" ? " mark" : " marks") : "") + "</span>" : "") + '</div><ul class="an-pts">' + lv.pts.map(function (p) { return "<li>" + anText(p) + "</li>"; }).join("") + "</ul></div>";
+    });
+    h += "</div>";
+  }
+  return h + "</section>";
+}
+
+/* ----- printing / PDF (A4, crayon-paper look) ----- */
+var AN_PG = { w: 794, h: 1123, pad: 48 };
+function anPrintCSS() {
+  return ".an-page{width:" + AN_PG.w + "px;height:" + AN_PG.h + "px;background:#fffdf6;background-image:repeating-linear-gradient(#fffdf6 0 27px,#e8eef8 27px 28px);color:#2d2a32;padding:" + AN_PG.pad + "px " + AN_PG.pad + "px 40px 64px;box-sizing:border-box;position:relative;overflow:hidden;font-family:'Patrick Hand','Kalam','Comic Sans MS',cursive;font-size:15.5px;line-height:1.42}" +
+    ".an-page:before{content:'';position:absolute;top:0;bottom:0;left:44px;border-left:2px solid #f2a7a7}" +
+    ".an-pbody{height:" + (AN_PG.h - AN_PG.pad - 40 - 22) + "px;overflow:hidden}" +
+    ".an-pfoot{position:absolute;left:64px;right:" + AN_PG.pad + "px;bottom:16px;display:flex;justify-content:space-between;font-size:12px;color:#6d6775}" +
+    ".pa-title{font-family:'Schoolbell','Patrick Hand',cursive;font-size:34px;margin:0 0 2px;line-height:1.1}.pa-title span{background:linear-gradient(transparent 58%,var(--c) 58%,var(--c) 88%,transparent 88%);background-size:100% 100%;padding:0 4px;opacity:1}" +
+    ".pa-sub{color:#5d5766;margin:0 0 6px}.pa-intro{border:2px dashed var(--c);border-radius:14px 10px 16px 9px;padding:6px 12px;margin:4px 0 10px;background:#fff}" +
+    ".pa-type{display:flex;align-items:center;gap:10px;margin:12px 0 6px;padding-top:4px}.pa-badge{width:38px;height:38px;flex:0 0 38px;border-radius:50% 46% 52% 48%;border:2.5px solid #2d2a32;background:var(--c);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Schoolbell',cursive;font-size:22px}" +
+    ".pa-tname{font-family:'Schoolbell','Patrick Hand',cursive;font-size:22px;line-height:1.15}.pa-mk{margin-left:auto;border:2px solid #2d2a32;border-radius:12px 9px 13px 8px;padding:0 8px;font-size:14px;background:#fff6c8;white-space:nowrap}" +
+    ".pa-q{border:2px solid #2d2a32;border-radius:10px 14px 9px 13px;background:#fff;padding:5px 10px;margin:2px 0 8px}.pa-q i{display:block;font-style:normal;font-size:12px;color:#6d6775}" +
+    ".pa-h{font-family:'Schoolbell','Patrick Hand',cursive;font-size:18px;margin:8px 0 2px;color:#2d2a32}" +
+    ".pa-step{border-left:4px solid var(--c);padding:2px 0 2px 10px;margin:6px 0}.pa-step b{font-family:'Schoolbell','Patrick Hand',cursive;font-weight:400;font-size:17px}" +
+    ".pa-pts{margin:2px 0 2px 18px;padding:0}.pa-pts li{margin:1px 0}" +
+    ".pa-ex{background:#fff3a8;border:1.5px solid #e0c64a;border-radius:4px 10px 6px 12px;padding:4px 10px;margin:4px 0;transform:rotate(-.3deg)}.pa-ex em{font-style:normal;font-family:'Schoolbell',cursive;color:#a07d00;margin-right:6px}" +
+    ".pa-note{background:#ffe1ea;border:1.5px solid #f39ab4;border-radius:10px 5px 12px 6px;padding:4px 10px;margin:6px 0}" +
+    ".pa-lv{display:flex;gap:10px;margin:4px 0;align-items:flex-start}.pa-tag{flex:0 0 96px;border:2px solid #2d2a32;border-radius:9px 12px 8px 11px;padding:1px 6px;text-align:center;background:var(--lc);font-size:14px;line-height:1.2}.pa-tag b{display:block;font-family:'Schoolbell',cursive;font-weight:400;font-size:15px}";
+}
+function anLvColor(k) { var a = [[183, 228, 199], [255, 236, 170], [255, 214, 170], [235, 228, 240]]; var i = Math.min(a.length - 1, Math.round(k * (a.length - 1))); return "rgb(" + a[i].join(",") + ")"; }
+function anBlocks(sid) {
+  var N = anGet(sid), s = anSubj(sid), B = [];
+  B.push('<h1 class="pa-title"><span style="--c:' + s.color + '55">' + esc(s.name) + ' · Answer Notes</span></h1><p class="pa-sub">How to write each type of question · ' + (N.from === "class" ? "from your class notes" : "starter notes") + "</p>" + (N.intro ? '<div class="pa-intro">' + esc(N.intro) + "</div>" : ""));
+  N.types.forEach(function (t) {
+    var head = '<div class="pa-type"><div class="pa-badge">' + esc(t.code) + '</div><div class="pa-tname">' + (/^[A-Z]$/.test(t.code) ? "Type " + esc(t.code) + ": " : "") + esc(t.name) + "</div>" + (t.marks !== undefined ? '<div class="pa-mk">' + esc(anMarks(t.marks)) + "</div>" : "") + "</div>" + (t.q ? '<div class="pa-q"><i>The question looks like this</i>' + anText(t.q) + "</div>" : "") + '<div class="pa-h">✏️ How to write it</div>';
+    t.steps.forEach(function (st, i) {
+      var b = '<div class="pa-step"><b>' + esc(st.h) + '</b><ul class="pa-pts">' + st.pts.map(function (p) { return "<li>" + anText(p) + "</li>"; }).join("") + "</ul>" + (st.ex || []).map(function (e) { return '<div class="pa-ex"><em>e.g.</em>' + anText(e) + "</div>"; }).join("") + "</div>";
+      B.push(i === 0 ? "\u0001" + head + b : b);
+    });
+    if (t.note) B.push('<div class="pa-note"><b>Remember:</b> ' + anText(t.note) + "</div>");
+    if (t.levels && t.levels.length) t.levels.forEach(function (lv, i) {
+      var k = t.levels.length > 1 ? i / (t.levels.length - 1) : 0, last = i === t.levels.length - 1 && i > 0;
+      (last ? function (h) { B[B.length - 1] += h; } : function (h) { B.push(h); })((i === 0 ? '<div class="pa-h">🏆 How the marks are given</div>' : "") + '<div class="pa-lv"><div class="pa-tag" style="--lc:' + anLvColor(k) + '"><b>' + esc(lv.l) + "</b>" + esc(lv.m) + (/^\d/.test(lv.m) ? (lv.m === "1" ? " mark" : " marks") : "") + '</div><ul class="pa-pts" style="flex:1;margin-top:0">' + lv.pts.map(function (p) { return "<li>" + anText(p) + "</li>"; }).join("") + "</ul></div>");
+    });
+  });
+  return B;
+}
+function anHost(visible, color) {
+  var old = $("#an-host"); if (old) old.remove();
+  var host = document.createElement("div"); host.id = "an-host"; host.style.setProperty("--c", color);
+  host.style.cssText += visible ? "" : ";position:fixed;left:-12000px;top:0;z-index:-1;";
+  host.innerHTML = "<style>" + anPrintCSS() + "</style>";
+  document.body.appendChild(host); return host;
+}
+function anPaginate(blocks, host, label) {
+  var pages = [], page, body;
+  var newPage = function () { page = document.createElement("div"); page.className = "an-page"; body = document.createElement("div"); body.className = "an-pbody"; page.appendChild(body); host.appendChild(page); pages.push(page); };
+  newPage();
+  blocks.forEach(function (html, bi) {
+    var brk = html.charAt(0) === "\u0001"; if (brk) html = html.slice(1);
+    if (brk && bi > 1) newPage();
+    var d = document.createElement("div"); d.innerHTML = html; body.appendChild(d);
+    if (body.scrollHeight > body.clientHeight + 1 && body.children.length > 1) { body.removeChild(d); newPage(); body.appendChild(d); }
+  });
+  pages.forEach(function (p, i) { var f = document.createElement("div"); f.className = "an-pfoot"; f.innerHTML = "<span>" + esc(label) + "</span><span>Page " + (i + 1) + " of " + pages.length + "</span>"; p.appendChild(f); });
+  return pages;
+}
+var AN_LIBS = { h2c: "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js", jspdf: "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" };
+async function notesPDF(sid, onStep) {
+  try { if (!window.html2canvas) await loadScript(AN_LIBS.h2c); if (!(window.jspdf && window.jspdf.jsPDF)) await loadScript(AN_LIBS.jspdf); }
+  catch (e) { throw { message: "Saving as PDF needs an internet connection the first time. Connect and try again" + (aiInFrame() ? "." : ", or use Print.") }; }
+  try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) { }
+  var s = anSubj(sid), host = anHost(false, s.color), pages = anPaginate(anBlocks(sid), host, s.name + " · Answer Notes");
+  var doc = new window.jspdf.jsPDF({ unit: "pt", format: "a4", compress: true });
+  for (var i = 0; i < pages.length; i++) {
+    if (onStep) onStep("Drawing page " + (i + 1) + " of " + pages.length + "…");
+    var c = await window.html2canvas(pages[i], { scale: 2, backgroundColor: "#fffdf6", logging: false });
+    if (i) doc.addPage();
+    doc.addImage(c.toDataURL("image/jpeg", 0.9), "JPEG", 0, 0, 595.28, 841.89);
+  }
+  host.remove();
+  return doc.output("blob");
+}
+function notesPrint(sid) {
+  var s = anSubj(sid), host = anHost(true, s.color); host.className = "an-print";
+  anPaginate(anBlocks(sid), host, s.name + " · Answer Notes");
+  document.body.classList.add("an-printing");
+  var done = function () { document.body.classList.remove("an-printing"); host.remove(); window.removeEventListener("afterprint", done); };
+  window.addEventListener("afterprint", done);
+  setTimeout(function () { try { window.print(); } catch (e) { toast("Printing isn't available here. Use Save as PDF.", "bad"); } setTimeout(function () { if (document.body.classList.contains("an-printing")) done(); }, 60000); }, 300);
+}
+ACT.notesSubj = function (el) { UI.notesSubj = el.getAttribute("data-s"); render(); };
+ACT.anJump = function (el, e) { if (e) e.preventDefault(); var t = document.getElementById(el.getAttribute("data-id")); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); };
+ACT.notesPrint = function () { notesPrint(UI.notesSubj || "hum"); };
+ACT.notesPdf = async function (el) {
+  var sid = UI.notesSubj || "hum", s = anSubj(sid), btn = el; if (btn) btn.disabled = true;
+  toast("Making the " + s.name + " notes PDF…", "info");
+  try {
+    var blob = await notesPDF(sid);
+    var r = await saveFile(s.short.replace(/\s+/g, "-") + "-answer-notes.pdf", blob);
+    if (r === "saved") toast("PDF saved. Open it to print. 🖨️", "good"); else if (r === "declined") toast("Save was cancelled.", "info");
+  } catch (e) { toast((e && e.message) || "Couldn't make the PDF.", "bad"); }
+  if (btn) btn.disabled = false;
+};
 
 try { boot(); } catch (e) { console.error(e); document.getElementById("view").innerHTML = "<div class=\"notice bad\">The app could not start: " + String(e.message).replace(/</g,"&lt;") + "</div>"; }
 

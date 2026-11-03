@@ -1,6 +1,6 @@
 # Exam Command Centre
 
-A crayon-on-paper exam preparation website: study planner, syllabus tracker, revision notes, quizzes, flashcards, progress analytics, and **Pip**, a little paper helper with legs.
+A crayon-on-paper exam preparation website: study planner, syllabus tracker, revision notes, quizzes, flashcards, answer-writing notes (printable as PDF), progress analytics, and **Pip**, a little paper helper with legs.
 
 Everything is in one file, `index.html`. It needs no server or build step and works offline once loaded. Progress is saved in your own browser.
 
