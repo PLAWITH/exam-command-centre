@@ -2305,7 +2305,7 @@ function streak() {
 function topicPerf() {
   var m = {};
   TOPICS.forEach(function (t) { m[t.id] = { id: t.id, seen: 0, ok: 0, fk: 0, fr: 0 }; });
-  Object.keys(S.quiz.qstats).forEach(function (qid) { var q = QBY[qid]; if (!q) return; var st = S.quiz.qstats[qid]; m[q.t].seen += st.seen; m[q.t].ok += st.ok; });
+  Object.keys(S.quiz.qstats).forEach(function (qid) { var t = qid.indexOf("ai:") === 0 ? qid.slice(3) : QBY[qid] && QBY[qid].t; if (!t || !m[t]) return; var st = S.quiz.qstats[qid]; m[t].seen += st.seen; m[t].ok += st.ok; });
   FLASH_CARDS.forEach(function (c) { var f = S.flash[c.id]; if (!f) return; if (f.lastRes === "known") m[c.t].fk++; else if (f.lastRes === "revise") m[c.t].fr++; });
   Object.keys(m).forEach(function (k) {
     var x = m[k], parts = [];
@@ -3168,6 +3168,7 @@ function pgQuiz() {
   var lock = restLock("Quizzes"); if (lock) return lock;
   if (!UI.quiz) UI.quiz = { phase: "setup", cfg: quizCfgDefault() };
   var Q = UI.quiz;
+  if (Q.phase === "loading") return quizLoadingView();
   if (Q.phase === "run") return quizRun();
   if (Q.phase === "done") return quizDone();
   var c = Q.cfg, pool = quizPool(c);
@@ -3178,8 +3179,8 @@ function pgQuiz() {
   h += '<label class="f">Topic<select class="input" id="qz-topic" data-on="qzTopic"' + (c.subj === "all" ? " disabled" : "") + ">" + topicOpts + "</select></label>";
   h += '<label class="f">Difficulty<select class="input" id="qz-diff" data-on="qzDiff">' + [["any", "Any difficulty"], ["1", "Easy"], ["2", "Medium"], ["3", "Hard"]].map(function (d) { return '<option value="' + d[0] + '"' + (String(c.diff) === d[0] ? " selected" : "") + ">" + d[1] + "</option>"; }).join("") + "</select></label>";
   h += '<label class="f">Quiz length<select class="input" id="qz-len" data-on="qzLen">' + [5, 10, 15, 20, 0].map(function (n) { return '<option value="' + n + '"' + (c.len === n ? " selected" : "") + ">" + (n ? n + " questions" : "All matching") + "</option>"; }).join("") + "</select></label>";
-  h += '</div><div class="f small muted" style="margin-top:14px">Question types</div><div class="row wrap" style="margin-top:6px">' + [["mcq", "Multiple choice"], ["short", "Short answer"], ["struct", "Structured"], ["exam", "Exam-style"]].map(function (t) { return '<label class="row small" style="gap:7px;margin-right:12px"><input type="checkbox" class="check" id="qt-' + t[0] + '" data-on="qzType" data-t="' + t[0] + '"' + (c.types[t[0]] ? " checked" : "") + ">" + t[1] + "</label>"; }).join("") + '</div><label class="row small" style="gap:9px;margin-top:14px"><input type="checkbox" class="toggle" id="qz-weak" data-on="qzWeak"' + (c.weak ? " checked" : "") + '> Prioritise questions I got wrong or have not seen</label>';
-  h += '<div class="row" style="margin-top:18px"><button class="btn primary lg" data-act="quizStart"' + (pool.length ? "" : " disabled") + ">" + ic("play") + "Start quiz</button>" + (pool.length ? "" : '<span class="small muted">No questions match these filters.' + (RULES.custom ? " Questions are made when topics get notes." : " Select more question types or a different difficulty.") + "</span>") + "</div>" + (RULES.custom && c.subj !== "all" && TOPICS.some(function (t) { return t.subj === c.subj && !hasMaterials(t.id); }) ? '<div class="notice" style="margin-top:14px"><div class="grow">Some ' + esc(SUBJ[c.subj].name) + " topics have no questions yet." + aiNeedsNote() + '</div><button class="btn sm primary" data-act="aiSubject" data-s="' + c.subj + '"' + (AI.ready && !AI.busySubj ? "" : " disabled") + ">" + (AI.busySubj === c.subj ? "Writing… " + esc(AI.prog || "") : "✨ Make questions") + "</button></div>" : "") + "</div>";
+  h += '</div><div class="f small muted" style="margin-top:14px">Question types</div><div class="row wrap" style="margin-top:6px">' + [["mcq", "Multiple choice"], ["short", "Short answer"], ["struct", "Structured"], ["exam", "Exam-style"]].map(function (t) { return '<label class="row small" style="gap:7px;margin-right:12px"><input type="checkbox" class="check" id="qt-' + t[0] + '" data-on="qzType" data-t="' + t[0] + '"' + (c.types[t[0]] ? " checked" : "") + ">" + t[1] + "</label>"; }).join("") + '</div><label class="row small" style="gap:9px;margin-top:14px"><input type="checkbox" class="toggle" id="qz-weak" data-on="qzWeak"' + (c.weak ? " checked" : "") + '> Prioritise questions I got wrong or have not seen</label>' + freshQuizToggle();
+  h += '<div class="row" style="margin-top:18px"><button class="btn primary lg" data-act="quizStart"' + (pool.length || freshOn() ? "" : " disabled") + ">" + ic("play") + (freshOn() ? "Start fresh quiz ✨" : "Start quiz") + "</button>" + (pool.length || freshOn() ? "" : '<span class="small muted">No questions match these filters.' + (RULES.custom ? " Questions are made when topics get notes." : " Select more question types or a different difficulty.") + "</span>") + "</div>" + (RULES.custom && c.subj !== "all" && TOPICS.some(function (t) { return t.subj === c.subj && !hasMaterials(t.id); }) ? '<div class="notice" style="margin-top:14px"><div class="grow">Some ' + esc(SUBJ[c.subj].name) + " topics have no questions yet." + aiNeedsNote() + '</div><button class="btn sm primary" data-act="aiSubject" data-s="' + c.subj + '"' + (AI.ready && !AI.busySubj ? "" : " disabled") + ">" + (AI.busySubj === c.subj ? "Writing… " + esc(AI.prog || "") : "✨ Make questions") + "</button></div>" : "") + "</div>";
   /* history */
   var hist = S.quiz.history.slice().reverse();
   h += '<div class="card span-5"><div class="card-h"><h2>Quiz history</h2><span class="small muted">' + hist.length + " saved</span></div>" + (hist.length ? '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>When</th><th>Subject</th><th>Score</th><th>Accuracy</th></tr></thead><tbody>' + hist.slice(0, 12).map(function (x) { return "<tr><td>" + new Date(x.at).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short" }) + "</td><td>" + (x.subj === "all" ? "Mixed" : esc(SUBJ[x.subj].short)) + (x.retry ? ' <span class="chip">Retry</span>' : "") + "</td><td>" + x.got + "/" + x.max + " · " + x.pct + "%</td><td>" + x.acc + "%</td></tr>"; }).join("") + "</tbody></table></div>" : empty("No quizzes yet", "Your scores and accuracy will be saved here.")) + "</div></div>";
@@ -3217,7 +3218,8 @@ function quizRun() {
   return h;
 }
 function markQuizQ(q, ok, got, max) {
-  var st = S.quiz.qstats[q.id] || { seen: 0, ok: 0 }; st.seen++; if (ok) st.ok++; st.last = nowMs(); S.quiz.qstats[q.id] = st;
+  var key = q.ai ? "ai:" + q.t : q.id; /* AI questions count towards their topic */
+  var st = S.quiz.qstats[key] || { seen: 0, ok: 0 }; st.seen++; if (ok) st.ok++; st.last = nowMs(); S.quiz.qstats[key] = st;
 }
 function finishQuiz() {
   var Q = UI.quiz, got = 0, max = 0, correct = 0, n = 0, items = [];
@@ -3239,7 +3241,8 @@ function quizDone() {
 }
 
 /* ---------- flashcards ---------- */
-function fcBuild(subj, mode, shuf) {
+function fcBuild(subj, mode, shuf, noFresh) {
+  if (mode === "fresh") { if (freshOn() && !noFresh) return fcFreshDeck(subj, shuf); mode = "due"; }
   var list = FLASH_CARDS.filter(function (c) { return c.subj === subj; });
   if (mode === "due") list = list.filter(cardDue);
   if (mode === "revise") list = list.filter(function (c) { return S.flash[c.id] && S.flash[c.id].lastRes === "revise"; });
@@ -3248,16 +3251,17 @@ function fcBuild(subj, mode, shuf) {
 }
 function pgFlash() {
   var lock = restLock("Flashcards"); if (lock) return lock;
-  if (!UI.fc) UI.fc = fcBuild((upcomingExams()[0] || SUBJECTS[0]).id, "due", false);
+  if (!UI.fc) UI.fc = fcBuild((upcomingExams()[0] || SUBJECTS[0]).id, freshOn() ? "fresh" : "due", false);
   var F = UI.fc, s = SUBJ[F.subj];
   var all = FLASH_CARDS.filter(function (c) { return c.subj === s.id; }), due = all.filter(cardDue).length, kn = all.filter(function (c) { return S.flash[c.id] && S.flash[c.id].lastRes === "known"; }).length, rv = all.filter(function (c) { return S.flash[c.id] && S.flash[c.id].lastRes === "revise"; }).length;
   var h = head("Flashcards", "Spaced repetition: cards you know come back later; cards that need revision come back soon");
-  h += '<div class="row wrap" style="margin-bottom:12px"><div class="seg" style="flex-wrap:wrap">' + EXAM_ORDER.map(function (x) { return '<button data-act="fcSubj" data-s="' + x.id + '" class="' + (x.id === s.id ? "on" : "") + '">' + esc(x.short) + "</button>"; }).join("") + '</div><div class="grow"></div><div class="seg">' + [["due", "Due & new (" + due + ")"], ["all", "All (" + all.length + ")"], ["revise", "Needs revision (" + rv + ")"]].map(function (m) { return '<button data-act="fcMode" data-m="' + m[0] + '" class="' + (F.mode === m[0] ? "on" : "") + '">' + m[1] + "</button>"; }).join("") + '</div><button class="btn' + (F.shuf ? " primary" : "") + '" data-act="fcShuffle">' + ic("shuffle") + "Shuffle</button></div>";
+  h += '<div class="row wrap" style="margin-bottom:12px"><div class="seg" style="flex-wrap:wrap">' + EXAM_ORDER.map(function (x) { return '<button data-act="fcSubj" data-s="' + x.id + '" class="' + (x.id === s.id ? "on" : "") + '">' + esc(x.short) + "</button>"; }).join("") + '</div><div class="grow"></div><div class="seg">' + (AI.ready ? [["fresh", "✨ Fresh (AI)"]] : []).concat([["due", "Due & new (" + due + ")"]]).concat([ ["all", "All (" + all.length + ")"], ["revise", "Needs revision (" + rv + ")"]]).map(function (m) { return '<button data-act="fcMode" data-m="' + m[0] + '" class="' + (F.mode === m[0] ? "on" : "") + '">' + m[1] + "</button>"; }).join("") + '</div><button class="btn' + (F.shuf ? " primary" : "") + '" data-act="fcShuffle">' + ic("shuffle") + "Shuffle</button></div>";
   h += '<div class="row small muted" style="margin-bottom:18px;gap:16px"><span>' + all.length + " cards in deck</span><span>" + kn + " known</span><span>" + rv + " need revision</span><span>" + due + " due today</span></div>";
+  if (F.loading) return h + fcLoadingView(s);
   if (!F.order.length && RULES.custom && !all.length) return h + '<div class="card" style="text-align:center"><div class="stack" style="justify-items:center">' + doodle("cards", 70) + "<h2>No flashcards yet</h2><p class=\"muted\">Pip makes 5 flashcards for every topic when it writes the notes.</p>" + aiNeedsNote() + '<button class="btn primary" data-act="aiSubject" data-s="' + s.id + '"' + (AI.ready && !AI.busySubj ? "" : " disabled") + ">" + (AI.busySubj === s.id ? "Writing… " + esc(AI.prog || "") : "✨ Make " + esc(s.short) + " materials") + "</button></div></div>";
   if (!F.order.length) return h + empty(F.mode === "due" ? "No cards due today" : F.mode === "revise" ? "No cards marked Needs Revision" : "This deck is empty", F.mode === "due" ? "You're up to date with this deck. Review all cards or pick another subject." : "Cards you mark Needs Revision will appear here.", '<button class="btn sm" data-act="fcMode" data-m="all">Review all cards</button>');
-  if (F.i >= F.order.length) return h + '<div class="card" style="max-width:640px;margin:0 auto;text-align:center"><div class="stack" style="justify-items:center">' + ring(pct(F.known, F.known + F.revise), 110, "var(--good)") + "<h2>Deck finished</h2><p class=\"muted\">" + F.known + " known · " + F.revise + ' need revision. Progress and next review dates are saved.</p><div class="row"><button class="btn primary" data-act="fcRestart">Go again</button><button class="btn" data-act="fcMode" data-m="revise">Review Needs Revision</button></div></div></div>';
-  var c = FLASH_CARDS.filter(function (x) { return x.id === F.order[F.i]; })[0], st = S.flash[c.id];
+  if (F.i >= F.order.length) return h + '<div class="card" style="max-width:640px;margin:0 auto;text-align:center"><div class="stack" style="justify-items:center">' + ring(pct(F.known, F.known + F.revise), 110, "var(--good)") + "<h2>Deck finished</h2><p class=\"muted\">" + F.known + " known · " + F.revise + ' need revision. ' + (F.mode === "fresh" ? "These were fresh AI cards; press Go again for a new set." : "Progress and next review dates are saved.") + '</p><div class="row"><button class="btn primary" data-act="fcRestart">Go again</button><button class="btn" data-act="fcMode" data-m="revise">Review Needs Revision</button></div></div></div>';
+  var c = fcCard(F.order[F.i]), st = c.ai ? null : S.flash[c.id];
   h += '<div class="fc-stage"><div class="row between small muted" style="margin-bottom:8px"><span>Card ' + (F.i + 1) + " of " + F.order.length + "</span><span>" + (st && st.due ? "Next review: " + fmtD(st.due) : "New card") + "</span></div>" + bar(pct(F.i, F.order.length), s.color) + '<div style="height:14px"></div>';
   h += '<div class="fc' + (F.flip ? " flip" : "") + '" data-act="fcFlip" style="--c:' + s.color + '" tabindex="0" role="button" aria-label="Flip card" id="fc-card"><div class="fc-face"><span class="fc-tag">' + chipSubj(c.subj) + '</span><div class="tiny faint">' + esc(TOPIC[c.t].t) + '</div><div class="fc-main">' + esc(c.front) + '</div><span class="fc-hint">Tap or press Space to flip</span></div><div class="fc-face back"><span class="fc-tag"><span class="chip">Answer</span></span><div class="fc-back">' + esc(c.back) + "</div></div></div>";
   h += '<div class="row wrap" style="justify-content:center;margin-top:18px"><button class="btn" data-act="fcNav" data-n="-1"' + (F.i ? "" : " disabled") + ">Previous</button><button class=\"btn\" data-act=\"fcRate\" data-r=\"revise\" style=\"color:var(--warn)\">Needs Revision</button><button class=\"btn primary\" data-act=\"fcRate\" data-r=\"known\">" + ic("check") + 'Known</button><button class="btn" data-act="fcNav" data-n="1">Next</button></div><p class="tiny faint" style="text-align:center;margin-top:10px">Keys: Space flip · ← → move · K known · R needs revision</p></div>';
@@ -3401,12 +3405,7 @@ var ACT = {
   toggleRevised: function (el) { var t = el.getAttribute("data-tid"); if (S.revised[t]) delete S.revised[t]; else { S.revised[t] = nowMs(); logActivity(1); } save(); render(); },
   quizTopic: function (el) { var t = TOPIC[el.getAttribute("data-tid")]; UI.quiz = { phase: "setup", cfg: quizCfgDefault() }; UI.quiz.cfg.subj = t.subj; UI.quiz.cfg.topic = t.id; UI.quiz.cfg.len = 0; go("quiz"); },
   flashSubj: function (el) { UI.fc = fcBuild(el.getAttribute("data-s"), "all", false); go("flashcards"); },
-  quizStart: function () {
-    var c = UI.quiz.cfg, pool = quizPool(c);
-    if (c.weak) { pool = shuffle(pool).sort(function (a, b) { var sa = S.quiz.qstats[a.id], sb = S.quiz.qstats[b.id]; var ka = !sa ? 1 : sa.ok < sa.seen ? 0 : 2, kb = !sb ? 1 : sb.ok < sb.seen ? 0 : 2; return ka - kb; }); }
-    else pool = shuffle(pool);
-    startQuiz(pool.slice(0, c.len || pool.length).map(function (q) { return q.id; }));
-  },
+  quizStart: function () { if (freshOn()) freshStartQuiz(); else builtInQuizStart(); },
   qzPick: function (el) { var Q = UI.quiz, q = QBY[Q.qs[Q.i]], i = +el.getAttribute("data-i"), ok = i === q.a; Q.ans[q.id] = { given: i, checked: true, ok: ok, got: ok ? 1 : 0 }; markQuizQ(q, ok); save(); render(); },
   qzCheck: function () { var Q = UI.quiz, q = QBY[Q.qs[Q.i]], v = $("#qz-in").value; if (!v.trim()) { toast("Type an answer first.", "info"); return; } var ok = checkShort(v, q.a); Q.ans[q.id] = { given: v, checked: true, ok: ok, got: ok ? 1 : 0 }; markQuizQ(q, ok); save(); render(); },
   qzReveal: function () { var Q = UI.quiz, q = QBY[Q.qs[Q.i]]; Q.ans[q.id] = { given: $("#qz-in").value, revealed: true }; render(); },
@@ -3423,7 +3422,9 @@ var ACT = {
   fcFlip: function () { UI.fc.flip = !UI.fc.flip; var c = $("#fc-card"); if (c) c.classList.toggle("flip", UI.fc.flip); },
   fcNav: function (el) { var F = UI.fc; F.i = Math.max(0, Math.min(F.order.length, F.i + +el.getAttribute("data-n"))); F.flip = false; render(); },
   fcRate: function (el) {
-    var F = UI.fc, id = F.order[F.i], r = el.getAttribute("data-r"); reviewCard(id, r); save();
+    var F = UI.fc, id = F.order[F.i], r = el.getAttribute("data-r"), card = fcCard(id);
+    if (card && card.ai) { S.flashLog.push({ at: nowMs(), id: "ai:" + card.t, r: r }); if (S.flashLog.length > 3000) S.flashLog.splice(0, S.flashLog.length - 3000); logActivity(1); } else reviewCard(id, r);
+    save();
     if (r === "known") F.known++; else { F.revise++; if (!F.requeued[id]) { F.requeued[id] = 1; F.order.push(id); } }
     F.i++; F.flip = false; render();
   },
@@ -4502,6 +4503,140 @@ ACT.notesPdf = async function (el) {
   } catch (e) { toast((e && e.message) || "Couldn't make the PDF.", "bad"); }
   if (btn) btn.disabled = false;
 };
+
+/* ===== Fresh AI questions for Quiz Centre and Flashcards (only when AI is on; otherwise the built-in sets are used).
+   AI items live only for the current quiz/deck. Results still count towards each topic's analytics. ===== */
+var FRESH = { seq: 0, recent: null };
+function freshOn() { return !!(AI.ready && S.settings.freshAI !== false); }
+function freshRecent() {
+  if (!FRESH.recent) { try { FRESH.recent = JSON.parse(localStorage.getItem("ecc.aiRecent") || "{}") || {}; } catch (e) { FRESH.recent = {}; } }
+  return FRESH.recent;
+}
+function freshRemember(kind, sid, texts) {
+  var r = freshRecent(), k = kind + ":" + sid; r[k] = texts.concat(r[k] || []).slice(0, 40);
+  try { localStorage.setItem("ecc.aiRecent", JSON.stringify(r)); } catch (e) { }
+}
+function freshTopicBrief(t) {
+  var n = t.n || {}, bits = [];
+  if (n.s) bits.push(n.s);
+  if (n.k && n.k.length) bits.push("Key facts: " + n.k.slice(0, 6).join(" | "));
+  if (n.f && n.f.length) bits.push("Formulas: " + n.f.slice(0, 3).join(" | "));
+  return "- " + t.id + ": " + t.t + (bits.length ? " — " + bits.join(" ").slice(0, 600) : "");
+}
+function freshTopics(subj, topic, n) {
+  if (topic && topic !== "all") return [TOPIC[topic]];
+  var list = TOPICS.filter(function (t) { return subj === "all" || t.subj === subj; });
+  return shuffle(list).slice(0, Math.max(3, Math.min(n, 8)));
+}
+function freshSubjName(subj) { return subj === "all" ? "several school subjects" : SUBJ[subj].name; }
+function freshLangNote(topics) { return topics.some(function (t) { return t.subj === "hin"; }) ? "\nFor Hindi topics, write the questions and answers in Hindi (Devanagari), as in a Grade 8 Hindi exam." : ""; }
+
+/* ----- quiz ----- */
+async function aiFreshQuiz(cfg) {
+  var n = Math.max(3, Math.min(cfg.len || 10, 20)), topics = freshTopics(cfg.subj, cfg.topic, n);
+  var types = Object.keys(cfg.types).filter(function (k) { return cfg.types[k]; }); if (!types.length) types = ["mcq", "short"];
+  var tname = { mcq: "mcq (multiple choice, 4 options)", short: "short (one-word or short exact answer)", struct: "structured (2–4 marks, written answer)", exam: "exam (exam-style, 4–8 marks, written answer)" };
+  var weak = cfg.weak ? (function () { var tp = topicPerf(); return topics.filter(function (t) { var x = tp[t.id]; return x && x.score !== null && x.score < 0.7; }).map(function (t) { return t.t; }); })() : [];
+  var avoid = (freshRecent()["q:" + (cfg.topic !== "all" ? cfg.topic : cfg.subj)] || []).slice(0, 25);
+  var prompt = "Write " + n + " NEW practice questions for a Grade 8 student revising " + freshSubjName(cfg.subj) + " for a school exam in November 2026 (Cambridge-style, India).\n" +
+    "Use ONLY these syllabus topics (use the topic id exactly):\n" + topics.map(freshTopicBrief).join("\n") +
+    "\n\nQuestion types to use (mix them): " + types.map(function (k) { return tname[k]; }).join("; ") + "." +
+    (cfg.diff !== "any" ? "\nDifficulty: " + ["", "easy", "medium", "hard"][+cfg.diff] + " only." : "\nMix easy, medium and hard.") +
+    (weak.length ? "\nThe student is weak at: " + weak.join("; ") + ". Give these topics more questions." : "") +
+    (avoid.length ? "\nDo NOT repeat or closely copy these recent questions:\n" + avoid.map(function (q) { return "• " + q.slice(0, 120); }).join("\n") : "") +
+    freshLangNote(topics) +
+    "\nEvery question must be accurate and answerable from the topic. Vary the wording, numbers and contexts (random seed " + Math.floor(Math.random() * 1e6) + ")." +
+    "\n\nReturn ONLY JSON: {\"questions\":[{\"topic\":\"topic id\",\"type\":\"mcq|short|structured|exam\",\"difficulty\":1,\"q\":\"question text\",\"options\":[\"...\"],\"answer\":0,\"answers\":[\"accepted answer\",\"other accepted form\"],\"marks\":3,\"markScheme\":\"marking points\",\"explanation\":\"why the answer is right\"}]}" +
+    "\nmcq: options (4) + answer (index). short: answers (list of accepted answers, short). structured/exam: marks + markScheme.";
+  var v = await aiJSON(prompt, { modelTier: "default" });
+  var ok = topics.map(function (t) { return t.id; }), out = [];
+  (Array.isArray(v.questions) ? v.questions : []).forEach(function (q) {
+    if (!q || !q.q) return;
+    var t = ok.indexOf(String(q.topic)) >= 0 ? String(q.topic) : ok[0], d = Math.max(1, Math.min(3, +q.difficulty || 2)), base = { id: "ai" + (++FRESH.seq) + "_" + Date.now().toString(36), ai: true, t: t, subj: TOPIC[t].subj, d: d, q: String(q.q), x: String(q.explanation || q.markScheme || "") };
+    if (q.type === "mcq" && Array.isArray(q.options) && q.options.length >= 2 && q.options.length <= 6 && +q.answer >= 0 && +q.answer < q.options.length && cfg.types.mcq) {
+      var opts = q.options.map(String), right = opts[+q.answer], sh = shuffle(opts);
+      out.push(Object.assign(base, { y: "mcq", m: 1, o: sh, a: sh.indexOf(right) }));
+    } else if (q.type === "short" && Array.isArray(q.answers) && q.answers.length && cfg.types.short) out.push(Object.assign(base, { y: "short", m: 1, a: q.answers.map(String) }));
+    else if ((q.type === "structured" || q.type === "exam") && (cfg.types.struct || cfg.types.exam)) {
+      var y = q.type === "exam" && cfg.types.exam ? "exam" : cfg.types.struct ? "struct" : "exam";
+      out.push(Object.assign(base, { y: y, m: Math.max(1, Math.min(10, +q.marks || (y === "exam" ? 5 : 3))), x: String(q.markScheme || q.explanation || "") }));
+    }
+  });
+  if (!out.length) throw new Error("The AI didn't send any usable questions");
+  out.forEach(function (q) { QBY[q.id] = q; });
+  freshRemember("q", cfg.topic !== "all" ? cfg.topic : cfg.subj, out.map(function (q) { return q.q; }));
+  return out.slice(0, n);
+}
+function quizLoadingView() {
+  var Q = UI.quiz;
+  return head("Quiz Centre", "Fresh questions are being written for you") + '<div class="card" style="max-width:620px;margin:0 auto;text-align:center"><div class="stack" style="justify-items:center">' + doodle("bulb", 80, "wiggle") + "<h2>Pip is writing new questions…</h2><p class=\"muted\">" + esc(freshSubjName(Q.cfg.subj)) + (Q.cfg.topic !== "all" ? " · " + esc(TOPIC[Q.cfg.topic].t) : "") + " · with " + esc(AI_NAME) + '. This usually takes 5–20 seconds.</p><div class="row"><button class="btn" data-act="freshQuizBuiltIn">Use built-in questions instead</button></div></div></div>';
+}
+async function freshStartQuiz() {
+  var cfg = UI.quiz.cfg, tok = ++FRESH.seq;
+  UI.quiz = { phase: "loading", cfg: cfg, tok: tok }; render();
+  try {
+    var qs = await aiFreshQuiz(cfg);
+    if (!UI.quiz || UI.quiz.tok !== tok) return;
+    UI.quiz = { phase: "setup", cfg: cfg }; startQuiz(qs.map(function (q) { return q.id; }));
+    UI.quiz.fresh = true;
+  } catch (e) {
+    if (!UI.quiz || UI.quiz.tok !== tok) return;
+    toast((e && e.message ? e.message + ". " : "") + "Using the built-in questions instead.", "bad");
+    UI.quiz = { phase: "setup", cfg: cfg }; builtInQuizStart();
+  }
+}
+function builtInQuizStart() {
+  var c = UI.quiz.cfg, pool = quizPool(c);
+  if (c.weak) { pool = shuffle(pool).sort(function (a, b) { var sa = S.quiz.qstats[a.id], sb = S.quiz.qstats[b.id]; var ka = !sa ? 1 : sa.ok < sa.seen ? 0 : 2, kb = !sb ? 1 : sb.ok < sb.seen ? 0 : 2; return ka - kb; }); }
+  else pool = shuffle(pool);
+  if (!pool.length) { render(); toast("No built-in questions match these filters.", "bad"); return; }
+  startQuiz(pool.slice(0, c.len || pool.length).map(function (q) { return q.id; }));
+}
+function freshQuizToggle() {
+  if (!AI.ready) return '<p class="tiny muted" style="margin-top:10px">' + (window.ECC_GROQ ? "Add a Groq key in Preferences to get brand-new AI questions every time." : "When AI is on, every quiz gets brand-new questions.") + "</p>";
+  return '<label class="row small" style="gap:9px;margin-top:12px"><input type="checkbox" class="toggle" data-on="freshToggle"' + (S.settings.freshAI !== false ? " checked" : "") + "> ✨ Brand-new AI questions every time <span class=\"tiny faint\">· off = built-in questions</span></label>";
+}
+
+/* ----- flashcards ----- */
+async function aiFreshCards(subj, n) {
+  var tp = topicPerf(), all = TOPICS.filter(function (t) { return t.subj === subj; });
+  var weak = all.filter(function (t) { var x = tp[t.id]; return x && x.score !== null && x.score < 0.7; });
+  var topics = shuffle(weak).concat(shuffle(all.filter(function (t) { return weak.indexOf(t) < 0; }))).slice(0, 8);
+  var avoid = (freshRecent()["c:" + subj] || []).slice(0, 25);
+  var prompt = "Write " + n + " NEW revision flashcards for a Grade 8 student revising " + SUBJ[subj].name + " for a school exam (Cambridge-style, India).\nUse ONLY these topics (use the topic id exactly):\n" + topics.map(freshTopicBrief).join("\n") +
+    (weak.length ? "\nGive more cards to these weaker topics: " + weak.map(function (t) { return t.t; }).join("; ") + "." : "") +
+    (avoid.length ? "\nDo NOT repeat these recent card fronts:\n" + avoid.map(function (q) { return "• " + q.slice(0, 100); }).join("\n") : "") +
+    freshLangNote(topics) +
+    "\nFront: a short question, term or prompt. Back: a short, accurate answer (1–2 sentences, or a formula/definition). Mix definitions, facts, examples and quick calculations. Random seed " + Math.floor(Math.random() * 1e6) + "." +
+    "\n\nReturn ONLY JSON: {\"cards\":[{\"topic\":\"topic id\",\"front\":\"...\",\"back\":\"...\"}]}";
+  var v = await aiJSON(prompt, { modelTier: "default" }), ok = topics.map(function (t) { return t.id; }), out = [];
+  (Array.isArray(v.cards) ? v.cards : []).forEach(function (c) {
+    if (!c || !c.front || !c.back) return;
+    var t = ok.indexOf(String(c.topic)) >= 0 ? String(c.topic) : ok[0];
+    out.push({ id: "aic" + (++FRESH.seq) + "_" + Date.now().toString(36), ai: true, t: t, subj: subj, front: String(c.front), back: String(c.back) });
+  });
+  if (!out.length) throw new Error("The AI didn't send any usable flashcards");
+  freshRemember("c", subj, out.map(function (c) { return c.front; }));
+  return out;
+}
+function fcFreshDeck(subj, shuf) {
+  var tok = ++FRESH.seq, F = { subj: subj, mode: "fresh", shuf: !!shuf, order: [], i: 0, flip: false, known: 0, revise: 0, requeued: {}, loading: true, cards: {}, tok: tok };
+  aiFreshCards(subj, 12).then(function (cards) {
+    if (UI.fc !== F) return;
+    cards.forEach(function (c) { F.cards[c.id] = c; }); F.order = cards.map(function (c) { return c.id; }); F.loading = false; if (UI.page === "flashcards") render();
+  }, function (e) {
+    if (UI.fc !== F) return;
+    toast((e && e.message ? e.message + ". " : "") + "Showing your saved deck instead.", "bad");
+    UI.fc = fcBuild(subj, "due", shuf, true); if (UI.page === "flashcards") render();
+  });
+  return F;
+}
+function fcCard(id) { var F = UI.fc; return (F && F.cards && F.cards[id]) || FLASH_CARDS.filter(function (x) { return x.id === id; })[0]; }
+function fcLoadingView(s) {
+  return '<div class="card" style="max-width:620px;margin:0 auto;text-align:center"><div class="stack" style="justify-items:center">' + doodle("cards", 80, "wiggle") + "<h2>Pip is making fresh flashcards…</h2><p class=\"muted\">" + esc(s.name) + " · with " + esc(AI_NAME) + '. This usually takes 5–20 seconds.</p><button class="btn" data-act="fcMode" data-m="due">Use my saved deck instead</button></div></div>';
+}
+ACT.freshQuizBuiltIn = function () { var c = UI.quiz.cfg; FRESH.seq++; UI.quiz = { phase: "setup", cfg: c }; builtInQuizStart(); };
+ON.freshToggle = function (el) { S.settings.freshAI = el.checked; save(); render(); };
 
 try { boot(); } catch (e) { console.error(e); document.getElementById("view").innerHTML = "<div class=\"notice bad\">The app could not start: " + String(e.message).replace(/</g,"&lt;") + "</div>"; }
 
