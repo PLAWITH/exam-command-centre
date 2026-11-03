@@ -3565,7 +3565,7 @@ function boot() {
   var p = (location.hash || "").replace("#", ""); UI.page = PAGES.indexOf(p) >= 0 ? p : "dashboard";
   render();
   try { pipMount(); } catch (e) { console.error(e); }
-  try { tourMaybe(FIRST_RUN && !RULES.custom); } catch (e) { console.error(e); }
+  try { tourMaybe(); } catch (e) { console.error(e); }
   aiInit();
   if (window.ECC_GROQ && typeof syncInit === "function") syncInit();
   var info = dayInfo(today());
@@ -4660,7 +4660,7 @@ ACT.freshQuizBuiltIn = function () { var c = UI.quiz.cfg; FRESH.seq++; UI.quiz =
 ON.freshToggle = function (el) { S.settings.freshAI = el.checked; save(); render(); };
 
 /* ===== First-time tutorial: Pip walks through the site. Shown once per device; replay from Preferences or Pip. ===== */
-var TOUR_KEY = "ecc.tour";
+var TOUR_KEY = "ecc.tour2"; /* new key: everyone, new or existing, sees the tour once */
 var TOUR = { on: false, i: 0, steps: null };
 function tourSeen() { try { return !!localStorage.getItem(TOUR_KEY); } catch (e) { return true; } }
 function tourMark() { try { localStorage.setItem(TOUR_KEY, String(Date.now())); } catch (e) { } }
@@ -4739,8 +4739,8 @@ document.addEventListener("keydown", function (e) {
   else if (e.key === "ArrowLeft") { e.preventDefault(); var b = $("#tour-back"); if (b) b.click(); }
 }, true);
 ACT.tour = function () { startTour(); };
-/* first visit on this device: no saved progress yet and the tour hasn't been shown */
-function tourMaybe(fresh) { if (fresh && !tourSeen()) setTimeout(function () { if (!TOUR.on && !$("#modal")) startTour(); }, 900); }
+/* show once per device to everyone who hasn't seen this version of the tour */
+function tourMaybe() { if (!tourSeen()) setTimeout(function () { if (!TOUR.on && !$("#modal")) startTour(); }, 900); }
 
 try { boot(); } catch (e) { console.error(e); document.getElementById("view").innerHTML = "<div class=\"notice bad\">The app could not start: " + String(e.message).replace(/</g,"&lt;") + "</div>"; }
 
