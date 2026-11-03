@@ -533,6 +533,23 @@ html.toon-cursor :is(input:not([type]), input[type=text], input[type=search], in
 html.toon-cursor :is(button, [data-act], .btn)[disabled] { cursor: not-allowed; }
 html.toon-cursor .cal-cell.out { cursor: var(--cur-arrow); }
 
+/* ---------- first-time tour ---------- */
+#tour { position: fixed; inset: 0; z-index: 2000; pointer-events: none; }
+body.touring .pip-hi, body.touring .toasts { display: none !important; }
+.tour-shade { position: fixed; inset: 0; background: rgba(35, 30, 40, .55); pointer-events: auto; }
+.tour-spot { position: fixed; border: 3px dashed #ffd23f; border-radius: 16px 12px 18px 11px; box-shadow: 0 0 0 9999px rgba(35, 30, 40, .55); pointer-events: auto; transition: top .25s, left .25s, width .25s, height .25s; }
+.tour-card { position: fixed; width: min(420px, calc(100vw - 24px)); background: var(--panel-solid); color: var(--text); border: 2.5px solid var(--ink); border-radius: 16px 12px 18px 13px / 13px 18px 12px 16px; box-shadow: 4px 5px 0 var(--ink); padding: 14px 16px 12px; pointer-events: auto; z-index: 2; }
+.tour-card.center { top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) rotate(-.4deg); }
+.tour-card h2 { font-family: var(--display); font-weight: 400; font-size: 24px; }
+.tour-pip { width: 54px; flex: 0 0 54px; }
+.tour-pip svg { width: 100%; height: auto; }
+.tour-dots { display: flex; gap: 5px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+.tour-dots span { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--ink); background: transparent; }
+.tour-dots span.done { background: var(--line-2, #bbb); }
+.tour-dots span.on { background: #ffd23f; transform: scale(1.25); }
+.nav-btn.tour-hl { outline: 3px dashed #ffd23f; outline-offset: 2px; background: var(--panel-solid); }
+@media (prefers-reduced-motion: reduce) { .tour-spot { transition: none; } }
+
 </style>
 </head>
 <body>
@@ -1971,9 +1988,11 @@ function freshState() {
     quiz: { history: [], qstats: {} }, flash: {}, flashLog: [], mocks: { attempts: [], active: null }, activity: {}, skipDays: RULES.custom ? [] : ["2026-11-01"], checklist: {}, ai: { topics: {}, mocks: {} }, seq: 1 };
 }
 var S = null;
+var FIRST_RUN = false;
 function load() {
   var raw = null;
   try { raw = localStorage.getItem(STORE_KEY); } catch (e) { storageOK = false; }
+  FIRST_RUN = !raw && storageOK;
   if (raw) { try { S = migrate(JSON.parse(raw)); } catch (e) { S = null; } }
   if (!S) S = freshState();
   return S;
@@ -3332,7 +3351,7 @@ function pgPrefs() {
   if (window.ECC_GROQ) h += groqPrefsCard();
   h += '<div class="card span-12"><div class="card-h"><h2>Syllabus</h2><button class="btn primary" data-act="importer">' + ic("upload") + 'Upload a syllabus</button></div><p class="small muted">The built-in syllabus is the default. Anyone can add their own exam date sheet and syllabus; it is saved only in their browser. Switch between them any time; each keeps its own progress.</p><div class="stack" style="margin-top:12px">' +
     [{ id: "default", name: "Built-in syllabus · November 2026 exams" }].concat(REG.list).map(function (p) { var on = p.id === RULES.id; return '<div class="session-row"><span class="stripe" style="background:' + (on ? "var(--good)" : "var(--line-2)") + '"></span><div class="grow"><div class="s-title">' + esc(p.name) + "</div>" + (p.id === "default" ? '<div class="s-meta">7 subjects with hand-written notes, quizzes and flashcards</div>' : '<div class="s-meta">Your upload · notes and questions are made by AI</div>') + '</div><div class="day-actions">' + (on ? '<span class="chip good">In use</span>' : '<button class="btn sm" data-act="useProfile" data-id="' + p.id + '">Switch to this</button>') + (p.id !== "default" ? '<button class="btn sm ghost" data-act="delProfile" data-id="' + p.id + '">Delete</button>' : "") + "</div></div>"; }).join("") + "</div></div>";
-  h += '<div class="card span-6"><div class="card-h"><h2>Appearance</h2></div><label class="row between"><span>Chalkboard (dark) mode <span class="tiny faint">· off = crayon on paper</span></span><input type="checkbox" class="toggle" id="p-theme" data-on="prefTheme"' + (st.theme === "dark" ? " checked" : "") + '></label><label class="row between" style="margin-top:12px"><span>Cartoon cursor <span class="tiny faint">· off = your normal cursor</span></span><input type="checkbox" class="toggle" id="p-cursor" data-on="prefCursor"' + (st.toonCursor !== false ? " checked" : "") + '></label><label class="row between" style="margin-top:12px"><span>Pip uses AI when available <span class="tiny faint">' + (window.ECC_GROQ ? "· with your Groq key" : "· on the claude.ai page") + '</span></span><input type="checkbox" class="toggle" id="p-pipai" data-on="prefPipAI"' + (st.pipAI !== false ? " checked" : "") + '></label><label class="row between" style="margin-top:12px"><span>Show Pip, the paper helper <span class="tiny faint">· bottom corner</span></span><input type="checkbox" class="toggle" id="p-pip" data-on="prefPip"' + (st.pip !== false ? " checked" : "") + "></label></div>";
+  h += '<div class="card span-6"><div class="card-h"><h2>Appearance</h2></div><label class="row between"><span>Chalkboard (dark) mode <span class="tiny faint">· off = crayon on paper</span></span><input type="checkbox" class="toggle" id="p-theme" data-on="prefTheme"' + (st.theme === "dark" ? " checked" : "") + '></label><label class="row between" style="margin-top:12px"><span>Cartoon cursor <span class="tiny faint">· off = your normal cursor</span></span><input type="checkbox" class="toggle" id="p-cursor" data-on="prefCursor"' + (st.toonCursor !== false ? " checked" : "") + '></label><div class="row between" style="margin-top:12px"><span>Guided tour of the site</span><button class="btn sm" data-act="tour">Show the tutorial</button></div><label class="row between" style="margin-top:12px"><span>Pip uses AI when available <span class="tiny faint">' + (window.ECC_GROQ ? "· with your Groq key" : "· on the claude.ai page") + '</span></span><input type="checkbox" class="toggle" id="p-pipai" data-on="prefPipAI"' + (st.pipAI !== false ? " checked" : "") + '></label><label class="row between" style="margin-top:12px"><span>Show Pip, the paper helper <span class="tiny faint">· bottom corner</span></span><input type="checkbox" class="toggle" id="p-pip" data-on="prefPip"' + (st.pip !== false ? " checked" : "") + "></label></div>";
   h += '<div class="card span-6"><div class="card-h"><h2>Reminders</h2></div><div class="stack"><label class="row between"><span>In-app session reminders</span><input type="checkbox" class="toggle" id="p-inapp" data-on="prefN" data-k="inApp"' + (n.inApp ? " checked" : "") + '></label><label class="row between"><span>Browser notifications <span class="tiny faint">(if your browser allows them)</span></span><input type="checkbox" class="toggle" id="p-browser" data-on="prefN" data-k="browser"' + (n.browser ? " checked" : "") + '></label><label class="row between"><span>Daily summary when I open the app</span><input type="checkbox" class="toggle" id="p-daily" data-on="prefN" data-k="daily"' + (n.daily ? " checked" : "") + '></label><label class="f">Remind me before a session<select class="input" id="p-lead" data-on="prefN" data-k="lead">' + [5, 10, 15, 30].map(function (m) { return '<option value="' + m + '"' + (n.lead === m ? " selected" : "") + ">" + m + " minutes before</option>"; }).join("") + '</select></label><p class="tiny faint">Reminders never appear on rest days, holidays, your days off, or after an exam is finished.</p></div></div>';
   h += '<div class="card span-12"><div class="notice limit" style="margin-bottom:14px"><b>Daily limit: ' + fmtDur(DAILY_MAX) + '.</b> The planner never schedules more than ' + DAILY_MAX + ' minutes of study on any day, and you can\'t add or move sessions past it.</div><div class="card-h"><h2>Study sessions and daily workload</h2><button class="btn primary" data-act="regen">' + ic("refresh") + 'Apply and regenerate timetable</button></div><div class="grid g-4" style="gap:14px">';
   h += '<label class="f">Default session length<select class="input" id="sessionLen" data-on="pref" data-k="sessionLen">' + [15, 20, 25, 30].map(function (m) { return '<option value="' + m + '"' + (st.sessionLen === m ? " selected" : "") + ">" + m + " minutes</option>"; }).join("") + '</select><span class="tiny faint">Small subtopics are grouped into sessions of up to 1½ × this</span></label>';
@@ -3546,6 +3565,7 @@ function boot() {
   var p = (location.hash || "").replace("#", ""); UI.page = PAGES.indexOf(p) >= 0 ? p : "dashboard";
   render();
   try { pipMount(); } catch (e) { console.error(e); }
+  try { tourMaybe(FIRST_RUN && !RULES.custom); } catch (e) { console.error(e); }
   aiInit();
   if (window.ECC_GROQ && typeof syncInit === "function") syncInit();
   var info = dayInfo(today());
@@ -3742,7 +3762,7 @@ function pipHandle(raw) {
   var restMsg = info.rest ? "It's " + (info.fest || DOWL[info.dow]) + ", a study-free day, so I won't open study tools today. Enjoy the break! 🎈" : null;
 
   if (/^(help|commands|what can you do|\?)\b/.test(s)) {
-    pipSay("Here's what I can do:<ul class=\"pip-list\"><li><b>Maths:</b> 12*(3+4), 15% of 80, sqrt 72, 2^10, 7!</li><li><b>Number bases:</b> 45 to binary, 101101 binary to decimal, 2F hex to decimal, 200 to hex</li><li><b>Maths helpers:</b> round 3.14159 to 3 sf, 45000 in standard form, pythagoras 6 8</li><li><b>Look things up:</b> define valency, what is a surd, formula for density</li><li><b>Open things:</b> open planner, notes on photosynthesis, flashcards science</li><li><b>Study:</b> start studying, quiz me on surds</li><li><b>Plan:</b> what's on today, next exam, when is hindi, take 9 Nov off, undo day off 9 Nov</li><li><b>Progress:</b> how am I doing, mark surds as done</li><li><b>Settings:</b> chalkboard mode, paper mode, timer 10 min</li><li><b>Your own syllabus:</b> upload syllabus</li>" + (window.ECC_GROQ ? "<li><b>AI model:</b> which model, use the fast model, list models</li>" : "") + "</ul>" + (pipAIOn() ? "Anything else, just ask in your own words: I use AI (" + AI_NAME + ") for that, and I can open things and do stuff in the site for you." : "I follow these simple commands. " + (window.ECC_GROQ ? "Add a free Groq API key in Preferences and I can use AI to answer anything." : "On the claude.ai page I can also use AI to answer anything.")));
+    pipSay("Here's what I can do:<ul class=\"pip-list\"><li><b>Maths:</b> 12*(3+4), 15% of 80, sqrt 72, 2^10, 7!</li><li><b>Number bases:</b> 45 to binary, 101101 binary to decimal, 2F hex to decimal, 200 to hex</li><li><b>Maths helpers:</b> round 3.14159 to 3 sf, 45000 in standard form, pythagoras 6 8</li><li><b>Look things up:</b> define valency, what is a surd, formula for density</li><li><b>Open things:</b> open planner, notes on photosynthesis, flashcards science</li><li><b>Study:</b> start studying, quiz me on surds</li><li><b>Plan:</b> what's on today, next exam, when is hindi, take 9 Nov off, undo day off 9 Nov</li><li><b>Progress:</b> how am I doing, mark surds as done</li><li><b>Settings:</b> chalkboard mode, paper mode, timer 10 min</li><li><b>Your own syllabus:</b> upload syllabus</li><li><b>Help:</b> tutorial (a tour of the site)</li>" + (window.ECC_GROQ ? "<li><b>AI model:</b> which model, use the fast model, list models</li>" : "") + "</ul>" + (pipAIOn() ? "Anything else, just ask in your own words: I use AI (" + AI_NAME + ") for that, and I can open things and do stuff in the site for you." : "I follow these simple commands. " + (window.ECC_GROQ ? "Add a free Groq API key in Preferences and I can use AI to answer anything." : "On the claude.ai page I can also use AI to answer anything.")));
     return;
   }
   if (/^(hi|hello|hey|namaste|hii+|yo)\b/.test(s)) { pipSay("Hello! 👋 " + (up[0] ? "Your next exam is " + esc(up[0].name) + " " + relDay(up[0].exam) + ". " : "") + "Type <b>help</b> to see what I can do."); return; }
@@ -3755,6 +3775,7 @@ function pipHandle(raw) {
     if (/\b(list|all|options|which models|what models|choose|pick|change|switch)\b/.test(s)) { pipSay("I'm using <b>" + esc(groqName(gc.model)) + "</b>. You can pick from:<ul class=\"pip-list\">" + GROQ_PICKS.map(function (p) { return "<li><b>" + esc(p.name) + "</b> (" + esc(p.tag) + "): " + esc(p.note) + "</li>"; }).join("") + "</ul>Say <i>use the fast model</i>, use the menu at the top of this chat, or open Preferences for every model on your key."); return; }
     pipSay("I'm using <b>" + esc(groqName(gc.model)) + "</b> for answers and <b>" + esc(groqName(gc.vision)) + "</b> for photos. Change it with the menu at the top of this chat, or say <i>use the fast model</i>."); return;
   }
+  if (/\b(tutorial|tour|show me around|walkthrough|how (does|do) (this|the) (site|app|website) work)\b/.test(s)) { if (typeof startTour === "function") { pipSay("Let's go! 🗺️"); setTimeout(startTour, 200); } return; }
   if (/\b(sign ?in|log ?in|login|google)\b/.test(s) && !/\bout\b/.test(s)) { navTo("preferences"); if (window.ECC_GROQ && typeof syncSignIn === "function" && SYNC.status === "out") { syncSignIn(); pipSay("Opening Google sign-in. Your progress will sync to your Google account. ☁️"); } else pipSay(window.ECC_GROQ ? (SYNC.status === "in" ? "You're already signed in as " + esc(SYNC.user.email) + ". ✔️" : "Google sign-in isn't ready yet on this copy of the site.") : "Google sign-in works on the GitHub version of this site (plawith.github.io/exam-command-centre). Export your progress here and import it there. I opened Preferences for you."); return; }
   if (/\b(upload|import|add|use|change|new|my own)\b.*\bsyllabus\b/.test(s)) { closeFocus(); openImporter(); pipSay("Opened the syllabus uploader. Add your date sheet and syllabus PDF and I'll read it. 📄"); return; }
   if (/\b(who are you|your name)\b/.test(s)) { pipSay("I'm Pip, a sheet of paper with legs. I help you get around this site, do quick maths and look things up in your notes."); return; }
@@ -4637,6 +4658,89 @@ function fcLoadingView(s) {
 }
 ACT.freshQuizBuiltIn = function () { var c = UI.quiz.cfg; FRESH.seq++; UI.quiz = { phase: "setup", cfg: c }; builtInQuizStart(); };
 ON.freshToggle = function (el) { S.settings.freshAI = el.checked; save(); render(); };
+
+/* ===== First-time tutorial: Pip walks through the site. Shown once per device; replay from Preferences or Pip. ===== */
+var TOUR_KEY = "ecc.tour";
+var TOUR = { on: false, i: 0, steps: null };
+function tourSeen() { try { return !!localStorage.getItem(TOUR_KEY); } catch (e) { return true; } }
+function tourMark() { try { localStorage.setItem(TOUR_KEY, String(Date.now())); } catch (e) { } }
+function tourCard(sel) { var el = $(sel); return el ? (el.closest(".card") || el) : null; }
+function tourSteps() {
+  var groq = !!window.ECC_GROQ, rest = dayInfo(today()).rest;
+  var first = function () { return $("#view .card") || $("#view .page-head"); };
+  return [
+    { page: "dashboard", center: true, title: "Hi, I'm Pip! 👋", text: "Welcome to your Exam Command Centre. Let me show you around. It takes about a minute, and you can skip any time." },
+    { page: "dashboard", target: function () { return tourCard(".hero-body"); }, title: "Your next exam", text: "The countdown to your next exam, with its date, reporting time and marks. Press <b>Start today's study session</b> to begin today's work." },
+    { page: "planner", target: function () { return tourCard(".cal-grid") || first(); }, title: "Study Planner", text: "Your timetable, built for you and never more than 1h 30m a day. Tap a day to see its sessions, drag sessions to move them, or take a day off. Thursdays and holidays stay free." },
+    { page: "planner", target: function () { return $('[data-act="regen"]'); }, title: "Change of plans?", text: "Add your own sessions, edit any session, or press <b>Regenerate remaining</b> after changing your preferences. Finished work is always kept." },
+    { page: "syllabus", target: first, title: "Syllabus Tracker", text: "Every subtopic for every subject. Tick topics as you finish them, or mark them <b>Needs Revision</b> so they come back in your plan." },
+    { page: "resources", target: first, title: "Study Resources", text: "Notes for every topic: summaries, definitions, key facts, formulas and worked examples. When you press <b>Study</b> on a session, these open for you." },
+    { page: "notes", target: function () { return $(".an-intro") || first(); }, title: "Answer Notes", text: "How to write each type of exam question, step by step, with how the marks are given. Save any subject as a PDF to print." },
+    { page: "quiz", target: first, title: "Quiz Centre", text: rest ? "Quizzes rest on rest days. On study days, pick a subject, topic and question types, then test yourself; everything is saved to your history." : "Pick a subject, topic and question types, then test yourself. " + (groq ? "With a Groq key added, you get brand-new AI questions every time." : "When AI is on, you get brand-new AI questions every time.") },
+    { page: "flashcards", target: first, title: "Flashcards", text: "Flip, then mark each card <b>Known</b> or <b>Needs Revision</b>. Cards you know come back later and tricky ones come back soon. Keys: Space flips, K = known, R = revise." },
+    { page: "analytics", target: first, title: "Progress Analytics", text: "See how much you've finished, your quiz scores, study time per subject, and your strongest and weakest topics." },
+    { page: "preferences", target: first, title: "Preferences", text: "Change your daily study time and start times, switch to chalkboard mode, back up your data" + (groq ? ", add a free Groq key for AI, and sign in with Google to sync between devices" : "") + ". You can also upload your own syllabus here." },
+    { page: "dashboard", target: function () { return $("#pip-btn"); }, title: "And me!", text: "Tap me any time. I can do maths (<i>15% of 80</i>), open pages (<i>notes on photosynthesis</i>), start a quiz, take a day off and more. Type <b>help</b> to see everything." },
+    { page: "dashboard", center: true, title: "You're all set! 🎉", text: "Good luck with your exams! Replay this tour any time from <b>Preferences</b>, or ask me for the <i>tutorial</i>.", last: true }
+  ];
+}
+function startTour() {
+  if (TOUR.on) return;
+  try { closeFocus(); } catch (e) { } try { closeModal(); } catch (e) { }
+  if (typeof PIP !== "undefined" && PIP.open && typeof ACT.pipToggle === "function") ACT.pipToggle();
+  TOUR.on = true; TOUR.i = 0; TOUR.steps = tourSteps(); tourMark();
+  var o = document.createElement("div"); o.id = "tour"; o.innerHTML = '<div class="tour-shade" id="tour-shade"></div><div class="tour-spot" id="tour-spot"></div><div class="tour-card" id="tour-card" role="dialog" aria-modal="true" aria-labelledby="tour-t" tabindex="-1"></div>';
+  document.body.appendChild(o); document.body.classList.add("touring");
+  window.addEventListener("resize", tourPlace); window.addEventListener("scroll", tourPlace, true);
+  tourShow();
+}
+function endTour(done) {
+  TOUR.on = false; tourMark();
+  var o = $("#tour"); if (o) o.remove(); document.body.classList.remove("touring");
+  $all(".nav-btn.tour-hl").forEach(function (b) { b.classList.remove("tour-hl"); });
+  window.removeEventListener("resize", tourPlace); window.removeEventListener("scroll", tourPlace, true);
+  if (UI.page !== "dashboard") go("dashboard");
+  if (!done) toast("Tour skipped. Replay it any time from Preferences.", "info");
+}
+function tourShow() {
+  var st = TOUR.steps[TOUR.i]; if (!st) return endTour(true);
+  if (UI.page !== st.page) go(st.page); else window.scrollTo(0, 0);
+  $all(".nav-btn.tour-hl").forEach(function (b) { b.classList.remove("tour-hl"); });
+  var nb = $("#nav-" + st.page); if (nb && !st.center && st.page !== "dashboard") nb.classList.add("tour-hl");
+  var n = TOUR.steps.length, c = $("#tour-card");
+  c.innerHTML = '<div class="row" style="gap:12px;align-items:flex-start"><div class="tour-pip" aria-hidden="true">' + pipSVG() + '</div><div class="grow"><div class="tiny muted">Step ' + (TOUR.i + 1) + " of " + n + '</div><h2 id="tour-t" style="margin:2px 0 6px">' + st.title + '</h2><p style="margin:0">' + st.text + "</p></div></div>" +
+    '<div class="tour-dots" aria-hidden="true">' + TOUR.steps.map(function (_, k) { return '<span class="' + (k === TOUR.i ? "on" : k < TOUR.i ? "done" : "") + '"></span>'; }).join("") + "</div>" +
+    '<div class="row between" style="margin-top:10px;gap:8px">' + (st.last ? "<span></span>" : '<button class="btn sm ghost" id="tour-skip">Skip tour</button>') + '<div class="row" style="gap:8px">' + (TOUR.i && !st.last ? '<button class="btn sm" id="tour-back">Back</button>' : "") + '<button class="btn sm primary" id="tour-next">' + (TOUR.i === 0 ? "Show me around" : st.last ? "Start studying" : "Next") + "</button></div></div>";
+  $("#tour-next").onclick = function () { if (st.last) endTour(true); else { TOUR.i++; tourShow(); } };
+  var b = $("#tour-back"); if (b) b.onclick = function () { TOUR.i--; tourShow(); };
+  var sk = $("#tour-skip"); if (sk) sk.onclick = function () { endTour(false); };
+  var el = st.center ? null : st.target();
+  if (el) { var r = el.getBoundingClientRect(); if (r.top < 70 || r.bottom > window.innerHeight - 40) el.scrollIntoView({ block: r.height > window.innerHeight * 0.6 ? "start" : "center" }); }
+  TOUR.el = el; tourPlace();
+  setTimeout(function () { var nx = $("#tour-next"); if (nx) nx.focus(); }, 30);
+}
+function tourPlace() {
+  if (!TOUR.on) return;
+  var spot = $("#tour-spot"), shade = $("#tour-shade"), c = $("#tour-card"), el = TOUR.el, vw = window.innerWidth, vh = window.innerHeight, pad = 8;
+  c.style.left = c.style.top = ""; c.classList.toggle("center", !el);
+  if (!el || !el.getClientRects().length) { spot.style.display = "none"; shade.style.display = "block"; return; }
+  var r = el.getBoundingClientRect(), top = Math.max(6, r.top - pad), left = Math.max(6, r.left - pad), w = Math.min(vw - 12, r.width + pad * 2), h = Math.min(vh - top - 6, r.height + pad * 2);
+  shade.style.display = "none"; spot.style.display = "block";
+  spot.style.top = top + "px"; spot.style.left = left + "px"; spot.style.width = w + "px"; spot.style.height = h + "px";
+  var cw = c.offsetWidth, ch = c.offsetHeight, cy, cx;
+  if (top + h + 12 + ch < vh) cy = top + h + 12; else if (top - 12 - ch > 0) cy = top - 12 - ch; else cy = vh - ch - 12;
+  cx = Math.min(Math.max(12, left + w / 2 - cw / 2), vw - cw - 12);
+  c.style.top = Math.max(12, cy) + "px"; c.style.left = cx + "px";
+}
+document.addEventListener("keydown", function (e) {
+  if (!TOUR.on) return;
+  if (e.key === "Escape") { e.preventDefault(); endTour(false); }
+  else if (e.key === "ArrowRight") { e.preventDefault(); var n = $("#tour-next"); if (n) n.click(); }
+  else if (e.key === "ArrowLeft") { e.preventDefault(); var b = $("#tour-back"); if (b) b.click(); }
+}, true);
+ACT.tour = function () { startTour(); };
+/* first visit on this device: no saved progress yet and the tour hasn't been shown */
+function tourMaybe(fresh) { if (fresh && !tourSeen()) setTimeout(function () { if (!TOUR.on && !$("#modal")) startTour(); }, 900); }
 
 try { boot(); } catch (e) { console.error(e); document.getElementById("view").innerHTML = "<div class=\"notice bad\">The app could not start: " + String(e.message).replace(/</g,"&lt;") + "</div>"; }
 
