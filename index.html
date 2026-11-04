@@ -550,6 +550,12 @@ body.touring .pip-hi, body.touring .toasts { display: none !important; }
 .nav-btn.tour-hl { outline: 3px dashed #ffd23f; outline-offset: 2px; background: var(--panel-solid); }
 @media (prefers-reduced-motion: reduce) { .tour-spot { transition: none; } }
 
+/* practice exercise card on the study screen */
+.ex-card { border-left: 6px solid var(--c); }
+.ex-card h3 { font-family: var(--display); font-weight: 400; font-size: 21px; }
+.ex-steps { margin: 0 0 0 20px; padding: 0; }
+.ex-steps li { margin: 3px 0; }
+
 </style>
 </head>
 <body>
@@ -1859,6 +1865,57 @@ steps: [{ h: "How to answer", pts: ["Strengths: mix of primary and secondary res
 ] }
 ];
 
+/* Practice exercises: each practice session in the planner gets its own kind of exercise, rotating per subject.
+   types = which question types the study screen picks for it; n = how many. */
+var PRACTICE_EX = {
+math: [
+{ id: "drill", name: "Skill drill", types: ["mcq", "short"], n: 10, task: "Skill drill on {t}: 10 quick questions from easy to hard. Work on paper, then fix every mistake.", steps: ["Answer the questions in order: they get harder as you go.", "Write your working on paper even for short answers.", "Redo every wrong answer without looking at the solution."] },
+{ id: "exam", name: "Exam-style questions", types: ["struct", "exam", "short"], n: 5, task: "Exam-style questions on {t}: full written working for method marks, then mark yourself with the mark scheme.", steps: ["Write every step on its own line: method marks need working.", "Give answers in the form asked (s.f., standard form, simplest surd, units).", "Mark yourself honestly with the mark scheme and note what lost marks."] },
+{ id: "speed", name: "Speed round", types: ["mcq", "short"], n: 8, task: "Speed round on {t}: 8 questions in 10 minutes. Start the timer, no notes.", steps: ["Start the session timer and aim for 10 minutes.", "Skip anything that takes too long and come back to it.", "When time's up, check answers and redo the ones you missed."] },
+{ id: "teach", name: "Teach it back", types: ["short", "struct", "mcq"], n: 6, task: "Teach it back on {t}: write your own worked example for each topic, then answer the questions.", steps: ["In your notebook, write one worked example per topic as if teaching a friend.", "Check your example against the notes on the Notes tab.", "Then answer the questions below."] },
+{ id: "fix", name: "Error hunt", types: ["mcq", "short", "struct"], n: 8, task: "Error hunt on {t}: answer, then for every wrong answer write what went wrong and the correct method.", steps: ["Answer every question.", "For each wrong answer, write one line: what the mistake was (sign, rounding, rule).", "Redo it correctly underneath."] }],
+sci: [
+{ id: "keywords", name: "Keyword check", types: ["mcq", "short"], n: 10, task: "Keyword check on {t}: 10 questions on definitions and key words. Use the exact science words.", steps: ["Answer each question using the correct science key word.", "Check spellings of key words (valency, transpiration, electrostatic…).", "Make a flashcard for any word you got wrong."] },
+{ id: "explain", name: "Explain it (because… so…)", types: ["exam", "struct", "short"], n: 5, task: "Explain-it practice on {t}: write 'because… so…' explanations and self-mark with the mark scheme.", steps: ["For each 'explain' question, give the reason (because…) then the effect (so…).", "One linked idea per mark.", "Self-mark with the mark scheme and add any missing key word."] },
+{ id: "diagram", name: "Draw and label from memory", types: ["mcq", "short"], n: 6, task: "Draw-and-label on {t}: sketch the key diagram from memory (e.g. leaf cross-section, periodic table groups, convection current), check it against the notes, then answer the questions.", steps: ["Close the notes and draw the main diagram for this topic from memory.", "Label as many parts as you can, then check against the Notes tab.", "Answer the questions below."] },
+{ id: "data", name: "Data and calculations", types: ["short", "struct", "mcq"], n: 6, task: "Data and calculations on {t}: formula → substitute → answer with unit for every calculation.", steps: ["Write the formula first, then substitute, then the answer with its unit.", "For graphs and tables, quote numbers with units.", "Redo any calculation you got wrong."] },
+{ id: "exam", name: "Mixed exam practice", types: ["mcq", "exam", "short", "struct"], n: 8, task: "Mixed exam practice on {t}: a mix of short and written questions, timed like the real paper (about 1 minute per mark).", steps: ["Allow about 1 minute per mark.", "Read the command word (state, describe, explain, calculate) before answering.", "Self-mark the written answers with the mark scheme."] }],
+eng: [
+{ id: "retrieve", name: "Retrieval and meaning drill", types: ["mcq", "short"], n: 8, task: "Retrieval and meaning drill on {t}: find exact information and word meanings quickly.", steps: ["Look only in the part of the text the question points to.", "Give exactly as many points as asked.", "For word meanings, check your word fits the sentence."] },
+{ id: "pee", name: "Quotation + explanation (PEE)", types: ["exam", "struct", "mcq"], n: 5, task: "PEE practice on {t}: for each written question give a short quotation and explain its effect in your own words.", steps: ["Point: answer the question in one sentence.", "Evidence: a short, exact quotation.", "Explain: what it suggests and how it affects the reader, in your own words."] },
+{ id: "write", name: "Timed writing", types: ["exam", "struct", "mcq"], n: 4, task: "Timed writing on {t}: plan for 5 minutes, then write a full piece (article, speech or letter) in 20 minutes and check it.", steps: ["Plan for 5 minutes: genre, audience, purpose and 4–5 paragraphs.", "Write for 20 minutes using the right layout.", "Spend the last 3 minutes checking spelling, punctuation and paragraphs."] },
+{ id: "letter", name: "Letter format check", types: ["exam", "mcq", "short"], n: 5, task: "Letter practice on {t}: write one formal and one informal letter opening with full layout, then answer the questions.", steps: ["Write the full layout: addresses, date, greeting, subject (formal), sign-off.", "Check 'Yours faithfully' vs 'Yours sincerely'.", "Answer the questions below."] },
+{ id: "proof", name: "Proofread and improve", types: ["mcq", "short", "exam"], n: 6, task: "Proofread and improve on {t}: answer the questions, then rewrite one of your old paragraphs with better vocabulary and punctuation.", steps: ["Answer the questions below.", "Take a paragraph you wrote earlier and fix spelling and punctuation.", "Upgrade 3 words and add one sentence starting differently."] }],
+hin: [
+{ id: "vocab", name: "शब्द अभ्यास (vocabulary)", types: ["mcq", "short"], n: 10, task: "Vocabulary practice on {t}: 10 quick questions on words and meanings.", steps: ["Say each Hindi word aloud as you answer.", "Write any new word with its meaning in your notebook.", "Redo the ones you got wrong."] },
+{ id: "diary", name: "डायरी लेखन (timed diary entry)", types: ["exam", "struct", "mcq"], n: 4, task: "Timed diary entry on {t}: write a full diary entry in Hindi in 20 minutes with the correct format.", steps: ["Top: दिनांक, दिन, समय → प्रिय डायरी,", "Write what happened (past tense), how you felt, and what you learnt.", "Check verb endings (गया/गई) and end with your name."] },
+{ id: "letter", name: "अनौपचारिक पत्र (timed letter)", types: ["exam", "struct", "mcq"], n: 4, task: "Timed informal letter on {t}: write a full letter to a friend or relative in 20 minutes.", steps: ["Format: पता → दिनांक → संबोधन → अभिवादन → कुशल-क्षेम → मुख्य विषय → समापन → नाम.", "Use तुम for friends and आप for elders.", "Check every point in the question is covered."] },
+{ id: "grammar", name: "Grammar check", types: ["mcq", "short"], n: 8, task: "Grammar practice on {t}: verb endings, gender and tense.", steps: ["Check whether the subject is a boy or a girl before choosing the ending.", "Watch past vs present tense.", "Redo wrong ones and write the correct sentence."] },
+{ id: "listen", name: "Read aloud and listen", types: ["mcq", "short"], n: 6, task: "Listening practice on {t}: read the questions aloud (or have someone read them), answer, then check.", steps: ["Read each question aloud once, slowly.", "Listen for time, place, numbers and activities.", "Answer, then check."] }],
+hum: [
+{ id: "typeA", name: "Type A: How far do the sources agree?", types: ["exam", "mcq"], n: 5, task: "Type A practice on {t}: plan a 'how far do these sources agree?' answer using the Answer Notes structure, then answer the questions.", steps: ["Open Answer Notes → Humanities → Type A.", "Plan 4 paragraphs: introduction, agreements, disagreements, conclusion with a judgement.", "Aim for 4–5 comparisons with evidence, then answer the questions below."] },
+{ id: "typeB", name: "Type B: Message of a cartoon or poster", types: ["exam", "mcq"], n: 5, task: "Type B practice on {t}: pick an event and write the big message, three sub-messages with evidence and context, and a conclusion.", steps: ["Open Answer Notes → Humanities → Type B.", "Write the big message, then 3 sub-messages each with evidence and context.", "Finish with a concluding paragraph, then answer the questions below."] },
+{ id: "typeC", name: "Type C: Is this source surprising?", types: ["exam", "mcq"], n: 5, task: "Type C practice on {t}: practise judging whether a source is surprising using its provenance, purpose and your knowledge.", steps: ["Open Answer Notes → Humanities → Type C.", "For a leader or event in this topic, write who would say what and why (provenance and purpose).", "Write a clear judgement: surprising or unsurprising, then answer the questions below."] },
+{ id: "typeD", name: "Type D: How convincing is the evidence?", types: ["exam", "mcq"], n: 5, task: "Type D practice on {t}: list evidence that supports and challenges a statement, then write a judgement.", steps: ["Open Answer Notes → Humanities → Type D.", "Write one statement about this topic, then list evidence for AND against it.", "Finish with 'To a large extent / to some extent / only to a limited extent…', then answer the questions below."] },
+{ id: "facts", name: "Dates, people and events drill", types: ["mcq", "short", "exam"], n: 8, task: "Facts drill on {t}: dates, leaders, places and causes. You need these as 'own knowledge' in source answers.", steps: ["Answer the questions quickly.", "Make a mini timeline of the key dates in your notebook.", "Add any fact you got wrong to your flashcards."] }],
+gp: [
+{ id: "fact", name: "Fact or opinion?", types: ["mcq", "exam"], n: 6, task: "Fact-or-opinion practice on {t}: identify each type of statement and explain how you can tell.", steps: ["For each statement, decide: fact, opinion, prediction or value judgement.", "Explain how you can tell (can it be checked? does it use 'should' or 'I think'?).", "Then answer the questions below."] },
+{ id: "cause", name: "Most significant cause or consequence", types: ["exam", "mcq"], n: 5, task: "Most-significant practice on {t}: pick 2–3 causes or consequences and justify which matters most.", steps: ["List 2–3 causes or consequences of an issue in this topic.", "Compare them using criteria: how many people, how serious, how long-lasting.", "Write a judgement sentence: 'The most significant is … because …, whereas …'."] },
+{ id: "claim", name: "Testing a claim", types: ["exam", "mcq"], n: 5, task: "Claim-testing practice on {t}: plan how you would test a claim using primary and secondary research.", steps: ["Write one claim about this topic.", "Plan primary research (survey or interview: who, how many) and secondary research (reliable sources).", "Say what evidence would support or disprove it, then answer the questions below."] },
+{ id: "research", name: "Evaluating research", types: ["exam", "mcq"], n: 5, task: "Research evaluation practice on {t}: list strengths, weaknesses and improvements for a piece of research.", steps: ["Imagine a student's research project on this topic.", "List 2 strengths and 2 weaknesses (sample, bias, sources, conclusion).", "Give an improvement for each weakness, then answer the questions below."] }],
+dl: [
+{ id: "convert", name: "Conversion drill", types: ["short", "mcq"], n: 10, task: "Conversion drill on {t}: show the working for every conversion.", steps: ["Decimal → binary: divide by 2 and read the remainders bottom to top.", "Binary → decimal: write the place values (128 64 32 16 8 4 2 1) and add.", "Write the base on every answer (101101₂, 45₁₀)."] },
+{ id: "trace", name: "Trace the code", types: ["mcq", "short"], n: 8, task: "Code tracing on {t}: use a trace table to predict exactly what each program prints.", steps: ["Make a trace table: one column per variable, one row per step.", "Remember range(start, stop) stops before stop.", "Check == (compare) vs = (assign)."] },
+{ id: "write", name: "Write a program", types: ["exam", "struct", "short"], n: 4, task: "Programming practice on {t}: write the programs on paper (or in Python), then test them with sample values.", steps: ["Write the program with correct indentation and colons.", "Convert input with int() where needed.", "Test it with normal and boundary values."] },
+{ id: "debug", name: "Debug it", types: ["mcq", "short", "struct"], n: 6, task: "Debugging practice on {t}: find and fix errors, then explain each fix.", steps: ["Look for missing colons, wrong indentation and = vs ==.", "Write the corrected line and one sentence explaining the fix.", "Then answer the questions below."] }]
+};
+var PRACTICE_GENERIC = [
+{ id: "drill", name: "Question drill", types: ["mcq", "short"], n: 8, task: "Question drill on {t}: answer, mark and redo mistakes.", steps: ["Answer every question.", "Check each one straight away.", "Redo the ones you got wrong."] },
+{ id: "written", name: "Written answers", types: ["exam", "struct", "short"], n: 5, task: "Written answers on {t}: answer in full sentences and self-mark with the mark scheme.", steps: ["Answer in full sentences.", "Self-mark with the mark scheme.", "Note what you missed."] },
+{ id: "teach", name: "Teach it back", types: ["mcq", "short", "struct"], n: 6, task: "Teach it back on {t}: explain each topic in your own words, then answer the questions.", steps: ["Explain each topic out loud or in writing as if teaching a friend.", "Check against the notes.", "Answer the questions below."] }];
+function practiceSet(sid) { return PRACTICE_EX[sid] || PRACTICE_GENERIC; }
+function practiceEx(sid, exId) { var L = practiceSet(sid); return L.filter(function (e) { return e.id === exId; })[0] || L[0]; }
+
 /* ===== Profiles: the built-in syllabus is the default; visitors can add their own (stored only in their browser) ===== */
 var PROFILE_REG_KEY = "ecc.profiles", BASE_KEY = "ecc.nov2026.v1";
 var RULES = { id: "default", name: "November 2026 exams", start: "2026-11-01", end: "2026-11-30", restWeekdays: [4], dailyMax: 90, custom: false, label: "November 2026 · IST" };
@@ -1896,7 +1953,7 @@ function createProfile(cfg) {
   var id = "p" + Date.now().toString(36);
   cfg.subjects.forEach(function (s, i) { s.id = "s" + (i + 1); s.units.forEach(function (u, ui) { u.topics.forEach(function (t, ti) { t.id = s.id + "u" + (ui + 1) + "t" + (ti + 1); }); }); });
   var dm = +cfg.dailyMax || 90;
-  var st = { v: 5, cfg: cfg, settings: { theme: "light", sessionLen: 20, breakMin: 10, weekdayMin: dm, weekendMin: dm, prepMin: dm, examDayMin: Math.min(60, dm), weekdayStart: "16:30", weekendStart: "09:30", examDayStart: "14:30", dayEnd: "21:30", readingTime: 10, notify: { inApp: true, lead: 10, browser: false, daily: true }, pip: true, pipAI: true }, skipDays: [], ai: { topics: {}, mocks: {} } };
+  var st = { v: 6, cfg: cfg, settings: { theme: "light", sessionLen: 20, breakMin: 10, weekdayMin: dm, weekendMin: dm, prepMin: dm, examDayMin: Math.min(60, dm), weekdayStart: "16:30", weekendStart: "09:30", examDayStart: "14:30", dayEnd: "21:30", readingTime: 10, notify: { inApp: true, lead: 10, browser: false, daily: true }, pip: true, pipAI: true }, skipDays: [], ai: { topics: {}, mocks: {} } };
   try { localStorage.setItem(profileKey(id), JSON.stringify(st)); } catch (e) { return false; }
   REG.list.push({ id: id, name: cfg.name || "My exams", at: Date.now() }); writeReg(REG);
   switchProfile(id); return true;
@@ -1977,7 +2034,7 @@ function priorityList() {
 }
 
 /* ---------- storage ---------- */
-var STORE_KEY = profileKey(RULES.id), storageOK = true, DAILY_MAX = RULES.dailyMax, STATE_V = 5;
+var STORE_KEY = profileKey(RULES.id), storageOK = true, DAILY_MAX = RULES.dailyMax, STATE_V = 6;
 function defaultSettings() {
   return { theme: "light", sessionLen: 20, breakMin: 10, weekdayMin: 90, weekendMin: 90, prepMin: 90, examDayMin: 60,
     weekdayStart: "16:30", weekendStart: "09:30", examDayStart: "14:30", dayEnd: "21:30", readingTime: 10, toonCursor: true,
@@ -2024,6 +2081,15 @@ function migrate(o) {
   if (o.v < 5) { /* v5: Thursdays on preparatory leave became study days; re-plan, keeping progress */
     o.gen = null; o.v = 5;
   }
+  if (o.v < 6) { /* v6: every practice session gets its own exercise (text only; nothing is re-planned or reset) */
+    var pc = {};
+    (o.sessions || []).filter(function (x) { return x.kind === "practice" && !x.manual; }).sort(function (a, b) { return (a.date + a.start) < (b.date + b.start) ? -1 : 1; }).forEach(function (x) {
+      var L = practiceSet(x.subj), idx = pc[x.subj] || 0, ex = L[idx % L.length], names = (x.tids || []).map(function (id) { return TOPIC[id] ? TOPIC[id].t : id; }).join(" · ") || x.sub;
+      pc[x.subj] = idx + 1; x.ex = ex.id;
+      if (!x.edited) { x.sub = practiceSub(ex, names); x.task = practiceText(SUBJ[x.subj] || { id: x.subj }, names, ex); x.obj = ex.name + ": apply " + ((x.tids || []).length > 1 ? "these topics" : "this topic") + " under question conditions and fix mistakes."; }
+    });
+    o.v = 6;
+  }
   ["weekdayMin", "weekendMin", "prepMin", "examDayMin"].forEach(function (k) { o.settings[k] = Math.max(0, Math.min(DAILY_MAX, +o.settings[k] || 0)); });
   return o;
 }
@@ -2051,15 +2117,10 @@ function dayWindow(d) {
 
 /* ---------- task list (what needs studying) ---------- */
 function round5(x) { return Math.max(15, Math.round(x / 5) * 5); }
-function practiceText(s, names) {
-  return "Press Study: answer the practice questions for " + names + " on the study screen. Each one is marked instantly with an explanation; written questions show a mark scheme so you can mark yourself. Redo anything you got wrong." + (s.id === "eng" || s.id === "hin" ? " Then write one timed answer (15 min) using the notes as a checklist." : "");
-  if (s.id === "eng") return "Timed practice: answer Quiz Centre questions on " + names + ", then write one timed response (20–25 min) and check it against the checklist in Study Resources.";
-  if (s.id === "hin") return "Practice: complete the Quiz Centre questions on " + names + ". For writing topics, write one full answer in Hindi in 20 minutes and self-check the format.";
-  if (s.id === "hum" || s.id === "gp") return "Practice: answer the exam-style questions on " + names + " in the Quiz Centre. Plan one extended answer with point–evidence–explanation and self-mark it.";
-  return "Practice: work through Quiz Centre questions on " + names + " (mixed difficulty). Mark them instantly, then redo every question you got wrong without looking.";
-}
+function practiceText(s, names, ex) { ex = ex || practiceSet(s.id)[0]; return "Press Study: " + ex.task.replace("{t}", names) + " The study screen has the questions and steps for this exercise."; }
+function practiceSub(ex, names) { return ex.name + ": " + names; }
 function buildTasks(sid, excl) {
-  var s = SUBJ[sid], L = S.settings.sessionLen, out = [];
+  var s = SUBJ[sid], L = S.settings.sessionLen, out = [], pcount = 0;
   var nom = { 1: 0.5, 2: 0.75, 3: 1 }, maxG = L * 1.5;
   s.units.forEach(function (u, ui) {
     var todo = u.topics.filter(function (t) { return !(excl && excl[t.id]); });
@@ -2074,8 +2135,9 @@ function buildTasks(sid, excl) {
         task: "Press Study: read the notes for " + gr.map(function (t) { return "“" + t.t + "”"; }).join(" and ") + " (summary, definitions, key facts, worked examples), then answer the quick-check questions and flip through the flashcards on the same screen.", nb: null });
       if (gi % 2 === 1 || gi === groups.length - 1) {
         var span = groups.slice(gi % 2 === 1 ? gi - 1 : gi, gi + 1), pt = [].concat.apply([], span), pn = pt.map(function (t) { return t.t; }).join(" · ");
-        out.push({ key: sid + ":P:" + pt[0].id, subj: sid, type: "Practice", kind: "practice", topic: u.name, sub: pn, tids: pt.map(function (t) { return t.id; }), dur: round5(L),
-          obj: "Apply " + (pt.length > 1 ? "these topics" : "this topic") + " accurately under question conditions and fix mistakes.", task: practiceText(s, pn), nb: null, opt: 1 });
+        var ex = practiceSet(sid)[pcount++ % practiceSet(sid).length];
+        out.push({ key: sid + ":P:" + pt[0].id, subj: sid, type: "Practice", kind: "practice", topic: u.name, sub: practiceSub(ex, pn), tids: pt.map(function (t) { return t.id; }), dur: round5(L), ex: ex.id,
+          obj: ex.name + ": apply " + (pt.length > 1 ? "these topics" : "this topic") + " under question conditions and fix mistakes.", task: practiceText(s, pn, ex), nb: null, opt: 1 });
       }
     });
   });
@@ -2245,7 +2307,7 @@ function generate(opts) {
       if (t < 0) t = findSlot(win, occ, K.dur, W[d].from, brk);
       if (t < 0) { tasks.push(K); return; }
       placed.push({ id: uid("s"), key: K.key, subj: K.subj, type: K.type, kind: K.kind, topic: K.topic, sub: K.sub, tids: K.tids,
-        date: d, start: toHM(t), dur: K.dur, obj: K.obj, task: K.task, part: K.part || null, done: false, manual: false, edited: false });
+        date: d, start: toHM(t), dur: K.dur, obj: K.obj, task: K.task, part: K.part || null, ex: K.ex || null, done: false, manual: false, edited: false });
       occ.push([t, t + K.dur]); occ.sort(function (a, b) { return a[0] - b[0]; }); cursor = t + K.dur + brk;
     });
   });
@@ -2994,7 +3056,13 @@ function pickQs(x, topics) {
   var ids = topics.map(function (t) { return t.id; }), pool = QUIZ.filter(function (q) { return ids.indexOf(q.t) >= 0; });
   var weakFirst = function (a, b) { var sa = S.quiz.qstats[a.id], sb = S.quiz.qstats[b.id]; var ka = !sa ? 1 : sa.ok < sa.seen ? 0 : 2, kb = !sb ? 1 : sb.ok < sb.seen ? 0 : 2; return ka - kb || a.d - b.d; };
   if (x.kind === "learn" || x.kind === undefined) { var out = []; topics.forEach(function (t) { out = out.concat(pool.filter(function (q) { return q.t === t.id && (q.y === "mcq" || q.y === "short"); }).sort(function (a, b) { return a.d - b.d; }).slice(0, 3)); }); return out.map(function (q) { return q.id; }); }
-  if (x.kind === "practice") return pool.slice().sort(function (a, b) { return a.d - b.d; }).slice(0, 12).map(function (q) { return q.id; });
+  if (x.kind === "practice") {
+    var ex = practiceEx(x.subj, x.ex), seed = 0; String(x.id + (x.ex || "")).split("").forEach(function (ch) { seed = (seed * 31 + ch.charCodeAt(0)) >>> 0; });
+    var rnd = function () { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+    var quick = {}; topics.forEach(function (t) { pool.filter(function (q) { return q.t === t.id && (q.y === "mcq" || q.y === "short"); }).sort(function (a, b) { return a.d - b.d; }).slice(0, 3).forEach(function (q) { quick[q.id] = 1; }); });
+    var ranked = pool.map(function (q) { return { q: q, k: (ex.types.indexOf(q.y) >= 0 ? 0 : 2) + (quick[q.id] ? 1 : 0) + rnd() }; }).sort(function (a, b) { return a.k - b.k; });
+    return ranked.slice(0, ex.n || 8).map(function (r) { return r.q; }).sort(function (a, b) { return a.d - b.d; }).map(function (q) { return q.id; });
+  }
   if (x.kind === "revise") return shuffle(pool).sort(weakFirst).slice(0, 6).map(function (q) { return q.id; });
   return [];
 }
@@ -3051,11 +3119,13 @@ function studyPane(x, tps) {
     return tps.map(function (t) { return '<div class="card" style="margin-top:14px"><div class="card-h"><h2>' + esc(t.t) + '</h2><button class="btn sm' + (S.revised[t.id] ? "" : " primary") + '" data-act="stRevised" data-tid="' + t.id + '">' + ic("check") + (S.revised[t.id] ? "Revised" : "Mark as revised") + '</button></div><div class="note-block">' + notesHTML(t) + "</div></div>"; }).join("") + (f.qs.length ? '<div class="row" style="justify-content:center;margin-top:16px"><button class="btn" data-act="stTab" data-t="questions">Now try the questions →</button></div>' : "");
   }
   if (tab === "questions") {
-    if (!f.qs.length) return empty("No questions here", tps.length ? "Use the flashcards for this session." : "Choose a topic above first.");
+    var exH = "";
+    if (x.kind === "practice") { var pe = practiceEx(x.subj, x.ex); exH = '<div class="card flat ex-card" style="margin-top:14px;--c:' + s.color + '"><div class="eyebrow">This session\'s exercise</div><h3 style="margin:2px 0 6px">' + esc(pe.name) + '</h3><ol class="ex-steps">' + pe.steps.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ol>" + (typeof freshOn === "function" && freshOn() ? '<button class="btn sm" data-act="stFresh" style="margin-top:8px"' + (f.freshBusy ? " disabled" : "") + ">" + (f.freshBusy ? "Writing new questions…" : "✨ New AI questions for this exercise") + "</button>" : "") + "</div>"; }
+    if (!f.qs.length) return exH + empty("No questions here", tps.length ? "Use the flashcards for this session." : "Choose a topic above first.");
     var done = f.qs.filter(function (id) { return f.ans[id] && f.ans[id].checked; }), got = 0, max = 0;
     f.qs.forEach(function (id) { var q = QBY[id], a = f.ans[id]; if (a && a.checked) { got += a.got; max += q.m || 1; } });
     var h = '<div class="row between small muted" style="margin-top:14px"><span>' + done.length + " of " + f.qs.length + " answered</span><span>" + (max ? "Score so far: <b style=\"color:var(--text)\">" + got + "/" + max + "</b>" : "Marked instantly") + "</span></div>";
-    return h + f.qs.map(function (id, i) { return studyQ(QBY[id], i); }).join("");
+    return exH + h + f.qs.map(function (id, i) { return studyQ(QBY[id], i); }).join("");
   }
   if (tab === "cards") {
     if (!f.cards.length) return empty("No flashcards", "Choose a topic above first.");
@@ -4544,7 +4614,8 @@ function freshTopicBrief(t) {
   if (n.f && n.f.length) bits.push("Formulas: " + n.f.slice(0, 3).join(" | "));
   return "- " + t.id + ": " + t.t + (bits.length ? " — " + bits.join(" ").slice(0, 600) : "");
 }
-function freshTopics(subj, topic, n) {
+function freshTopics(subj, topic, n, tids) {
+  if (tids && tids.length) return tids.map(function (id) { return TOPIC[id]; }).filter(Boolean);
   if (topic && topic !== "all") return [TOPIC[topic]];
   var list = TOPICS.filter(function (t) { return subj === "all" || t.subj === subj; });
   return shuffle(list).slice(0, Math.max(3, Math.min(n, 8)));
@@ -4554,7 +4625,7 @@ function freshLangNote(topics) { return topics.some(function (t) { return t.subj
 
 /* ----- quiz ----- */
 async function aiFreshQuiz(cfg) {
-  var n = Math.max(3, Math.min(cfg.len || 10, 20)), topics = freshTopics(cfg.subj, cfg.topic, n);
+  var n = Math.max(3, Math.min(cfg.len || 10, 20)), topics = freshTopics(cfg.subj, cfg.topic, n, cfg.tids);
   var types = Object.keys(cfg.types).filter(function (k) { return cfg.types[k]; }); if (!types.length) types = ["mcq", "short"];
   var tname = { mcq: "mcq (multiple choice, 4 options)", short: "short (one-word or short exact answer)", struct: "structured (2–4 marks, written answer)", exam: "exam (exam-style, 4–8 marks, written answer)" };
   var weak = cfg.weak ? (function () { var tp = topicPerf(); return topics.filter(function (t) { var x = tp[t.id]; return x && x.score !== null && x.score < 0.7; }).map(function (t) { return t.t; }); })() : [];
@@ -4656,6 +4727,14 @@ function fcCard(id) { var F = UI.fc; return (F && F.cards && F.cards[id]) || FLA
 function fcLoadingView(s) {
   return '<div class="card" style="max-width:620px;margin:0 auto;text-align:center"><div class="stack" style="justify-items:center">' + doodle("cards", 80, "wiggle") + "<h2>Pip is making fresh flashcards…</h2><p class=\"muted\">" + esc(s.name) + " · with " + esc(AI_NAME) + '. This usually takes 5–20 seconds.</p><button class="btn" data-act="fcMode" data-m="due">Use my saved deck instead</button></div></div>';
 }
+ACT.stFresh = function () {
+  var f = UI.focus, x = f && findSess(f.id); if (!x || f.freshBusy) return;
+  var ex = practiceEx(x.subj, x.ex), types = {}; ex.types.forEach(function (t) { types[t] = 1; });
+  f.freshBusy = true; drawFocus();
+  aiFreshQuiz({ subj: x.subj, topic: "all", tids: x.tids, types: types, diff: "any", len: ex.n || 8, weak: false }).then(function (qs) {
+    if (UI.focus !== f) return; f.freshBusy = false; f.qs = qs.map(function (q) { return q.id; }); f.ans = {}; drawFocus(); toast("New " + ex.name.toLowerCase() + " questions ready. ✨", "good");
+  }, function (e) { if (UI.focus !== f) return; f.freshBusy = false; drawFocus(); toast((e && e.message) || "Couldn't make new questions.", "bad"); });
+};
 ACT.freshQuizBuiltIn = function () { var c = UI.quiz.cfg; FRESH.seq++; UI.quiz = { phase: "setup", cfg: c }; builtInQuizStart(); };
 ON.freshToggle = function (el) { S.settings.freshAI = el.checked; save(); render(); };
 
