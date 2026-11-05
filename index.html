@@ -692,6 +692,102 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 
+/* =====================================================================
+   Extra silly animations (html.silly; switch in Preferences)
+   ===================================================================== */
+@keyframes s-jelly { 0% { scale: 1 1; } 30% { scale: 1.12 .9; } 45% { scale: .92 1.08; } 60% { scale: 1.05 .96; } 75% { scale: .98 1.02; } 100% { scale: 1 1; } }
+@keyframes s-impatient { 0%, 100% { rotate: 0deg; } 25% { rotate: -3deg; } 75% { rotate: 3deg; } }
+@keyframes s-shimmer { to { background-position: 240px 0; } }
+@keyframes s-spin { to { rotate: 360deg; } }
+@keyframes s-bounce { 0%, 100% { translate: 0 0; } 40% { translate: 0 -7px; } 70% { translate: 0 1px; } }
+@keyframes s-flip { 0%, 100% { scale: 1 1; } 50% { scale: -1 1; } }
+@keyframes s-swing { 0% { rotate: 0deg; } 20% { rotate: 9deg; } 40% { rotate: -7deg; } 60% { rotate: 4deg; } 80% { rotate: -2deg; } 100% { rotate: 0deg; } }
+@keyframes s-dance { 0%, 100% { rotate: -8deg; translate: 0 0; } 25% { translate: 0 -6px; } 50% { rotate: 8deg; translate: 0 0; } 75% { translate: 0 -6px; } }
+@keyframes s-letter { from { opacity: 0; translate: 0 -26px; rotate: -24deg; } }
+@keyframes s-marker { from { background-size: 0% 100%; } }
+@keyframes s-wave { 0%, 100% { translate: 0 0; } 50% { translate: 0 -5px; } }
+@keyframes s-rainbow { 0% { text-decoration-color: #e23b3b; } 20% { text-decoration-color: #e8761a; } 40% { text-decoration-color: #ffd23f; } 60% { text-decoration-color: #0f8f6e; } 80% { text-decoration-color: #2f6fdb; } 100% { text-decoration-color: #8b48dc; } }
+@keyframes s-stripes { to { background-position: 0 0, 24px 0; } }
+@keyframes s-rise { from { translate: 0 0; rotate: 0deg; } to { translate: var(--dx) -125vh; rotate: var(--r); } }
+@keyframes s-twinkle { 0%, 100% { scale: 1; rotate: 0deg; } 50% { scale: 1.15; rotate: 20deg; } }
+@keyframes s-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4px; } }
+@keyframes s-toastwob { 0%, 100% { rotate: 0deg; } 30% { rotate: -3deg; } 60% { rotate: 2deg; } }
+@keyframes s-zzz { 0% { opacity: 0; translate: 0 0; scale: .6; } 30% { opacity: 1; } 100% { opacity: 0; translate: 18px -40px; scale: 1.3; } }
+@keyframes s-ringspin { to { rotate: 360deg; } }
+@keyframes s-pulse-today { 0%, 100% { scale: 1; } 50% { scale: 1.12; } }
+
+/* effects layer: trails, sparks, hearts, pop-up words */
+#silly-fx { position: fixed; inset: 0; pointer-events: none; z-index: 2999; overflow: hidden; }
+.sfx { position: absolute; display: block; pointer-events: none; will-change: transform, opacity; }
+.sfx.tdot { width: 8px; height: 8px; border-radius: 50% 40% 55% 45%; background: currentColor; }
+.sfx.tstar { width: 13px; height: 13px; background: currentColor; clip-path: polygon(50% 0, 62% 36%, 100% 38%, 70% 60%, 80% 100%, 50% 76%, 20% 100%, 30% 60%, 0 38%, 38% 36%); }
+.sfx.spark { width: 10px; height: 3px; margin: -1.5px 0 0 0; border-radius: 2px; transform-origin: 0 50%; }
+.sfx.heart { font-size: 28px; line-height: 1; font-family: Arial, sans-serif; text-shadow: 1px 1px 0 #2d2a32; }
+.sfx.pop { font-family: var(--display); font-size: 24px; white-space: nowrap; -webkit-text-stroke: .6px #2d2a32; text-shadow: 2px 2px 0 rgba(45,42,50,.25); }
+
+/* floating doodles behind the page + crayon scroll bar */
+#silly-bg { position: fixed; inset: 0; pointer-events: none; z-index: -1; overflow: hidden; }
+#silly-bg .sb { position: absolute; bottom: -70px; opacity: .55; animation-name: s-rise; animation-timing-function: linear; animation-iteration-count: infinite; }
+html[data-app-theme="dark"] #silly-bg .sb { opacity: .35; }
+#silly-scroll { position: fixed; left: 0; top: 0; height: 4px; z-index: 2998; pointer-events: none; background: linear-gradient(90deg, #e23b3b, #e8761a, #ffd23f, #0f8f6e, #2f6fdb, #8b48dc); border-radius: 0 3px 3px 0; transition: width .15s linear; }
+
+/* paper plane and snail */
+.s-plane { position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; filter: drop-shadow(3px 5px 0 rgba(45,42,50,.18)); }
+.s-snail { position: fixed; left: 0; bottom: 2px; z-index: 60; pointer-events: none; }
+.s-snail svg { animation: s-bob 1.4s ease-in-out infinite; }
+
+/* titles: letters tumble in and hop on hover; marker highlight draws itself */
+html.silly .page-head h1 { background-size: 100% 100%; background-repeat: no-repeat; }
+html.silly #view.enter .page-head h1 { animation: s-marker .9s var(--ease-out) .25s backwards; }
+html.silly .wd { display: inline-block; white-space: nowrap; }
+html.silly .lt { display: inline-block; transition: translate .3s var(--spring), rotate .3s var(--spring), color .2s; }
+html.silly #view.enter .page-head h1 .lt { animation: s-letter .55s var(--spring) backwards; animation-delay: calc(var(--k) * 32ms + 120ms); }
+html.silly .page-head h1 .lt:hover, html.silly .brand-t .lt:hover { translate: 0 -9px; rotate: -10deg; color: var(--accent); }
+html.silly .brand:hover .brand-t .lt { animation: s-wave .6s ease-in-out; animation-delay: calc(var(--k) * 30ms); }
+html.silly #brand { cursor: var(--cur-hand, pointer); }
+html.silly #brand-doodle svg { animation: s-twinkle 3s ease-in-out infinite; }
+
+/* buttons go jelly, shimmer, and get impatient if you hover too long */
+html.silly .btn:hover { animation: s-jelly .6s ease, s-impatient .45s ease-in-out 2.4s infinite; }
+html.silly .btn.primary:hover { animation: s-jelly .6s ease, s-shimmer 1.4s linear infinite, s-impatient .45s ease-in-out 2.4s infinite; }
+html.silly .btn[disabled]:hover { animation: s-impatient .3s ease-in-out 2; }
+
+/* sidebar icons each have their own trick; the active underline cycles rainbow colours */
+html.silly .nav-btn:nth-child(4n+1):hover svg { animation: s-spin .7s var(--spring); }
+html.silly .nav-btn:nth-child(4n+2):hover svg { animation: s-bounce .6s ease; }
+html.silly .nav-btn:nth-child(4n+3):hover svg { animation: s-flip .6s ease-in-out; }
+html.silly .nav-btn:nth-child(4n):hover svg { animation: s-jelly .6s ease; }
+html.silly .nav-btn.active span { animation: s-rainbow 3s linear infinite alternate; }
+
+/* chips swing like hanging labels; doodles dance; rings spin; bars stripe-scroll */
+html.silly .chip:hover { animation: s-swing .9s ease-in-out; transform-origin: 50% -8px; }
+html.silly .page-head .doodle:hover, html.silly .empty .doodle { animation: s-dance 1s ease-in-out infinite; }
+html.silly .page-head .doodle, html.silly .empty .doodle { cursor: var(--cur-hand, pointer); }
+html.silly .ring:hover svg { animation: s-ringspin .9s var(--spring); }
+html.silly .bar > i { animation: s-stripes 1.1s linear infinite; }
+html.silly .an-badge { animation: s-bob 2.6s ease-in-out infinite; }
+html.silly .hero .hero-art { animation: m-float 4.5s ease-in-out infinite, s-twinkle 6s ease-in-out infinite; }
+html.silly .cal-cell:not(.out):hover { animation: s-jelly .6s ease; }
+html.silly .cal-cell.today .cn { animation: s-pulse-today 1.6s ease-in-out infinite; display: inline-block; }
+html.silly #view .card { transition: rotate .4s var(--spring), translate .4s var(--spring); }
+html.silly .toast { animation: m-toast .5s var(--spring) backwards, s-toastwob .7s ease .45s; }
+html.silly .toast.out { animation: m-toast-out .3s ease-in forwards; }
+html.silly .opt:hover { animation: s-jelly .5s ease; }
+html.silly .card-h h2:hover, html.silly .card-h h3:hover { animation: s-swing .7s ease-in-out; display: inline-block; }
+
+/* Pip: sleeps after a while (Zzz), eyes follow the mouse */
+html.silly .pip-eyes { transition: translate .15s ease-out; }
+.pip-btn.sleepy .pip-eyes { animation: none !important; transform: scaleY(.12); }
+.pip-btn.sleepy .pip-body { animation-duration: 6s; }
+.pip-zzz { position: absolute; right: 2px; top: -6px; pointer-events: none; font-family: var(--display); color: var(--muted); }
+.pip-zzz i { position: absolute; font-style: normal; font-size: 18px; animation: s-zzz 2.4s ease-in infinite; }
+.pip-zzz i:nth-child(2) { animation-delay: .8s; font-size: 22px; }
+.pip-zzz i:nth-child(3) { animation-delay: 1.6s; font-size: 26px; }
+
+@media (prefers-reduced-motion: reduce) {
+  #silly-bg, #silly-fx, #silly-scroll, .s-plane, .s-snail, .pip-zzz { display: none !important; }
+}
+
 </style>
 </head>
 <body>
@@ -2173,7 +2269,7 @@ function priorityList() {
 var STORE_KEY = profileKey(RULES.id), storageOK = true, DAILY_MAX = RULES.dailyMax, STATE_V = 6;
 function defaultSettings() {
   return { theme: "light", sessionLen: 20, breakMin: 10, weekdayMin: 90, weekendMin: 90, prepMin: 90, examDayMin: 60,
-    weekdayStart: "16:30", weekendStart: "09:30", examDayStart: "14:30", dayEnd: "21:30", readingTime: 10, toonCursor: true,
+    weekdayStart: "16:30", weekendStart: "09:30", examDayStart: "14:30", dayEnd: "21:30", readingTime: 10, toonCursor: true, silly: true,
     notify: { inApp: true, lead: 10, browser: false, daily: true }, pip: true, pipAI: true };
 }
 function freshState() {
@@ -3557,7 +3653,7 @@ function pgPrefs() {
   if (window.ECC_GROQ) h += groqPrefsCard();
   h += '<div class="card span-12"><div class="card-h"><h2>Syllabus</h2><button class="btn primary" data-act="importer">' + ic("upload") + 'Upload a syllabus</button></div><p class="small muted">The built-in syllabus is the default. Anyone can add their own exam date sheet and syllabus; it is saved only in their browser. Switch between them any time; each keeps its own progress.</p><div class="stack" style="margin-top:12px">' +
     [{ id: "default", name: "Built-in syllabus · November 2026 exams" }].concat(REG.list).map(function (p) { var on = p.id === RULES.id; return '<div class="session-row"><span class="stripe" style="background:' + (on ? "var(--good)" : "var(--line-2)") + '"></span><div class="grow"><div class="s-title">' + esc(p.name) + "</div>" + (p.id === "default" ? '<div class="s-meta">7 subjects with hand-written notes, quizzes and flashcards</div>' : '<div class="s-meta">Your upload · notes and questions are made by AI</div>') + '</div><div class="day-actions">' + (on ? '<span class="chip good">In use</span>' : '<button class="btn sm" data-act="useProfile" data-id="' + p.id + '">Switch to this</button>') + (p.id !== "default" ? '<button class="btn sm ghost" data-act="delProfile" data-id="' + p.id + '">Delete</button>' : "") + "</div></div>"; }).join("") + "</div></div>";
-  h += '<div class="card span-6"><div class="card-h"><h2>Appearance</h2></div><label class="row between"><span>Chalkboard (dark) mode <span class="tiny faint">· off = crayon on paper</span></span><input type="checkbox" class="toggle" id="p-theme" data-on="prefTheme"' + (st.theme === "dark" ? " checked" : "") + '></label><label class="row between" style="margin-top:12px"><span>Cartoon cursor <span class="tiny faint">· off = your normal cursor</span></span><input type="checkbox" class="toggle" id="p-cursor" data-on="prefCursor"' + (st.toonCursor !== false ? " checked" : "") + '></label><div class="row between" style="margin-top:12px"><span>Guided tour of the site</span><button class="btn sm" data-act="tour">Show the tutorial</button></div><label class="row between" style="margin-top:12px"><span>Pip uses AI when available <span class="tiny faint">' + (window.ECC_GROQ ? "· with your Groq key" : "· on the claude.ai page") + '</span></span><input type="checkbox" class="toggle" id="p-pipai" data-on="prefPipAI"' + (st.pipAI !== false ? " checked" : "") + '></label><label class="row between" style="margin-top:12px"><span>Show Pip, the paper helper <span class="tiny faint">· bottom corner</span></span><input type="checkbox" class="toggle" id="p-pip" data-on="prefPip"' + (st.pip !== false ? " checked" : "") + "></label></div>";
+  h += '<div class="card span-6"><div class="card-h"><h2>Appearance</h2></div><label class="row between"><span>Chalkboard (dark) mode <span class="tiny faint">· off = crayon on paper</span></span><input type="checkbox" class="toggle" id="p-theme" data-on="prefTheme"' + (st.theme === "dark" ? " checked" : "") + '></label><label class="row between" style="margin-top:12px"><span>Cartoon cursor <span class="tiny faint">· off = your normal cursor</span></span><input type="checkbox" class="toggle" id="p-cursor" data-on="prefCursor"' + (st.toonCursor !== false ? " checked" : "") + '></label><label class="row between" style="margin-top:12px"><span>Extra silly animations 🎉 <span class="tiny faint">· trails, sparkles, paper planes, Pip tricks</span></span><input type="checkbox" class="toggle" id="p-silly" data-on="prefSilly"' + (st.silly !== false ? " checked" : "") + '></label><div class="row between" style="margin-top:12px"><span>Guided tour of the site</span><button class="btn sm" data-act="tour">Show the tutorial</button></div><label class="row between" style="margin-top:12px"><span>Pip uses AI when available <span class="tiny faint">' + (window.ECC_GROQ ? "· with your Groq key" : "· on the claude.ai page") + '</span></span><input type="checkbox" class="toggle" id="p-pipai" data-on="prefPipAI"' + (st.pipAI !== false ? " checked" : "") + '></label><label class="row between" style="margin-top:12px"><span>Show Pip, the paper helper <span class="tiny faint">· bottom corner</span></span><input type="checkbox" class="toggle" id="p-pip" data-on="prefPip"' + (st.pip !== false ? " checked" : "") + "></label></div>";
   h += '<div class="card span-6"><div class="card-h"><h2>Reminders</h2></div><div class="stack"><label class="row between"><span>In-app session reminders</span><input type="checkbox" class="toggle" id="p-inapp" data-on="prefN" data-k="inApp"' + (n.inApp ? " checked" : "") + '></label><label class="row between"><span>Browser notifications <span class="tiny faint">(if your browser allows them)</span></span><input type="checkbox" class="toggle" id="p-browser" data-on="prefN" data-k="browser"' + (n.browser ? " checked" : "") + '></label><label class="row between"><span>Daily summary when I open the app</span><input type="checkbox" class="toggle" id="p-daily" data-on="prefN" data-k="daily"' + (n.daily ? " checked" : "") + '></label><label class="f">Remind me before a session<select class="input" id="p-lead" data-on="prefN" data-k="lead">' + [5, 10, 15, 30].map(function (m) { return '<option value="' + m + '"' + (n.lead === m ? " selected" : "") + ">" + m + " minutes before</option>"; }).join("") + '</select></label><p class="tiny faint">Reminders never appear on rest days, holidays, your days off, or after an exam is finished.</p></div></div>';
   h += '<div class="card span-12"><div class="notice limit" style="margin-bottom:14px"><b>Daily limit: ' + fmtDur(DAILY_MAX) + '.</b> The planner never schedules more than ' + DAILY_MAX + ' minutes of study on any day, and you can\'t add or move sessions past it.</div><div class="card-h"><h2>Study sessions and daily workload</h2><button class="btn primary" data-act="regen">' + ic("refresh") + 'Apply and regenerate timetable</button></div><div class="grid g-4" style="gap:14px">';
   h += '<label class="f">Default session length<select class="input" id="sessionLen" data-on="pref" data-k="sessionLen">' + [15, 20, 25, 30].map(function (m) { return '<option value="' + m + '"' + (st.sessionLen === m ? " selected" : "") + ">" + m + " minutes</option>"; }).join("") + '</select><span class="tiny faint">Small subtopics are grouped into sessions of up to 1½ × this</span></label>';
@@ -3968,7 +4064,7 @@ function pipHandle(raw) {
   var restMsg = info.rest ? "It's " + (info.fest || DOWL[info.dow]) + ", a study-free day, so I won't open study tools today. Enjoy the break! 🎈" : null;
 
   if (/^(help|commands|what can you do|\?)\b/.test(s)) {
-    pipSay("Here's what I can do:<ul class=\"pip-list\"><li><b>Maths:</b> 12*(3+4), 15% of 80, sqrt 72, 2^10, 7!</li><li><b>Number bases:</b> 45 to binary, 101101 binary to decimal, 2F hex to decimal, 200 to hex</li><li><b>Maths helpers:</b> round 3.14159 to 3 sf, 45000 in standard form, pythagoras 6 8</li><li><b>Look things up:</b> define valency, what is a surd, formula for density</li><li><b>Open things:</b> open planner, notes on photosynthesis, flashcards science</li><li><b>Study:</b> start studying, quiz me on surds</li><li><b>Plan:</b> what's on today, next exam, when is hindi, take 9 Nov off, undo day off 9 Nov</li><li><b>Progress:</b> how am I doing, mark surds as done</li><li><b>Settings:</b> chalkboard mode, paper mode, timer 10 min</li><li><b>Your own syllabus:</b> upload syllabus</li><li><b>Help:</b> tutorial (a tour of the site)</li>" + (window.ECC_GROQ ? "<li><b>AI model:</b> which model, use the fast model, list models</li>" : "") + "</ul>" + (pipAIOn() ? "Anything else, just ask in your own words: I use AI (" + AI_NAME + ") for that, and I can open things and do stuff in the site for you." : "I follow these simple commands. " + (window.ECC_GROQ ? "Add a free Groq API key in Preferences and I can use AI to answer anything." : "On the claude.ai page I can also use AI to answer anything.")));
+    pipSay("Here's what I can do:<ul class=\"pip-list\"><li><b>Maths:</b> 12*(3+4), 15% of 80, sqrt 72, 2^10, 7!</li><li><b>Number bases:</b> 45 to binary, 101101 binary to decimal, 2F hex to decimal, 200 to hex</li><li><b>Maths helpers:</b> round 3.14159 to 3 sf, 45000 in standard form, pythagoras 6 8</li><li><b>Look things up:</b> define valency, what is a surd, formula for density</li><li><b>Open things:</b> open planner, notes on photosynthesis, flashcards science</li><li><b>Study:</b> start studying, quiz me on surds</li><li><b>Plan:</b> what's on today, next exam, when is hindi, take 9 Nov off, undo day off 9 Nov</li><li><b>Progress:</b> how am I doing, mark surds as done</li><li><b>Settings:</b> chalkboard mode, paper mode, timer 10 min</li><li><b>Your own syllabus:</b> upload syllabus</li><li><b>Help:</b> tutorial (a tour of the site)</li><li><b>Silly stuff:</b> dance, flip, spin, jump, paper plane, confetti, snail, calm mode / silly on</li>" + (window.ECC_GROQ ? "<li><b>AI model:</b> which model, use the fast model, list models</li>" : "") + "</ul>" + (pipAIOn() ? "Anything else, just ask in your own words: I use AI (" + AI_NAME + ") for that, and I can open things and do stuff in the site for you." : "I follow these simple commands. " + (window.ECC_GROQ ? "Add a free Groq API key in Preferences and I can use AI to answer anything." : "On the claude.ai page I can also use AI to answer anything.")));
     return;
   }
   if (/^(hi|hello|hey|namaste|hii+|yo)\b/.test(s)) { pipSay("Hello! 👋 " + (up[0] ? "Your next exam is " + esc(up[0].name) + " " + relDay(up[0].exam) + ". " : "") + "Type <b>help</b> to see what I can do."); return; }
@@ -5152,6 +5248,264 @@ if (typeof tourShow === "function") {
   var _tourShow = tourShow;
   tourShow = function () { _tourShow.apply(this, arguments); mAnim($("#tour-card"), [{ opacity: 0, translate: "0 12px", scale: ".96" }, { opacity: 1, translate: "0 0", scale: "1" }], { duration: 340, easing: M_SPRING }); };
 }
+
+/* ===== Extra silly animations (completely unnecessary, on by default; switch off in Preferences).
+   Off automatically when the device asks for reduced motion. Nothing here touches saved progress. ===== */
+var SILLY = { trailN: 0, lastTrail: 0, lastType: 0, idleT: null, trickT: null, planeT: null, snailT: null, asleep: false, tilt: null, konami: [], booted: false };
+function sillyOn() { return !!(typeof S !== "undefined" && S && S.settings && S.settings.silly !== false && motionOK()); }
+function sillyFine() { try { return window.matchMedia("(pointer: fine)").matches; } catch (e) { return false; } }
+function sRand(a, b) { return a + Math.random() * (b - a); }
+function sPick(a) { return a[Math.floor(Math.random() * a.length)]; }
+var S_COLORS = ["#e23b3b", "#2f6fdb", "#0f8f6e", "#e8761a", "#8b48dc", "#ffd23f", "#139ccd", "#ff5c9a"];
+function sLayer() { var l = $("#silly-fx"); if (!l) { l = document.createElement("div"); l.id = "silly-fx"; l.setAttribute("aria-hidden", "true"); document.body.appendChild(l); } return l; }
+function sSpawn(cls, x, y) { var e = document.createElement("i"); e.className = "sfx " + cls; e.style.left = x + "px"; e.style.top = y + "px"; sLayer().appendChild(e); return e; }
+function sAnim(e, kf, opt) { var a = e.animate(kf, opt); a.onfinish = function () { e.remove(); }; return a; }
+
+/* ---------- on / off ---------- */
+var _applyThemeS = applyTheme;
+applyTheme = function () { _applyThemeS.apply(this, arguments); var on = sillyOn(); document.documentElement.classList.toggle("silly", on); if (on) sillyBoot(); else sillyStop(); };
+function sillyBoot() {
+  if (SILLY.booted) return; SILLY.booted = true;
+  sillyBackground(); sillyBrand(); sillyScheduleTrick(); sillySchedulePlane(); sillyScheduleSnail(); sillyIdle();
+}
+function sillyStop() {
+  SILLY.booted = false; clearTimeout(SILLY.trickT); clearTimeout(SILLY.planeT); clearTimeout(SILLY.snailT); clearTimeout(SILLY.idleT);
+  ["#silly-bg", "#silly-fx", "#silly-scroll"].forEach(function (s) { var e = $(s); if (e) e.remove(); }); $all(".s-plane, .s-snail").forEach(function (e) { e.remove(); });
+  if (SILLY.tilt) { SILLY.tilt.style.rotate = ""; SILLY.tilt.style.translate = ""; SILLY.tilt = null; }
+  var pb = $("#pip-btn"); if (pb) pb.classList.remove("sleepy"); SILLY.asleep = false;
+}
+
+/* ---------- cursor trail of crayon dots and stars ---------- */
+document.addEventListener("pointermove", function (e) {
+  if (!sillyOn()) return;
+  sillyWake();
+  if (e.pointerType !== "mouse") return;
+  sillyEyes(e.clientX, e.clientY); sillyTilt(e);
+  var now = performance.now(); if (now - SILLY.lastTrail < 30 || SILLY.trailN > 24) return; SILLY.lastTrail = now;
+  var d = sSpawn("trail " + (Math.random() < 0.35 ? "tstar" : "tdot"), e.clientX, e.clientY); d.style.color = sPick(S_COLORS); SILLY.trailN++;
+  var a = d.animate([{ translate: "-50% -50%", scale: "1", rotate: "0deg", opacity: 0.95 }, { translate: "-50% " + sRand(0, 140).toFixed(0) + "%", scale: "0", rotate: sRand(-200, 200).toFixed(0) + "deg", opacity: 0 }], { duration: sRand(500, 850), easing: "ease-out" });
+  a.onfinish = function () { d.remove(); SILLY.trailN--; };
+}, { passive: true });
+
+/* ---------- every click makes a little crayon firework ---------- */
+document.addEventListener("pointerdown", function (e) {
+  if (!sillyOn()) return;
+  sillyWake();
+  var n = 8;
+  for (var i = 0; i < n; i++) {
+    var ang = i / n * Math.PI * 2 + sRand(-0.25, 0.25), r = sRand(18, 36), s = sSpawn("spark", e.clientX, e.clientY);
+    s.style.background = sPick(S_COLORS); s.style.rotate = (ang * 180 / Math.PI).toFixed(0) + "deg";
+    sAnim(s, [{ translate: "0 0", scale: "1 1", opacity: 1 }, { translate: (Math.cos(ang) * r).toFixed(1) + "px " + (Math.sin(ang) * r).toFixed(1) + "px", scale: ".15 1", opacity: 0 }], { duration: 430, easing: "cubic-bezier(.2,.8,.3,1)" });
+  }
+  if (e.target.closest && e.target.closest("#pip-btn")) sillyTrick("hop");
+}, { passive: true, capture: true });
+
+/* ---------- double-click anywhere: a heart floats up ---------- */
+document.addEventListener("dblclick", function (e) {
+  if (!sillyOn() || (e.target.closest && e.target.closest("input, textarea, select"))) return;
+  for (var i = 0; i < 3; i++) (function (i) {
+    var h = sSpawn("heart", e.clientX + sRand(-14, 14), e.clientY); h.textContent = "♥"; h.style.color = sPick(S_COLORS);
+    sAnim(h, [{ translate: "-50% -50%", scale: ".3", opacity: 0 }, { translate: "-50% -120%", scale: "1.5", opacity: 1, offset: 0.3 }, { translate: (sRand(-60, 60)).toFixed(0) + "px -320%", scale: "1", rotate: sRand(-40, 40).toFixed(0) + "deg", opacity: 0 }], { duration: 1200 + i * 150, delay: i * 90, easing: "ease-out", fill: "backwards" });
+  })(i);
+});
+
+/* ---------- typing makes the box boing ---------- */
+document.addEventListener("input", function (e) {
+  if (!sillyOn()) return; var el = e.target; if (!el.matches || !el.matches("input.input, textarea.input, .pip-form input")) return;
+  var now = performance.now(); if (now - SILLY.lastType < 90) return; SILLY.lastType = now;
+  el.animate([{ scale: "1" }, { scale: "1.015" }, { scale: "1" }], { duration: 170, easing: "ease-out" });
+  var r = el.getBoundingClientRect(), s = sSpawn("tdot trail", r.right - 14, r.top + r.height / 2); s.style.color = sPick(S_COLORS);
+  sAnim(s, [{ translate: "-50% -50%", scale: "1", opacity: 1 }, { translate: "-50% -260%", scale: "0", opacity: 0 }], { duration: 500, easing: "ease-out" });
+}, true);
+
+/* ---------- cards lean towards your mouse ---------- */
+function sillyTilt(e) {
+  var c = e.target.closest ? e.target.closest("#view .card") : null;
+  while (c && c.parentElement && c.parentElement.closest("#view .card")) c = c.parentElement.closest("#view .card");
+  if (c && c.offsetHeight > 460) c = null;
+  if (SILLY.tilt && SILLY.tilt !== c) { SILLY.tilt.style.rotate = ""; SILLY.tilt.style.translate = ""; SILLY.tilt = null; }
+  if (!c) return;
+  var r = c.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5;
+  c.style.rotate = (x * 1.6).toFixed(2) + "deg"; c.style.translate = "0 -3px"; SILLY.tilt = c;
+}
+document.addEventListener("pointerleave", function () { if (SILLY.tilt) { SILLY.tilt.style.rotate = ""; SILLY.tilt.style.translate = ""; SILLY.tilt = null; } });
+
+/* ---------- floating doodles drifting behind everything ---------- */
+var S_SHAPES = [
+  '<path d="M20 4 L25 15 L37 16 L28 24 L31 36 L20 30 L9 36 L12 24 L3 16 L15 15 Z"/>',
+  '<path d="M20 34 C6 24 3 15 9 9 C14 4 19 8 20 12 C21 8 26 4 31 9 C37 15 34 24 20 34 Z"/>',
+  '<path d="M6 20 C6 10 14 6 20 10 C26 14 22 22 16 20 C11 18 14 12 19 14" fill="none"/>',
+  '<path d="M20 5 L35 33 L5 33 Z"/>',
+  '<circle cx="20" cy="20" r="13"/>',
+  '<path d="M4 22 Q10 10 16 22 T28 22 T40 22" fill="none"/>',
+  '<path d="M8 30 L30 8 L34 12 L12 34 L6 36 Z"/>',
+  '<path d="M10 26 Q6 18 14 16 Q16 8 24 12 Q32 10 32 18 Q38 22 32 27 Z"/>'
+];
+function sillyBackground() {
+  if ($("#silly-bg")) return;
+  var bg = document.createElement("div"); bg.id = "silly-bg"; bg.setAttribute("aria-hidden", "true");
+  var h = "";
+  for (var i = 0; i < 14; i++) {
+    var c = sPick(S_COLORS), size = sRand(22, 46).toFixed(0), dur = sRand(24, 48).toFixed(1);
+    h += '<svg class="sb" viewBox="0 0 40 40" width="' + size + '" height="' + size + '" style="left:' + sRand(2, 96).toFixed(1) + "%;--dx:" + sRand(-120, 120).toFixed(0) + "px;--r:" + sRand(-360, 360).toFixed(0) + "deg;animation-duration:" + dur + "s;animation-delay:-" + sRand(0, dur).toFixed(1) + 's"><g fill="' + c + '" fill-opacity=".35" stroke="' + c + '" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">' + sPick(S_SHAPES) + "</g></svg>";
+  }
+  bg.innerHTML = h; document.body.appendChild(bg);
+  var bar = document.createElement("div"); bar.id = "silly-scroll"; bar.setAttribute("aria-hidden", "true"); document.body.appendChild(bar); sillyScroll();
+}
+function sillyScroll() { var b = $("#silly-scroll"); if (!b) return; var d = document.documentElement, max = d.scrollHeight - window.innerHeight; b.style.width = (max > 20 ? Math.min(100, window.scrollY / max * 100) : 0).toFixed(1) + "%"; }
+window.addEventListener("scroll", function () { if (sillyOn()) sillyScroll(); }, { passive: true });
+
+/* ---------- brand: letters wave, star spins, click for confetti rain ---------- */
+function sillyBrand() {
+  var t = $(".brand-t"); if (t && !t.querySelector(".lt")) sillySplit(t);
+}
+function sillySplit(el) {
+  var text = el.textContent; el.setAttribute("aria-label", text); var k = 0;
+  el.innerHTML = text.split(/(\s+)/).map(function (w) { if (/^\s+$/.test(w)) return w; return '<span class="wd" aria-hidden="true">' + w.split("").map(function (ch) { return '<span class="lt" style="--k:' + (k++) + '">' + esc(ch) + "</span>"; }).join("") + "</span>"; }).join("");
+}
+document.addEventListener("click", function (e) {
+  if (!sillyOn() || !e.target.closest) return;
+  if (e.target.closest("#brand")) confettiRain(70);
+  var d = e.target.closest(".page-head .doodle, #brand-doodle svg, .empty .doodle, .an-badge");
+  if (d) { d.animate([{ rotate: "0deg", translate: "0 0", scale: "1" }, { rotate: "200deg", translate: "0 -18px", scale: "1.25", offset: 0.5 }, { rotate: "360deg", translate: "0 0", scale: "1" }], { duration: 750, easing: "cubic-bezier(.34,1.56,.64,1)" }); var r = d.getBoundingClientRect(); confetti(r.left + r.width / 2, r.top + r.height / 2, 14, 0.7); }
+}, true);
+function confettiRain(n) {
+  if (!motionOK()) return; n = n || 60;
+  for (var i = 0; i < n; i++) (function (i) { setTimeout(function () { confetti(sRand(0, window.innerWidth), -10, 1, 0.35); }, i * 25); })(i);
+}
+
+/* ---------- titles: letters tumble in, hop when you hover ---------- */
+var _renderS = render;
+render = function () {
+  var r = _renderS.apply(this, arguments);
+  if (sillyOn()) { var h = $("#view .page-head h1"); if (h && !h.querySelector(".lt")) sillySplit(h); }
+  return r;
+};
+
+/* ---------- stats re-roll like a slot machine when hovered ---------- */
+document.addEventListener("mouseover", function (e) {
+  if (!sillyOn() || !e.target.closest) return;
+  var st = e.target.closest("#view .stat, #view .ring"); if (!st || st.dataset.rolling) return;
+  st.dataset.rolling = "1"; motionCount(st.parentElement || st); setTimeout(function () { delete st.dataset.rolling; }, 1300);
+});
+
+/* ---------- pop-up praise and +1s ---------- */
+function sPop(x, y, text, color) {
+  var p = sSpawn("pop", x, y); p.textContent = text; p.style.color = color || sPick(S_COLORS);
+  sAnim(p, [{ translate: "-50% -50%", scale: ".4", rotate: sRand(-18, 18).toFixed(0) + "deg", opacity: 0 }, { translate: "-50% -130%", scale: "1.2", opacity: 1, offset: 0.3 }, { translate: "-50% -280%", scale: "1", rotate: "0deg", opacity: 0 }], { duration: 1250, easing: "ease-out" });
+}
+var PRAISE = ["Nice!", "Yay!", "Woohoo!", "Crushed it!", "Boom!", "Legend!", "Smashed it!", "Go you!", "Brilliant!", "Yesss!"];
+function sCenter(el) { var r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }
+var _toggleDoneS = ACT.toggleDone;
+ACT.toggleDone = function (el, e) { var c = sCenter(el), was = el.checked, id = el.getAttribute("data-id"); _toggleDoneS(el, e); var x = findSess(id); if (sillyOn() && was && x && x.done) sPop(c[0], c[1] - 10, sPick(PRAISE)); };
+if (ON.topicCheck) { var _topicCheckS = ON.topicCheck; ON.topicCheck = function (el, e) { var c = sCenter(el), on = el.checked; _topicCheckS(el, e); if (sillyOn() && on) sPop(c[0], c[1] - 10, sPick(PRAISE)); }; }
+function sAnswerHook(name, getId, getAns) {
+  if (!ACT[name]) return; var orig = ACT[name];
+  ACT[name] = function (el) {
+    var c = sCenter(el), id = getId(el); orig.apply(this, arguments);
+    if (!sillyOn() || !id) return; var a = getAns(id); if (!a || !a.checked) return;
+    if (a.ok) { sPop(c[0], c[1] - 6, sPick(["+1 ✨", "Correct!", "Yes!", "+1 🎉", "Nailed it!"]), "#0f8f6e"); confetti(c[0], c[1], 10, 0.5); }
+    else sPop(c[0], c[1] - 6, sPick(["Almost!", "Oops!", "So close!", "Next one!"]), "#e23b3b");
+  };
+}
+sAnswerHook("qzPick", function () { return UI.quiz && UI.quiz.qs[UI.quiz.i]; }, function (id) { return UI.quiz && UI.quiz.ans[id]; });
+sAnswerHook("qzCheck", function () { return UI.quiz && UI.quiz.qs[UI.quiz.i]; }, function (id) { return UI.quiz && UI.quiz.ans[id]; });
+sAnswerHook("sqPick", function (el) { return el.getAttribute("data-q"); }, function (id) { return UI.focus && UI.focus.ans[id]; });
+sAnswerHook("sqCheck", function (el) { return el.getAttribute("data-q"); }, function (id) { return UI.focus && UI.focus.ans[id]; });
+var _fcRateS = ACT.fcRate;
+ACT.fcRate = function (el) { var card = $("#fc-card"), r = el.getAttribute("data-r"); if (sillyOn() && card && !MOTION.rating) { var c = sCenter(card); sPop(c[0], c[1] - 40, r === "known" ? sPick(["Got it!", "Easy!", "Known ✓"]) : sPick(["Next time!", "Back soon!", "Noted!"]), r === "known" ? "#0f8f6e" : "#e8761a"); } return _fcRateS.apply(this, arguments); };
+var _fcFlipS = ACT.fcFlip;
+ACT.fcFlip = function () { _fcFlipS.apply(this, arguments); if (!sillyOn()) return; var card = $("#fc-card"); if (card) { var c = sCenter(card); for (var i = 0; i < 6; i++) { var s = sSpawn("tstar trail", c[0] + sRand(-160, 160), c[1] + sRand(-110, 110)); s.style.color = sPick(S_COLORS); sAnim(s, [{ translate: "-50% -50%", scale: "0", rotate: "0deg" }, { translate: "-50% -50%", scale: "1.4", rotate: "90deg", offset: 0.4 }, { translate: "-50% -50%", scale: "0", rotate: "180deg" }], { duration: 700, delay: i * 50, easing: "ease-out", fill: "backwards" }); } } };
+
+/* ---------- countdown: the seconds box hops every tick ---------- */
+if (typeof cdUpdate === "function") {
+  var _cdUpdateS = cdUpdate;
+  cdUpdate = function (el, ms) { var before = el.querySelector(".cd-unit:last-child b"), bt = before && before.textContent; _cdUpdateS(el, ms); if (!sillyOn()) return; var u = el.querySelector(".cd-unit:last-child"); if (u && bt !== null && u.querySelector("b").textContent !== bt) u.animate([{ translate: "0 0" }, { translate: "0 -7px", offset: 0.35 }, { translate: "0 0" }], { duration: 420, easing: "cubic-bezier(.34,1.56,.64,1)" }); };
+}
+
+/* ---------- Pip: watches your mouse, does tricks, falls asleep, wakes up ---------- */
+function sillyEyes(mx, my) {
+  var b = $("#pip-btn"); if (!b || SILLY.asleep) return; var eyes = b.querySelector(".pip-eyes"); if (!eyes) return;
+  var r = b.getBoundingClientRect(), cx = r.left + r.width * 0.5, cy = r.top + r.height * 0.42, dx = mx - cx, dy = my - cy, d = Math.max(1, Math.hypot(dx, dy)), k = Math.min(1, d / 220);
+  eyes.style.translate = (dx / d * 3.2 * k).toFixed(2) + "px " + (dy / d * 2.6 * k).toFixed(2) + "px";
+}
+function sillyTrick(kind) {
+  var body = $("#pip-btn .pip-body"); if (!body || !body.animate || !motionOK()) return;
+  kind = kind || sPick(["spin", "jump", "wiggle", "flip", "peek", "wave", "dance"]);
+  var E = "cubic-bezier(.34,1.56,.64,1)";
+  if (kind === "spin") body.animate([{ rotate: "0deg" }, { rotate: "360deg" }], { duration: 800, easing: E });
+  else if (kind === "jump" || kind === "hop") body.animate([{ translate: "0 0", scale: "1 1" }, { translate: "0 2px", scale: "1.08 .9", offset: 0.15 }, { translate: "0 " + (kind === "hop" ? -16 : -34) + "px", scale: ".94 1.06", offset: 0.5 }, { translate: "0 0", scale: "1.06 .94", offset: 0.85 }, { translate: "0 0", scale: "1 1" }], { duration: kind === "hop" ? 420 : 700, easing: "ease-out" });
+  else if (kind === "wiggle") body.animate([{ rotate: "0deg" }, { rotate: "-14deg" }, { rotate: "12deg" }, { rotate: "-8deg" }, { rotate: "4deg" }, { rotate: "0deg" }], { duration: 800, easing: "ease-in-out" });
+  else if (kind === "flip") body.animate([{ translate: "0 0", rotate: "0deg" }, { translate: "0 -46px", rotate: "-180deg", offset: 0.5 }, { translate: "0 0", rotate: "-360deg" }], { duration: 900, easing: "ease-in-out" });
+  else if (kind === "peek") body.animate([{ scale: "1 1" }, { scale: "1.15 .7", offset: 0.3 }, { scale: ".9 1.15", offset: 0.6 }, { scale: "1 1" }], { duration: 700, easing: E });
+  else if (kind === "wave") { var b = $("#pip-btn"); b.classList.add("speak"); setTimeout(function () { b.classList.remove("speak"); }, 1200); }
+  else if (kind === "dance") body.animate([{ rotate: "0deg", translate: "0 0" }, { rotate: "-15deg", translate: "-8px -10px" }, { rotate: "15deg", translate: "8px 0" }, { rotate: "-15deg", translate: "-8px -10px" }, { rotate: "15deg", translate: "8px 0" }, { rotate: "-10deg", translate: "-4px -6px" }, { rotate: "0deg", translate: "0 0" }], { duration: 1600, easing: "ease-in-out", iterations: 2 });
+}
+function sillyScheduleTrick() { clearTimeout(SILLY.trickT); SILLY.trickT = setTimeout(function () { if (sillyOn() && !SILLY.asleep && !(typeof PIP !== "undefined" && PIP.open) && !document.hidden) sillyTrick(); if (sillyOn()) sillyScheduleTrick(); }, sRand(14000, 30000)); }
+function sillyIdle() { clearTimeout(SILLY.idleT); SILLY.idleT = setTimeout(function () { if (!sillyOn() || (typeof PIP !== "undefined" && PIP.open)) return; var b = $("#pip-btn"); if (!b) return; SILLY.asleep = true; b.classList.add("sleepy"); if (!b.querySelector(".pip-zzz")) b.insertAdjacentHTML("beforeend", '<span class="pip-zzz" aria-hidden="true"><i>z</i><i>z</i><i>Z</i></span>'); }, 45000); }
+function sillyWake() {
+  if (SILLY.asleep) { SILLY.asleep = false; var b = $("#pip-btn"); if (b) { b.classList.remove("sleepy"); var z = b.querySelector(".pip-zzz"); if (z) z.remove(); } sillyTrick("jump"); }
+  if (sillyOn()) sillyIdle();
+}
+document.addEventListener("keydown", function (e) {
+  if (!sillyOn()) return; sillyWake();
+  var K = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
+  SILLY.konami.push(e.key); SILLY.konami = SILLY.konami.slice(-10);
+  if (SILLY.konami.join() === K.join()) { SILLY.konami = []; sillyGiant(); }
+}, true);
+function sillyGiant() { var b = $("#pip-btn"); if (!b) return; b.animate([{ scale: "1" }, { scale: "2.6", offset: 0.2 }, { scale: "2.6", offset: 0.8 }, { scale: "1" }], { duration: 3200, easing: "ease-in-out" }); sillyParty(); if (typeof pipSay === "function") { toast("🎮 Secret code! GIANT PIP!", "good"); } }
+
+/* ---------- paper aeroplanes and a very slow snail ---------- */
+function launchPlane() {
+  if (!motionOK()) return;
+  var w = window.innerWidth, h = window.innerHeight, y0 = sRand(h * 0.12, h * 0.6), ltr = Math.random() < 0.6, p = document.createElement("div");
+  p.className = "s-plane"; p.setAttribute("aria-hidden", "true");
+  p.innerHTML = '<svg viewBox="0 0 60 40" width="58" height="40"><g stroke="#2d2a32" stroke-width="2.4" stroke-linejoin="round" fill="#fffdf6"><path d="M2 20 L58 4 L24 26 Z"/><path d="M24 26 L58 4 L30 36 Z" fill="#e6eefc"/><path d="M24 26 L26 34 L30 36"/></g></svg>';
+  document.body.appendChild(p);
+  var kf = [], N = 12, amp = sRand(30, 80);
+  for (var i = 0; i <= N; i++) { var t = i / N, x = ltr ? -80 + t * (w + 160) : w + 80 - t * (w + 160), y = y0 + Math.sin(t * Math.PI * 2.2) * amp - t * 40, slope = Math.cos(t * Math.PI * 2.2) * amp * Math.PI * 2.2 / (w + 160); kf.push({ transform: "translate(" + x.toFixed(0) + "px," + y.toFixed(0) + "px) rotate(" + ((Math.atan(slope) * 180 / Math.PI) + (ltr ? 0 : 180)).toFixed(1) + "deg)" + (ltr ? "" : " scaleY(-1)") }); }
+  sAnim(p, kf, { duration: sRand(5500, 8000), easing: "linear" });
+}
+function sillySchedulePlane() { clearTimeout(SILLY.planeT); SILLY.planeT = setTimeout(function () { if (sillyOn() && !document.hidden) launchPlane(); if (sillyOn()) sillySchedulePlane(); }, sRand(30000, 65000)); }
+function launchSnail() {
+  if (!motionOK()) return;
+  var s = document.createElement("div"); s.className = "s-snail"; s.setAttribute("aria-hidden", "true");
+  s.innerHTML = '<svg viewBox="0 0 60 36" width="54" height="32"><g stroke="#2d2a32" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 30 H44 Q54 30 52 22 L50 18" fill="#ffd9a8"/><circle cx="26" cy="19" r="11" fill="#ff9fc4"/><path d="M26 19 m-5 0 a5 5 0 1 0 5 -5" fill="none"/><path d="M50 18 L48 8 M52 18 L56 9" fill="none"/><circle cx="48" cy="7" r="1.6" fill="#2d2a32"/><circle cx="56" cy="8" r="1.6" fill="#2d2a32"/></g></svg>';
+  document.body.appendChild(s);
+  sAnim(s, [{ translate: "-70px 0" }, { translate: (window.innerWidth + 70) + "px 0" }], { duration: 60000, easing: "linear" });
+}
+function sillyScheduleSnail() { clearTimeout(SILLY.snailT); SILLY.snailT = setTimeout(function () { if (sillyOn() && !document.hidden) launchSnail(); if (sillyOn()) sillyScheduleSnail(); }, sRand(90000, 180000)); }
+
+/* ---------- party mode ---------- */
+function sillyParty() {
+  if (!motionOK()) return;
+  confettiRain(90); sillyTrick("dance");
+  var v = $("#view"); if (v) v.animate([{ filter: "hue-rotate(0deg) saturate(1)" }, { filter: "hue-rotate(360deg) saturate(1.7)" }], { duration: 1500, iterations: 2 });
+  $all("#view .card").slice(0, 16).forEach(function (c, i) { c.animate([{ rotate: "0deg" }, { rotate: (i % 2 ? 3 : -3) + "deg" }, { rotate: (i % 2 ? -3 : 3) + "deg" }, { rotate: "0deg" }], { duration: 600, delay: i * 40, iterations: 3, easing: "ease-in-out" }); });
+}
+
+/* ---------- Pip learns some silly commands ---------- */
+if (typeof pipHandle === "function") {
+  var _pipHandleS = pipHandle;
+  pipHandle = function (text) {
+    var s = String(text || "").toLowerCase();
+    if (/\b(silly|animations?)\b.*\b(off|stop|calm|less|disable)\b|\bcalm mode\b|\bstop (the )?(silly|animations)\b/.test(s)) { S.settings.silly = false; save(); applyTheme(); return pipSay("Okay, calm mode. 😌 The extra silly animations are off. Say <b>silly on</b> to bring them back."); }
+    if (/\b(silly|animations?)\b.*\b(on|back|more|enable)\b|\bsilly mode\b/.test(s)) { S.settings.silly = true; save(); applyTheme(); setTimeout(sillyParty, 300); return pipSay(motionOK() ? "Silly mode ON! 🎉" : "Silly mode is on, but your device asks for reduced motion, so I'll keep still."); }
+    if (sillyOn()) {
+      if (/\b(dance|party|disco|celebrate)\b/.test(s)) { setTimeout(sillyParty, 150); return pipSay(sPick(["Let's PARTY! 🎉🕺", "Dance time! 💃", "Woo! 🎊"])); }
+      if (/\b(back ?flip|flip|somersault)\b/.test(s)) { setTimeout(function () { sillyTrick("flip"); }, 150); return pipSay("Hup! 🤸"); }
+      if (/\b(spin|twirl)\b/.test(s)) { setTimeout(function () { sillyTrick("spin"); }, 150); return pipSay("Wheee! 🌀"); }
+      if (/\b(jump|hop)\b/.test(s)) { setTimeout(function () { sillyTrick("jump"); }, 150); return pipSay("Boing! 🦘"); }
+      if (/\b(paper ?plane|aeroplane|airplane|plane)\b/.test(s)) { setTimeout(launchPlane, 150); return pipSay("Incoming! ✈️"); }
+      if (/\b(confetti|rain)\b/.test(s)) { setTimeout(function () { confettiRain(80); }, 150); return pipSay("Confetti rain! 🎊"); }
+      if (/\b(snail)\b/.test(s)) { setTimeout(launchSnail, 150); return pipSay("Here comes Gary. He's not in a hurry. 🐌"); }
+    }
+    return _pipHandleS.apply(this, arguments);
+  };
+}
+
+/* ---------- Preferences switch ---------- */
+ON.prefSilly = function (el) { S.settings.silly = el.checked; save(); applyTheme(); if (el.checked) setTimeout(sillyParty, 200); };
 
 try { boot(); } catch (e) { console.error(e); document.getElementById("view").innerHTML = "<div class=\"notice bad\">The app could not start: " + String(e.message).replace(/</g,"&lt;") + "</div>"; }
 
