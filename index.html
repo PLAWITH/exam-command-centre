@@ -835,6 +835,108 @@ html.pip-groove .pip-btn:not(.sleepy) .pip-notes, .pip-btn.pip-party .pip-notes 
 .pip-btn.pip-party .pip-notes i { animation-duration: 1.2s; }
 @media (prefers-reduced-motion: reduce) { .pip-notes { display: none !important; } }
 
+/* =====================================================================
+   Formal mode: plain and boring (html.formal; switch in the top-right corner)
+   ===================================================================== */
+.formal-switch { position: fixed; top: 10px; right: 14px; z-index: 65; display: inline-flex; align-items: center; gap: 8px; padding: 5px 8px 5px 12px; background-color: var(--panel); border: 2px solid var(--ink); border-radius: var(--wob-pill); box-shadow: 2px 2px 0 var(--ink); font-family: var(--display); font-size: 15px; color: var(--text); cursor: pointer; user-select: none; }
+.formal-switch .toggle { width: 40px; height: 24px; }
+.formal-switch .toggle::after { width: 14px; height: 14px; }
+.formal-switch .toggle:checked::after { transform: translateX(16px); }
+@media (max-width: 1180px) { .formal-switch { top: 11px; right: 10px; padding: 4px 6px 4px 10px; font-size: 13.5px; } }
+@media (max-width: 380px) { .formal-switch .fs-label { display: none; } }
+@media (min-width: 1181px) { .page-head { padding-right: 190px; } }
+@media (max-width: 1180px) { .topbar .t { max-width: calc(100% - 210px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } }
+
+html.formal {
+  --paper: #f3f4f6; --paper-2: #e9ebee; --panel: #ffffff; --panel-solid: #ffffff; --panel-hi: rgba(0, 0, 0, 0.035);
+  --ink: #c3c8cf; --text: #1f2328; --muted: #59616b; --faint: #868d96;
+  --line: rgba(0, 0, 0, 0.1); --line-2: rgba(0, 0, 0, 0.25);
+  --accent: #2b5797; --accent-ink: #ffffff; --accent-soft: rgba(43, 87, 151, 0.1);
+  --hi: #e3e8ef; --hi-soft: rgba(43, 87, 151, 0.1); --pink: #8a8f96; --rule: transparent; --margin: transparent;
+  --good: #2f6b3a; --warn: #8a6100; --bad: #a12a22; --rest: #5d6670;
+  --good-soft: rgba(47, 107, 58, 0.1); --warn-soft: rgba(138, 97, 0, 0.1); --bad-soft: rgba(161, 42, 34, 0.08); --rest-soft: rgba(93, 102, 112, 0.1);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.08); --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --font: Arial, "Helvetica Neue", Helvetica, sans-serif; --display: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  --wob: 3px; --wob-2: 3px; --wob-pill: 3px; --r: 3px; --r-sm: 3px;
+  --grain: none; --crayon: none;
+}
+html.formal[data-app-theme="dark"] {
+  --paper: #1d1f22; --paper-2: #17191b; --panel: #26292d; --panel-solid: #26292d; --panel-hi: rgba(255, 255, 255, 0.04);
+  --ink: #464b52; --text: #e4e6e9; --muted: #a9afb7; --faint: #7f868f;
+  --line: rgba(255, 255, 255, 0.1); --line-2: rgba(255, 255, 255, 0.25);
+  --accent: #7ea6dc; --accent-ink: #10161f; --accent-soft: rgba(126, 166, 220, 0.12); --hi: #33373c; --hi-soft: rgba(126, 166, 220, 0.12);
+  --good: #7fbf8a; --warn: #d4b062; --bad: #e08a84; --rest: #9aa3ad;
+}
+html.formal body { font-size: 14.5px; line-height: 1.45; background-image: none; -webkit-font-smoothing: auto; }
+html.formal h1 { font-size: 26px; font-weight: 600; letter-spacing: 0; } html.formal h2 { font-size: 18px; font-weight: 600; } html.formal h3 { font-size: 16px; font-weight: 600; } html.formal h4 { font-weight: 600; }
+html.formal .page-head h1 { background-image: none; padding: 0; }
+html.formal .brand-t, html.formal .topbar .t, html.formal .cd-unit b, html.formal .stat .v, html.formal .ring .rv, html.formal .focus-time, html.formal .an-step-h, html.formal .an-h, html.formal .fc-face .fc-main { font-weight: 600; }
+html.formal .stat .v { font-size: 26px; } html.formal .cd-unit b { font-size: 30px; }
+
+/* straight lines everywhere: no rough edges, no tilts, flat shadows */
+html.formal *::before { filter: none !important; }
+html.formal :is(.card, .btn, .session-row, .opt, .cal-cell, .acc, .week-col, .modal, .fc-face, .rest-banner, .cd-unit, .date-tile)::before { border-width: 1px !important; border-color: var(--ink); }
+html.formal svg [filter], html.formal svg[filter], html.formal .nav-btn svg { filter: none !important; }
+html.formal :is(.btn, .btn:nth-child(even), .btn:hover, .btn:active, .grid > .card, .cd-unit, .date-tile, .cal-cell:hover, .wk-card, .opt:hover, .pal.cur, .modal, .toast, .an-badge, .an-ex, .an-jump .chip:hover, .nav-btn:hover, .cal-cell.today .cn, .check) { transform: none !important; }
+html.formal * { rotate: none !important; scale: none !important; translate: none !important; }
+html.formal .btn { box-shadow: none; font-size: 14px; height: 34px; font-weight: 500; }
+html.formal .btn.sm { height: 28px; font-size: 13px; box-shadow: none; } html.formal .btn.lg { height: 42px; font-size: 16px; }
+html.formal .btn.primary { background-color: var(--accent); color: var(--accent-ink); background-image: none; }
+html.formal .btn.primary::before { border-color: var(--accent); }
+html.formal .btn:hover { box-shadow: none; filter: brightness(.97); }
+html.formal .nav-btn { font-size: 14.5px; }
+html.formal .nav-btn.active { background: var(--accent-soft); background-image: none; }
+html.formal .nav-btn.active span { text-decoration: none; font-weight: 600; }
+html.formal .card, html.formal .acc, html.formal .modal { box-shadow: var(--shadow); }
+html.formal .check { border-width: 1px; border-radius: 3px; } html.formal .toggle { border-width: 1px; }
+html.formal .chip { border-radius: 3px; }
+html.formal .toast { background-color: var(--panel) !important; color: var(--text); border: 1px solid var(--ink); border-left: 4px solid var(--accent); border-radius: 3px; box-shadow: 0 2px 6px rgba(0, 0, 0, .12); font-size: 14px; }
+html.formal .toast.good { border-left-color: var(--good); } html.formal .toast.bad { border-left-color: var(--bad); }
+html.formal .an-ex { background: var(--panel-hi); color: var(--text); border: 1px solid var(--ink); border-radius: 3px; box-shadow: none; }
+html.formal .an-note { background: var(--panel-hi); color: var(--text); border: 1px solid var(--ink); border-left: 4px solid var(--accent); border-radius: 3px; }
+html.formal .an-badge { border-width: 1px; border-radius: 3px; box-shadow: none; font-size: 22px; width: 40px; height: 40px; flex-basis: 40px; }
+html.formal .an-step { border-width: 1px; border-radius: 3px; } html.formal .an-step:before { border-width: 1px; }
+html.formal .an-q { border-style: solid; border-width: 1px; border-radius: 3px; }
+html.formal .sidebar::before, html.formal .sidebar::after { display: none; }
+html.formal .sidebar { border-right: 1px solid var(--ink); }
+
+/* no doodles, characters or decorations */
+html.formal .doodle, html.formal #brand-doodle, html.formal .hero .hero-art, html.formal .tour-pip, html.formal #silly-bg, html.formal #silly-fx, html.formal #silly-scroll, html.formal .s-plane, html.formal .s-snail, html.formal .pip-notes, html.formal .pip-zzz, html.formal .pip-hi, html.formal .confetti-host { display: none !important; }
+html.formal *, html.formal *::before, html.formal *::after { animation: none !important; }
+html.formal .spinner { animation: spin 1.2s linear infinite !important; }
+html.formal.toon-cursor { --cur-arrow: auto; --cur-hand: pointer; --cur-text: text; }
+
+/* Pip becomes a plain help button */
+html.formal .pip-btn { width: 52px; height: 52px; border-radius: 50%; background: var(--accent); box-shadow: 0 2px 6px rgba(0, 0, 0, .2); }
+html.formal .pip-btn .pip-body { display: none; }
+html.formal .pip-btn::after { content: "?"; position: absolute; inset: 0; display: grid; place-items: center; color: var(--accent-ink); font: 600 24px/1 Arial, sans-serif; }
+html.formal .pip-panel { bottom: 66px; border-radius: 4px; box-shadow: 0 4px 16px rgba(0, 0, 0, .18); }
+html.formal .pip-panel::after { display: none; }
+html.formal .pip-head b { font-size: 16px; font-weight: 600; }
+html.formal .pip-msg { border-radius: 4px; font-size: 14px; } html.formal .pip-msg b { font-size: 14px; font-weight: 600; }
+
+/* the switch itself goes plain too */
+html.formal .formal-switch { border: 1px solid var(--ink); border-radius: 4px; box-shadow: 0 1px 3px rgba(0, 0, 0, .1); font: 13px Arial, sans-serif; }
+/* formal mode: no highlighter strokes, no notebook lines, solid thin borders instead of dashed crayon */
+html.formal .hero h1.big { background-image: none; font-size: 34px; padding: 0; }
+html.formal .fc-face, html.formal .fc-face.back { background-image: none !important; background-color: var(--panel) !important; color: var(--text); }
+html.formal .fc-face::before { border-color: var(--ink); }
+html.formal .fc-face .chip { background: var(--panel); color: var(--muted); border-color: var(--ink); }
+html.formal .focus-wrap { background-image: none; }
+html.formal textarea.input { background-image: none; }
+html.formal .passage { background-image: none; }
+html.formal .seg, html.formal .notice, html.formal .formula, html.formal .feedback, html.formal .empty, html.formal .an-q, html.formal .pip-work { border-style: solid; border-width: 1px; }
+html.formal .side-foot, html.formal .divider, html.formal .exam-row, html.formal .wk-h, html.formal .tbl td, html.formal .pip-hr { border-style: solid; border-width: 0; border-top-width: 1px; }
+html.formal .exam-row, html.formal .wk-h, html.formal .tbl td { border-top-width: 0; border-bottom-width: 1px; }
+html.formal .rest-banner::before { border-style: solid; }
+html.formal .bar > i { background-image: none; }
+html.formal .bar { border-width: 1px; border-radius: 3px; height: 10px; }
+html.formal .nav-btn svg { color: var(--muted); }
+html.formal .nav-btn.active svg { color: var(--accent); }
+html.formal .cal-cell.today .cn { box-shadow: 0 0 0 1.5px var(--accent); border-radius: 50%; }
+html.formal :focus-visible { outline: 2px solid var(--accent); }
+html.formal .spinner { border-style: solid; border-top-color: transparent; }
+
 </style>
 </head>
 <body>
@@ -4111,7 +4213,7 @@ function pipHandle(raw) {
   var restMsg = info.rest ? "It's " + (info.fest || DOWL[info.dow]) + ", a study-free day, so I won't open study tools today. Enjoy the break! 🎈" : null;
 
   if (/^(help|commands|what can you do|\?)\b/.test(s)) {
-    pipSay("Here's what I can do:<ul class=\"pip-list\"><li><b>Maths:</b> 12*(3+4), 15% of 80, sqrt 72, 2^10, 7!</li><li><b>Number bases:</b> 45 to binary, 101101 binary to decimal, 2F hex to decimal, 200 to hex</li><li><b>Maths helpers:</b> round 3.14159 to 3 sf, 45000 in standard form, pythagoras 6 8</li><li><b>Look things up:</b> define valency, what is a surd, formula for density</li><li><b>Open things:</b> open planner, notes on photosynthesis, flashcards science</li><li><b>Study:</b> start studying, quiz me on surds</li><li><b>Plan:</b> what's on today, next exam, when is hindi, take 9 Nov off, undo day off 9 Nov</li><li><b>Progress:</b> how am I doing, mark surds as done</li><li><b>Settings:</b> chalkboard mode, paper mode, timer 10 min</li><li><b>Your own syllabus:</b> upload syllabus</li><li><b>Help:</b> tutorial (a tour of the site)</li><li><b>Dancing:</b> dance, groove, stop dancing</li><li><b>Silly stuff:</b> flip, spin, jump, paper plane, confetti, snail, calm mode / silly on</li>" + (window.ECC_GROQ ? "<li><b>AI model:</b> which model, use the fast model, list models</li>" : "") + "</ul>" + (pipAIOn() ? "Anything else, just ask in your own words: I use AI (" + AI_NAME + ") for that, and I can open things and do stuff in the site for you." : "I follow these simple commands. " + (window.ECC_GROQ ? "Add a free Groq API key in Preferences and I can use AI to answer anything." : "On the claude.ai page I can also use AI to answer anything.")));
+    pipSay("Here's what I can do:<ul class=\"pip-list\"><li><b>Maths:</b> 12*(3+4), 15% of 80, sqrt 72, 2^10, 7!</li><li><b>Number bases:</b> 45 to binary, 101101 binary to decimal, 2F hex to decimal, 200 to hex</li><li><b>Maths helpers:</b> round 3.14159 to 3 sf, 45000 in standard form, pythagoras 6 8</li><li><b>Look things up:</b> define valency, what is a surd, formula for density</li><li><b>Open things:</b> open planner, notes on photosynthesis, flashcards science</li><li><b>Study:</b> start studying, quiz me on surds</li><li><b>Plan:</b> what's on today, next exam, when is hindi, take 9 Nov off, undo day off 9 Nov</li><li><b>Progress:</b> how am I doing, mark surds as done</li><li><b>Settings:</b> chalkboard mode, paper mode, timer 10 min</li><li><b>Your own syllabus:</b> upload syllabus</li><li><b>Help:</b> tutorial (a tour of the site)</li><li><b>Dancing:</b> dance, groove, stop dancing</li><li><b>Look:</b> formal mode, fun mode</li><li><b>Silly stuff:</b> flip, spin, jump, paper plane, confetti, snail, calm mode / silly on</li>" + (window.ECC_GROQ ? "<li><b>AI model:</b> which model, use the fast model, list models</li>" : "") + "</ul>" + (pipAIOn() ? "Anything else, just ask in your own words: I use AI (" + AI_NAME + ") for that, and I can open things and do stuff in the site for you." : "I follow these simple commands. " + (window.ECC_GROQ ? "Add a free Groq API key in Preferences and I can use AI to answer anything." : "On the claude.ai page I can also use AI to answer anything.")));
     return;
   }
   if (/^(hi|hello|hey|namaste|hii+|yo)\b/.test(s)) { pipSay("Hello! 👋 " + (up[0] ? "Your next exam is " + esc(up[0].name) + " " + relDay(up[0].exam) + ". " : "") + "Type <b>help</b> to see what I can do."); return; }
@@ -5105,7 +5207,7 @@ function tourMaybe() { if (!tourSeen()) setTimeout(function () { if (!TOUR.on &&
    for reduced motion. Animations never replay on ordinary re-renders. ===== */
 var MOTION = { last: null, enterT: null, pipSeen: 0 };
 UI.enter = true; /* the first page animates in too */
-function motionOK() { try { return !window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return true; } }
+function motionOK() { if (document.documentElement.classList.contains("formal")) return false; try { return !window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return true; } }
 function mAnim(el, frames, opts) { if (!el || !el.animate || !motionOK()) return null; try { return el.animate(frames, opts); } catch (e) { return null; } }
 var M_EASE = "cubic-bezier(.22,1,.36,1)", M_SPRING = "cubic-bezier(.34,1.56,.64,1)";
 
@@ -5704,6 +5806,44 @@ if (typeof pipHandle === "function") {
   };
 }
 ON.prefPipDance = function (el) { S.settings.pipDance = el.checked; save(); applyTheme(); if (el.checked) setTimeout(pipBigDance, 150); };
+
+/* ===== Formal mode: a plain, boring look. The switch lives in the top-right corner of every page.
+   Stored per device; it never touches progress. ===== */
+var FORMAL_KEY = "ecc.formal";
+function formalOn() { try { return localStorage.getItem(FORMAL_KEY) === "1"; } catch (e) { return false; } }
+var _applyThemeF = applyTheme;
+applyTheme = function () {
+  document.documentElement.classList.toggle("formal", formalOn()); /* set first, so animations and extras see it */
+  var r = _applyThemeF.apply(this, arguments);
+  formalSwitch();
+  return r;
+};
+function formalSwitch() {
+  var w = $("#formal-switch");
+  if (!w) {
+    if (!document.body) return;
+    w = document.createElement("label"); w.id = "formal-switch"; w.className = "formal-switch";
+    w.innerHTML = '<span class="fs-label">Formal mode</span><input type="checkbox" class="toggle" data-on="formalToggle" aria-label="Formal mode: plain, boring look">';
+    document.body.appendChild(w);
+  }
+  w.querySelector("input").checked = formalOn();
+}
+function setFormal(on) {
+  try { if (on) localStorage.setItem(FORMAL_KEY, "1"); else localStorage.removeItem(FORMAL_KEY); } catch (e) { }
+  if (on && typeof PIP !== "undefined" && PIP.open && typeof ACT.pipToggle === "function") { PIP.open = false; if (typeof pipDraw === "function") pipDraw(); }
+  applyTheme(); render(); if (typeof pipDraw === "function") pipDraw();
+  toast(on ? "Formal mode on." : "Formal mode off. Welcome back! 🖍️", "info");
+}
+ON.formalToggle = function (el) { setFormal(el.checked); };
+if (typeof pipHandle === "function") {
+  var _pipHandleF = pipHandle;
+  pipHandle = function (text) {
+    var s = String(text || "").toLowerCase();
+    if (/\b(formal|boring|plain|professional|serious) mode\b|\bbe (formal|boring|serious)\b/.test(s) && !/\b(off|stop|exit|leave|no more)\b/.test(s)) { setTimeout(function () { setFormal(true); }, 100); return pipSay("Very well. Switching to formal mode."); }
+    if (/\b(fun|crayon|normal|silly) mode\b|\bformal mode off\b|\b(exit|leave|stop|turn off) formal\b|\bunboring\b/.test(s)) { setTimeout(function () { setFormal(false); }, 100); return pipSay("Yay, crayons are back! 🖍️"); }
+    return _pipHandleF.apply(this, arguments);
+  };
+}
 
 try { boot(); } catch (e) { console.error(e); document.getElementById("view").innerHTML = "<div class=\"notice bad\">The app could not start: " + String(e.message).replace(/</g,"&lt;") + "</div>"; }
 
