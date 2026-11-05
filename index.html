@@ -798,6 +798,43 @@ html.silly .pip-eyes { transition: translate .15s ease-out; }
 .chalk-dust { position: fixed; z-index: 5002; width: 5px; height: 5px; border-radius: 50%; background: rgba(244,242,232,.85); pointer-events: none; }
 @media (prefers-reduced-motion: reduce) { .chalk-fx, .chalk-tool, .chalk-dust { display: none !important; } }
 
+/* ---------- Pip dances (low-key groove + full routine) ---------- */
+@keyframes pipGroove { 0% { transform: translate(0, 0) rotate(-3deg) scale(1, 1); } 12% { transform: translate(1px, 1px) rotate(-1deg) scale(1.03, .97); } 25% { transform: translate(2px, -5px) rotate(1deg) scale(.99, 1.02); } 50% { transform: translate(0, 0) rotate(3deg) scale(1, 1); } 62% { transform: translate(-1px, 1px) rotate(1deg) scale(1.03, .97); } 75% { transform: translate(-2px, -5px) rotate(-1deg) scale(.99, 1.02); } 100% { transform: translate(0, 0) rotate(-3deg) scale(1, 1); } }
+@keyframes pipShimmy { 0%, 84%, 100% { transform: none; } 86% { transform: skewX(-4deg); } 88% { transform: skewX(4deg); } 90% { transform: skewX(-3deg); } 92% { transform: skewX(3deg); } 94% { transform: none; } }
+@keyframes pipTapL { 0%, 40%, 100% { transform: rotate(0deg); } 18% { transform: rotate(-12deg); } }
+@keyframes pipTapR { 0%, 50%, 90%, 100% { transform: rotate(0deg); } 68% { transform: rotate(12deg); } }
+@keyframes pipSwingR { 0%, 100% { transform: rotate(-14deg); } 50% { transform: rotate(16deg); } }
+@keyframes pipSwingL { 0%, 100% { transform: rotate(12deg); } 50% { transform: rotate(-14deg); } }
+@keyframes pipSmile { 0%, 100% { transform: scale(1, 1); } 25%, 75% { transform: scale(1.12, 1.2); } }
+@keyframes pipNote { 0% { opacity: 0; translate: 0 0; rotate: -10deg; scale: .6; } 20% { opacity: .9; } 100% { opacity: 0; translate: 22px -46px; rotate: 18deg; scale: 1.1; } }
+html.pip-groove .pip-btn:not(.sleepy) .pip-body { animation: pipGroove 1.8s ease-in-out infinite; }
+html.pip-groove .pip-btn:not(.sleepy) .pip-body svg { animation: pipShimmy 7.2s ease-in-out infinite; transform-origin: 50% 90%; }
+html.pip-groove .pip-btn:not(.sleepy):not(.walk-in) .pip-leg-l { animation: pipTapL .9s ease-in-out infinite; }
+html.pip-groove .pip-btn:not(.sleepy):not(.walk-in) .pip-leg-r { animation: pipTapR .9s ease-in-out infinite; }
+html.pip-groove .pip-btn:not(.sleepy):not(.speak):not(:hover) .pip-arm-r { animation: pipSwingR 1.8s ease-in-out infinite; }
+html.pip-groove .pip-btn:not(.sleepy) .pip-arm-l { animation: pipSwingL 1.8s ease-in-out infinite; }
+html.pip-groove .pip-btn:not(.sleepy):not(.speak):not(.walk-in) .pip-mouth { animation: pipSmile 1.8s ease-in-out infinite; }
+html.pip-groove .pip-btn:hover .pip-body { animation-duration: 1.1s; }
+.pip-notes { position: absolute; left: -4px; top: 6px; pointer-events: none; display: none; font-family: var(--display); color: var(--accent); }
+html.pip-groove .pip-btn:not(.sleepy) .pip-notes, .pip-btn.pip-party .pip-notes { display: block; }
+.pip-notes i { position: absolute; font-style: normal; font-size: 18px; opacity: 0; animation: pipNote 3.6s ease-out infinite; text-shadow: 1px 1px 0 rgba(45,42,50,.25); }
+.pip-notes i:nth-child(2) { animation-delay: 1.2s; color: #e8761a; font-size: 21px; }
+.pip-notes i:nth-child(3) { animation-delay: 2.4s; color: #8b48dc; }
+
+/* the full routine: two-step, kicks, arms up, a spin and a jump to finish */
+@keyframes pipParty { 0% { transform: none; } 10% { transform: translate(-6px, -10px) rotate(-12deg); } 20% { transform: translate(6px, 0) rotate(12deg) scale(1.05, .95); } 30% { transform: translate(-6px, -10px) rotate(-12deg); } 40% { transform: translate(6px, 0) rotate(12deg) scale(1.05, .95); } 55% { transform: translate(0, -6px) rotate(180deg) scale(.95, 1.05); } 70% { transform: translate(0, 0) rotate(360deg) scale(1.08, .92); } 85% { transform: translate(0, -34px) rotate(360deg) scale(.94, 1.08); } 100% { transform: translate(0, 0) rotate(360deg); } }
+@keyframes pipKickL { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-38deg); } 50% { transform: rotate(4deg); } 75% { transform: rotate(-30deg); } }
+@keyframes pipKickR { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-4deg); } 50% { transform: rotate(38deg); } 75% { transform: rotate(4deg); } }
+@keyframes pipArmsUp { 0%, 100% { transform: rotate(-40deg); } 50% { transform: rotate(30deg); } }
+.pip-btn.pip-party .pip-body { animation: pipParty 1.8s cubic-bezier(.45,.05,.4,1) 2 !important; transform-origin: 50% 52%; }
+.pip-btn.pip-party .pip-leg-l { animation: pipKickL .45s ease-in-out 8 !important; }
+.pip-btn.pip-party .pip-leg-r { animation: pipKickR .45s ease-in-out 8 !important; }
+.pip-btn.pip-party .pip-arm-r { animation: pipArmsUp .3s ease-in-out 12 alternate !important; }
+.pip-btn.pip-party .pip-arm-l { animation: pipArmsUp .3s ease-in-out 12 alternate-reverse !important; }
+.pip-btn.pip-party .pip-mouth { animation: pipTalk .15s ease-in-out 24 alternate !important; }
+.pip-btn.pip-party .pip-notes i { animation-duration: 1.2s; }
+@media (prefers-reduced-motion: reduce) { .pip-notes { display: none !important; } }
+
 </style>
 </head>
 <body>
@@ -2279,7 +2316,7 @@ function priorityList() {
 var STORE_KEY = profileKey(RULES.id), storageOK = true, DAILY_MAX = RULES.dailyMax, STATE_V = 6;
 function defaultSettings() {
   return { theme: "light", sessionLen: 20, breakMin: 10, weekdayMin: 90, weekendMin: 90, prepMin: 90, examDayMin: 60,
-    weekdayStart: "16:30", weekendStart: "09:30", examDayStart: "14:30", dayEnd: "21:30", readingTime: 10, toonCursor: true, silly: true,
+    weekdayStart: "16:30", weekendStart: "09:30", examDayStart: "14:30", dayEnd: "21:30", readingTime: 10, toonCursor: true, silly: true, pipDance: true,
     notify: { inApp: true, lead: 10, browser: false, daily: true }, pip: true, pipAI: true };
 }
 function freshState() {
@@ -3663,7 +3700,7 @@ function pgPrefs() {
   if (window.ECC_GROQ) h += groqPrefsCard();
   h += '<div class="card span-12"><div class="card-h"><h2>Syllabus</h2><button class="btn primary" data-act="importer">' + ic("upload") + 'Upload a syllabus</button></div><p class="small muted">The built-in syllabus is the default. Anyone can add their own exam date sheet and syllabus; it is saved only in their browser. Switch between them any time; each keeps its own progress.</p><div class="stack" style="margin-top:12px">' +
     [{ id: "default", name: "Built-in syllabus · November 2026 exams" }].concat(REG.list).map(function (p) { var on = p.id === RULES.id; return '<div class="session-row"><span class="stripe" style="background:' + (on ? "var(--good)" : "var(--line-2)") + '"></span><div class="grow"><div class="s-title">' + esc(p.name) + "</div>" + (p.id === "default" ? '<div class="s-meta">7 subjects with hand-written notes, quizzes and flashcards</div>' : '<div class="s-meta">Your upload · notes and questions are made by AI</div>') + '</div><div class="day-actions">' + (on ? '<span class="chip good">In use</span>' : '<button class="btn sm" data-act="useProfile" data-id="' + p.id + '">Switch to this</button>') + (p.id !== "default" ? '<button class="btn sm ghost" data-act="delProfile" data-id="' + p.id + '">Delete</button>' : "") + "</div></div>"; }).join("") + "</div></div>";
-  h += '<div class="card span-6"><div class="card-h"><h2>Appearance</h2></div><label class="row between"><span>Chalkboard (dark) mode <span class="tiny faint">· off = crayon on paper</span></span><input type="checkbox" class="toggle" id="p-theme" data-on="prefTheme"' + (st.theme === "dark" ? " checked" : "") + '></label><label class="row between" style="margin-top:12px"><span>Cartoon cursor <span class="tiny faint">· off = your normal cursor</span></span><input type="checkbox" class="toggle" id="p-cursor" data-on="prefCursor"' + (st.toonCursor !== false ? " checked" : "") + '></label><label class="row between" style="margin-top:12px"><span>Extra silly animations 🎉 <span class="tiny faint">· trails, sparkles, paper planes, Pip tricks</span></span><input type="checkbox" class="toggle" id="p-silly" data-on="prefSilly"' + (st.silly !== false ? " checked" : "") + '></label><div class="row between" style="margin-top:12px"><span>Guided tour of the site</span><button class="btn sm" data-act="tour">Show the tutorial</button></div><label class="row between" style="margin-top:12px"><span>Pip uses AI when available <span class="tiny faint">' + (window.ECC_GROQ ? "· with your Groq key" : "· on the claude.ai page") + '</span></span><input type="checkbox" class="toggle" id="p-pipai" data-on="prefPipAI"' + (st.pipAI !== false ? " checked" : "") + '></label><label class="row between" style="margin-top:12px"><span>Show Pip, the paper helper <span class="tiny faint">· bottom corner</span></span><input type="checkbox" class="toggle" id="p-pip" data-on="prefPip"' + (st.pip !== false ? " checked" : "") + "></label></div>";
+  h += '<div class="card span-6"><div class="card-h"><h2>Appearance</h2></div><label class="row between"><span>Chalkboard (dark) mode <span class="tiny faint">· off = crayon on paper</span></span><input type="checkbox" class="toggle" id="p-theme" data-on="prefTheme"' + (st.theme === "dark" ? " checked" : "") + '></label><label class="row between" style="margin-top:12px"><span>Cartoon cursor <span class="tiny faint">· off = your normal cursor</span></span><input type="checkbox" class="toggle" id="p-cursor" data-on="prefCursor"' + (st.toonCursor !== false ? " checked" : "") + '></label><label class="row between" style="margin-top:12px"><span>Pip dances 🕺 <span class="tiny faint">· a low-key groove while he waits</span></span><input type="checkbox" class="toggle" id="p-pipdance" data-on="prefPipDance"' + (st.pipDance !== false ? " checked" : "") + '></label><label class="row between" style="margin-top:12px"><span>Extra silly animations 🎉 <span class="tiny faint">· trails, sparkles, paper planes, Pip tricks</span></span><input type="checkbox" class="toggle" id="p-silly" data-on="prefSilly"' + (st.silly !== false ? " checked" : "") + '></label><div class="row between" style="margin-top:12px"><span>Guided tour of the site</span><button class="btn sm" data-act="tour">Show the tutorial</button></div><label class="row between" style="margin-top:12px"><span>Pip uses AI when available <span class="tiny faint">' + (window.ECC_GROQ ? "· with your Groq key" : "· on the claude.ai page") + '</span></span><input type="checkbox" class="toggle" id="p-pipai" data-on="prefPipAI"' + (st.pipAI !== false ? " checked" : "") + '></label><label class="row between" style="margin-top:12px"><span>Show Pip, the paper helper <span class="tiny faint">· bottom corner</span></span><input type="checkbox" class="toggle" id="p-pip" data-on="prefPip"' + (st.pip !== false ? " checked" : "") + "></label></div>";
   h += '<div class="card span-6"><div class="card-h"><h2>Reminders</h2></div><div class="stack"><label class="row between"><span>In-app session reminders</span><input type="checkbox" class="toggle" id="p-inapp" data-on="prefN" data-k="inApp"' + (n.inApp ? " checked" : "") + '></label><label class="row between"><span>Browser notifications <span class="tiny faint">(if your browser allows them)</span></span><input type="checkbox" class="toggle" id="p-browser" data-on="prefN" data-k="browser"' + (n.browser ? " checked" : "") + '></label><label class="row between"><span>Daily summary when I open the app</span><input type="checkbox" class="toggle" id="p-daily" data-on="prefN" data-k="daily"' + (n.daily ? " checked" : "") + '></label><label class="f">Remind me before a session<select class="input" id="p-lead" data-on="prefN" data-k="lead">' + [5, 10, 15, 30].map(function (m) { return '<option value="' + m + '"' + (n.lead === m ? " selected" : "") + ">" + m + " minutes before</option>"; }).join("") + '</select></label><p class="tiny faint">Reminders never appear on rest days, holidays, your days off, or after an exam is finished.</p></div></div>';
   h += '<div class="card span-12"><div class="notice limit" style="margin-bottom:14px"><b>Daily limit: ' + fmtDur(DAILY_MAX) + '.</b> The planner never schedules more than ' + DAILY_MAX + ' minutes of study on any day, and you can\'t add or move sessions past it.</div><div class="card-h"><h2>Study sessions and daily workload</h2><button class="btn primary" data-act="regen">' + ic("refresh") + 'Apply and regenerate timetable</button></div><div class="grid g-4" style="gap:14px">';
   h += '<label class="f">Default session length<select class="input" id="sessionLen" data-on="pref" data-k="sessionLen">' + [15, 20, 25, 30].map(function (m) { return '<option value="' + m + '"' + (st.sessionLen === m ? " selected" : "") + ">" + m + " minutes</option>"; }).join("") + '</select><span class="tiny faint">Small subtopics are grouped into sessions of up to 1½ × this</span></label>';
@@ -4074,7 +4111,7 @@ function pipHandle(raw) {
   var restMsg = info.rest ? "It's " + (info.fest || DOWL[info.dow]) + ", a study-free day, so I won't open study tools today. Enjoy the break! 🎈" : null;
 
   if (/^(help|commands|what can you do|\?)\b/.test(s)) {
-    pipSay("Here's what I can do:<ul class=\"pip-list\"><li><b>Maths:</b> 12*(3+4), 15% of 80, sqrt 72, 2^10, 7!</li><li><b>Number bases:</b> 45 to binary, 101101 binary to decimal, 2F hex to decimal, 200 to hex</li><li><b>Maths helpers:</b> round 3.14159 to 3 sf, 45000 in standard form, pythagoras 6 8</li><li><b>Look things up:</b> define valency, what is a surd, formula for density</li><li><b>Open things:</b> open planner, notes on photosynthesis, flashcards science</li><li><b>Study:</b> start studying, quiz me on surds</li><li><b>Plan:</b> what's on today, next exam, when is hindi, take 9 Nov off, undo day off 9 Nov</li><li><b>Progress:</b> how am I doing, mark surds as done</li><li><b>Settings:</b> chalkboard mode, paper mode, timer 10 min</li><li><b>Your own syllabus:</b> upload syllabus</li><li><b>Help:</b> tutorial (a tour of the site)</li><li><b>Silly stuff:</b> dance, flip, spin, jump, paper plane, confetti, snail, calm mode / silly on</li>" + (window.ECC_GROQ ? "<li><b>AI model:</b> which model, use the fast model, list models</li>" : "") + "</ul>" + (pipAIOn() ? "Anything else, just ask in your own words: I use AI (" + AI_NAME + ") for that, and I can open things and do stuff in the site for you." : "I follow these simple commands. " + (window.ECC_GROQ ? "Add a free Groq API key in Preferences and I can use AI to answer anything." : "On the claude.ai page I can also use AI to answer anything.")));
+    pipSay("Here's what I can do:<ul class=\"pip-list\"><li><b>Maths:</b> 12*(3+4), 15% of 80, sqrt 72, 2^10, 7!</li><li><b>Number bases:</b> 45 to binary, 101101 binary to decimal, 2F hex to decimal, 200 to hex</li><li><b>Maths helpers:</b> round 3.14159 to 3 sf, 45000 in standard form, pythagoras 6 8</li><li><b>Look things up:</b> define valency, what is a surd, formula for density</li><li><b>Open things:</b> open planner, notes on photosynthesis, flashcards science</li><li><b>Study:</b> start studying, quiz me on surds</li><li><b>Plan:</b> what's on today, next exam, when is hindi, take 9 Nov off, undo day off 9 Nov</li><li><b>Progress:</b> how am I doing, mark surds as done</li><li><b>Settings:</b> chalkboard mode, paper mode, timer 10 min</li><li><b>Your own syllabus:</b> upload syllabus</li><li><b>Help:</b> tutorial (a tour of the site)</li><li><b>Dancing:</b> dance, groove, stop dancing</li><li><b>Silly stuff:</b> flip, spin, jump, paper plane, confetti, snail, calm mode / silly on</li>" + (window.ECC_GROQ ? "<li><b>AI model:</b> which model, use the fast model, list models</li>" : "") + "</ul>" + (pipAIOn() ? "Anything else, just ask in your own words: I use AI (" + AI_NAME + ") for that, and I can open things and do stuff in the site for you." : "I follow these simple commands. " + (window.ECC_GROQ ? "Add a free Groq API key in Preferences and I can use AI to answer anything." : "On the claude.ai page I can also use AI to answer anything.")));
     return;
   }
   if (/^(hi|hello|hey|namaste|hii+|yo)\b/.test(s)) { pipSay("Hello! 👋 " + (up[0] ? "Your next exam is " + esc(up[0].name) + " " + relDay(up[0].exam) + ". " : "") + "Type <b>help</b> to see what I can do."); return; }
@@ -5637,6 +5674,36 @@ applyTheme = function () {
   if (want === "dark") { chalkColorIn(function () { CHALK.applying = true; try { _applyThemeC.apply(self, args); } finally { CHALK.applying = false; } }); return; }
   chalkEraseOut(); CHALK.applying = true; try { return _applyThemeC.apply(self, args); } finally { CHALK.applying = false; }
 };
+
+/* ===== Pip dances, low-key: a relaxed groove while idle; a full routine when you ask him to dance. ===== */
+function pipDanceOn() { return !!(S && S.settings && S.settings.pipDance !== false && motionOK()); }
+var _applyThemeD = applyTheme;
+applyTheme = function () { var r = _applyThemeD.apply(this, arguments); document.documentElement.classList.toggle("pip-groove", pipDanceOn()); return r; };
+function pipNotes() {
+  var b = $("#pip-btn"); if (!b || b.querySelector(".pip-notes")) return;
+  b.insertAdjacentHTML("beforeend", '<span class="pip-notes" aria-hidden="true"><i>♪</i><i>♫</i><i>♪</i></span>');
+}
+function pipBigDance() {
+  var b = $("#pip-btn"); if (!b || !motionOK()) return;
+  pipNotes(); b.classList.remove("pip-party"); void b.offsetWidth; b.classList.add("pip-party");
+  clearTimeout(pipBigDance.t); pipBigDance.t = setTimeout(function () { b.classList.remove("pip-party"); }, 3600);
+}
+/* Pip mounts after start-up: add the music notes once he exists */
+var _pipMountD = pipMount;
+pipMount = function () { var r = _pipMountD.apply(this, arguments); pipNotes(); return r; };
+/* the big dance replaces the old wiggle */
+if (typeof sillyTrick === "function") { var _sillyTrickD = sillyTrick; sillyTrick = function (kind) { if (kind === "dance") return pipBigDance(); return _sillyTrickD.apply(this, arguments); }; }
+if (typeof pipHandle === "function") {
+  var _pipHandleD = pipHandle;
+  pipHandle = function (text) {
+    var s = String(text || "").toLowerCase();
+    if (/\b(stop|no|quit|don'?t)\b.*\bdanc(e|ing)\b|\bstand still\b/.test(s)) { S.settings.pipDance = false; save(); applyTheme(); return pipSay("Fine, I'll stand still. 🧍 (Say <b>groove</b> or <b>keep dancing</b> if you miss it.)"); }
+    if (/\b(groove|keep dancing|start dancing|vibe|vibing)\b/.test(s)) { S.settings.pipDance = true; save(); applyTheme(); setTimeout(pipBigDance, 150); return pipSay(motionOK() ? "Back to grooving! 🎶" : "I'd love to, but your device asks for reduced motion, so I'll groove on the inside."); }
+    if (/\bdance\b/.test(s) && !(typeof sillyOn === "function" && sillyOn())) { setTimeout(pipBigDance, 150); return pipSay("Watch this! 🕺"); }
+    return _pipHandleD.apply(this, arguments);
+  };
+}
+ON.prefPipDance = function (el) { S.settings.pipDance = el.checked; save(); applyTheme(); if (el.checked) setTimeout(pipBigDance, 150); };
 
 try { boot(); } catch (e) { console.error(e); document.getElementById("view").innerHTML = "<div class=\"notice bad\">The app could not start: " + String(e.message).replace(/</g,"&lt;") + "</div>"; }
 
