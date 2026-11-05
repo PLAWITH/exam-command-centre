@@ -788,6 +788,16 @@ html.silly .pip-eyes { transition: translate .15s ease-out; }
   #silly-bg, #silly-fx, #silly-scroll, .s-plane, .s-snail, .pip-zzz { display: none !important; }
 }
 
+/* ---------- chalkboard colouring-in / erasing transition (chalk.js) ---------- */
+.chalk-fx { position: fixed; inset: 0; z-index: 5000; pointer-events: none; opacity: 1; transition: opacity .38s ease; }
+.chalk-fx canvas { display: block; }
+.chalk-fx.out { opacity: 0; }
+.chalk-tool { position: fixed; left: 0; top: 0; z-index: 5001; pointer-events: none; filter: drop-shadow(4px 6px 0 rgba(20,20,20,.25)); }
+.chalk-pencil { transform-origin: 0 15px; }
+.chalk-eraser { transform-origin: 60px 33px; }
+.chalk-dust { position: fixed; z-index: 5002; width: 5px; height: 5px; border-radius: 50%; background: rgba(244,242,232,.85); pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .chalk-fx, .chalk-tool, .chalk-dust { display: none !important; } }
+
 </style>
 </head>
 <body>
@@ -5156,7 +5166,7 @@ var _applyTheme = applyTheme;
 applyTheme = function () {
   var before = document.documentElement.getAttribute("data-app-theme");
   _applyTheme.apply(this, arguments);
-  if (before && before !== document.documentElement.getAttribute("data-app-theme") && motionOK()) {
+  if (before && before !== document.documentElement.getAttribute("data-app-theme") && motionOK() && !(typeof CHALK !== "undefined" && CHALK.applying)) {
     var h = document.documentElement; h.classList.add("theme-anim"); clearTimeout(MOTION.themeT); MOTION.themeT = setTimeout(function () { h.classList.remove("theme-anim"); }, 650);
   }
 };
@@ -5506,6 +5516,127 @@ if (typeof pipHandle === "function") {
 
 /* ---------- Preferences switch ---------- */
 ON.prefSilly = function (el) { S.settings.silly = el.checked; save(); applyTheme(); if (el.checked) setTimeout(sillyParty, 200); };
+
+/* ===== Theme change as a drawing: going to chalkboard, a pencil colours the page in;
+   going back to paper, an eraser wipes the board clean. Instant when reduced motion is on. ===== */
+var CHALK = { busy: null };
+var CHALK_BOARD = "#22302a", CHALK_BOARD_HI = "#3a5045";
+function chalkLayer() {
+  var dpr = Math.min(window.devicePixelRatio || 1, 1.5), W = window.innerWidth, H = window.innerHeight;
+  var wrap = document.createElement("div"); wrap.className = "chalk-fx"; wrap.setAttribute("aria-hidden", "true");
+  var cv = document.createElement("canvas"); cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.width = W + "px"; cv.style.height = H + "px";
+  wrap.appendChild(cv); document.body.appendChild(wrap);
+  var ctx = cv.getContext("2d"); ctx.scale(dpr, dpr); ctx.lineCap = "round"; ctx.lineJoin = "round";
+  return { wrap: wrap, cv: cv, ctx: ctx, W: W, H: H };
+}
+function chalkTool(kind) {
+  var t = document.createElement("div"); t.className = "chalk-tool chalk-" + kind; t.setAttribute("aria-hidden", "true");
+  t.innerHTML = kind === "pencil"
+    ? '<svg width="150" height="30" viewBox="0 0 150 30"><g stroke="#2d2a32" stroke-width="2" stroke-linejoin="round"><path d="M2 15 L30 4 L30 26 Z" fill="#f2c28b"/><path d="M2 15 L11 11.5 L11 18.5 Z" fill="#22302a"/><rect x="30" y="4" width="92" height="22" fill="#3f8f63"/><path d="M30 11 H122 M30 19 H122" stroke="#2f6e4b" stroke-width="1.6"/><rect x="122" y="3" width="12" height="24" fill="#c9c3b8"/><path d="M126 3 V27 M130 3 V27" stroke-width="1.2"/><rect x="134" y="3.5" width="13" height="23" rx="4" fill="#ff8fb1"/></g></svg>'
+    : '<svg width="120" height="66" viewBox="0 0 120 66"><g stroke="#2d2a32" stroke-width="2.4" stroke-linejoin="round"><rect x="4" y="6" width="112" height="54" rx="9" fill="#ff9fc4"/><path d="M4 33 H116 V51 Q116 60 107 60 H13 Q4 60 4 51 Z" fill="#7fb2ff"/><path d="M16 14 H60" stroke="#fff" stroke-opacity=".6" stroke-width="3" stroke-linecap="round"/></g></svg>';
+  document.body.appendChild(t); return t;
+}
+function chalkEase(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+/* walk along a list of points at a given distance */
+function chalkPath(pts) { var segs = [], L = 0; for (var i = 1; i < pts.length; i++) { var a = pts[i - 1], b = pts[i], d = Math.hypot(b.x - a.x, b.y - a.y); segs.push({ a: a, b: b, d: d, s: L }); L += d; } return { segs: segs, L: L }; }
+function chalkAt(P, dist) { for (var i = 0; i < P.segs.length; i++) { var g = P.segs[i]; if (dist <= g.s + g.d || i === P.segs.length - 1) { var k = g.d ? Math.max(0, Math.min(1, (dist - g.s) / g.d)) : 0; return { x: g.a.x + (g.b.x - g.a.x) * k, y: g.a.y + (g.b.y - g.a.y) * k, ang: Math.atan2(g.b.y - g.a.y, g.b.x - g.a.x) }; } } return { x: 0, y: 0, ang: 0 }; }
+
+/* ---------- paper -> chalkboard: a pencil hatches the whole page in board green ---------- */
+function chalkColorIn(done) {
+  var C = chalkLayer(), ctx = C.ctx, W = C.W, H = C.H, bands = W < 700 ? 4 : 5, bh = H / bands, gap = Math.max(18, Math.min(26, W / 55)), pts = [];
+  /* colour in bands, like a kid with a pencil: quick up-and-down zig-zags that travel across, then the next band back the other way */
+  for (var bi = 0; bi < bands; bi++) {
+    var top = bi * bh - 18, bot = (bi + 1) * bh + 18, ltr = bi % 2 === 0, n = Math.ceil((W + 60) / gap);
+    for (var zi = 0; zi <= n; zi++) {
+      var x = ltr ? -30 + zi * gap : W + 30 - zi * gap, jx = (Math.random() - 0.5) * gap * 0.5;
+      pts.push({ x: x + jx, y: (zi % 2 ? bot : top) + (Math.random() - 0.5) * 16 });
+    }
+  }
+  var P = chalkPath(pts), pencil = chalkTool("pencil"), T = Math.min(1600, Math.max(1100, P.L / 40)), t0 = performance.now(), drawn = 0, ended = false;
+  var stroke = function (from, to) {
+    var p0 = chalkAt(P, from), steps = Math.max(1, Math.ceil((to - from) / 40));
+    for (var k = 1; k <= steps; k++) {
+      var p1 = chalkAt(P, from + (to - from) * k / steps);
+      ctx.globalAlpha = 0.93; ctx.strokeStyle = CHALK_BOARD; ctx.lineWidth = gap * 1.7; ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y); ctx.stroke();
+      ctx.globalAlpha = 0.55; ctx.strokeStyle = CHALK_BOARD_HI; ctx.lineWidth = 2.2; var o = (Math.random() - 0.5) * gap * 1.3, nx = -Math.sin(p1.ang) * o, ny = Math.cos(p1.ang) * o;
+      ctx.beginPath(); ctx.moveTo(p0.x + nx, p0.y + ny); ctx.lineTo(p1.x + nx, p1.y + ny); ctx.stroke();
+      p0 = p1;
+    }
+    ctx.globalAlpha = 1;
+  };
+  var finish = function () {
+    if (ended) return; ended = true; CHALK.busy = null;
+    ctx.globalAlpha = 1; ctx.fillStyle = CHALK_BOARD; ctx.fillRect(0, 0, W, H);
+    done();
+    pencil.animate([{ translate: pencil.style.translate || "0 0", opacity: 1 }, { translate: (W + 200) + "px -200px", opacity: 0 }], { duration: 380, easing: "ease-in", fill: "forwards" });
+    C.wrap.classList.add("out");
+    setTimeout(function () { C.wrap.remove(); pencil.remove(); }, 480);
+  };
+  var frame = function (now) {
+    if (ended) return;
+    var k = Math.min(1, (now - t0) / T), d = P.L * chalkEase(k);
+    if (d > drawn) { stroke(drawn, d); drawn = d; }
+    var p = chalkAt(P, d), wob = Math.sin(now / 45) * 4;
+    pencil.style.translate = p.x.toFixed(1) + "px " + (p.y - 15).toFixed(1) + "px"; pencil.style.rotate = (-38 + wob + Math.sin(p.ang) * 10) + "deg";
+    if (k < 1) requestAnimationFrame(frame); else finish();
+  };
+  CHALK.busy = { finish: finish };
+  requestAnimationFrame(frame);
+}
+
+/* ---------- chalkboard -> paper: an eraser wipes the board away in sweeps ---------- */
+function chalkEraseOut() {
+  var C = chalkLayer(), ctx = C.ctx, W = C.W, H = C.H, ended = false;
+  ctx.fillStyle = CHALK_BOARD; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = "rgba(255,255,255,.05)"; ctx.lineWidth = 26;
+  for (var i = 0; i < 14; i++) { ctx.beginPath(); var x = Math.random() * W, y = Math.random() * H; ctx.moveTo(x, y); ctx.quadraticCurveTo(x + 80, y - 40, x + 160 + Math.random() * 120, y + (Math.random() - 0.5) * 60); ctx.stroke(); }
+  C.wrap.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 140, easing: "ease-out" });
+  var row = Math.max(70, Math.min(110, H / 7)), pts = [], y = row * 0.45, dir = 1;
+  while (y < H + row * 0.6) { var xs = dir > 0 ? [-60, W + 60] : [W + 60, -60]; for (var k = 0; k <= 6; k++) { var t = k / 6; pts.push({ x: xs[0] + (xs[1] - xs[0]) * t, y: y + Math.sin(t * Math.PI * 2 + y) * row * 0.18 }); } y += row; dir = -dir; }
+  var P = chalkPath(pts), eraser = chalkTool("eraser"), T = Math.min(1500, Math.max(1000, P.L / 4.2)), t0 = performance.now() + 140, drawn = 0, lastDust = 0;
+  ctx.globalCompositeOperation = "destination-out"; ctx.lineCap = "round";
+  var wipe = function (from, to) {
+    var p0 = chalkAt(P, from), steps = Math.max(1, Math.ceil((to - from) / 30));
+    for (var k = 1; k <= steps; k++) { var p1 = chalkAt(P, from + (to - from) * k / steps); ctx.globalAlpha = 0.9; ctx.lineWidth = row * 1.35; ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.lineTo(p1.x, p1.y); ctx.stroke(); p0 = p1; }
+    ctx.globalAlpha = 1;
+  };
+  var dust = function (x, yy) {
+    for (var i = 0; i < 3; i++) {
+      var d = document.createElement("i"); d.className = "chalk-dust"; d.style.left = (x + (Math.random() - 0.5) * 90) + "px"; d.style.top = (yy + 20 + Math.random() * 14) + "px"; document.body.appendChild(d);
+      var a = d.animate([{ translate: "0 0", opacity: 0.9 }, { translate: ((Math.random() - 0.5) * 30).toFixed(0) + "px " + (40 + Math.random() * 60).toFixed(0) + "px", opacity: 0 }], { duration: 700 + Math.random() * 400, easing: "ease-in" });
+      a.onfinish = (function (el) { return function () { el.remove(); }; })(d);
+    }
+  };
+  var finish = function () {
+    if (ended) return; ended = true; CHALK.busy = null;
+    var lp = chalkAt(P, P.L); eraser.animate([{ opacity: 1, translate: (lp.x - 60).toFixed(0) + "px " + (lp.y - 33).toFixed(0) + "px" }, { opacity: 0, translate: (lp.x - 60).toFixed(0) + "px " + (lp.y + 60).toFixed(0) + "px" }], { duration: 300, easing: "ease-in", fill: "forwards" });
+    C.wrap.classList.add("out");
+    setTimeout(function () { C.wrap.remove(); eraser.remove(); }, 420);
+  };
+  var frame = function (now) {
+    if (ended) return;
+    var k = Math.max(0, Math.min(1, (now - t0) / T)), d = P.L * chalkEase(k);
+    if (d > drawn) { wipe(drawn, d); drawn = d; }
+    var p = chalkAt(P, d);
+    eraser.style.translate = (p.x - 60).toFixed(1) + "px " + (p.y - 33).toFixed(1) + "px"; eraser.style.rotate = (Math.sin(now / 60) * 6 + (Math.cos(p.ang) < 0 ? 8 : -8)) + "deg";
+    if (now - lastDust > 45 && k > 0 && k < 1) { lastDust = now; dust(p.x, p.y); }
+    if (k < 1) requestAnimationFrame(frame); else finish();
+  };
+  CHALK.busy = { finish: finish };
+  requestAnimationFrame(frame);
+}
+
+/* ---------- hook every theme change ---------- */
+var _applyThemeC = applyTheme;
+applyTheme = function () {
+  var root = document.documentElement, cur = root.getAttribute("data-app-theme"), want = (S && S.settings && S.settings.theme === "light") ? "light" : "dark", self = this, args = arguments;
+  if (CHALK.busy) CHALK.busy.finish();
+  cur = root.getAttribute("data-app-theme");
+  var first = !CHALK.started; CHALK.started = true; /* the first call is page start-up: no drawing then */
+  if (first || !cur || cur === want || !motionOK() || !document.body) return _applyThemeC.apply(self, args);
+  if (want === "dark") { chalkColorIn(function () { CHALK.applying = true; try { _applyThemeC.apply(self, args); } finally { CHALK.applying = false; } }); return; }
+  chalkEraseOut(); CHALK.applying = true; try { return _applyThemeC.apply(self, args); } finally { CHALK.applying = false; }
+};
 
 try { boot(); } catch (e) { console.error(e); document.getElementById("view").innerHTML = "<div class=\"notice bad\">The app could not start: " + String(e.message).replace(/</g,"&lt;") + "</div>"; }
 
